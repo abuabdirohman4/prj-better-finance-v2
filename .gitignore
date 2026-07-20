@@ -33,7 +33,6 @@ yarn-error.log*
 # env files
 .env*.local
 .env
-.env.example
 
 # drizzle migrations output
 drizzle/
@@ -49,3 +48,12 @@ drizzle/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# MCP configuration with secrets
+.mcp.json
+.mcp_config.json
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key

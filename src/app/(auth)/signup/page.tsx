@@ -1,10 +1,11 @@
+"use client";
+
+import { useActionState } from "react";
 import { signUp } from "./actions";
 
-export default function SignUpPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string }>;
-}) {
+export default function SignUpPage() {
+  const [state, action, pending] = useActionState(signUp, null);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
@@ -13,9 +14,13 @@ export default function SignUpPage({
           <p className="text-sm text-gray-500 mt-1">Mulai kelola keuanganmu</p>
         </div>
 
-        <SignUpMessage searchParams={searchParams} />
+        {state?.error && (
+          <div className="mb-4 p-3 text-sm rounded-lg border bg-red-50 text-red-700 border-red-200">
+            ❌ {state.error}
+          </div>
+        )}
 
-        <form action={signUp} className="space-y-4">
+        <form action={action} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Nama
@@ -63,9 +68,10 @@ export default function SignUpPage({
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            disabled={pending}
+            className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-60"
           >
-            Daftar
+            {pending ? "Mendaftar..." : "Daftar"}
           </button>
         </form>
 
@@ -76,23 +82,6 @@ export default function SignUpPage({
           </a>
         </p>
       </div>
-    </div>
-  );
-}
-
-async function SignUpMessage({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
-  const params = await searchParams;
-  if (!params.message) return null;
-  const isError = params.message.startsWith("❌");
-  return (
-    <div
-      className={`mb-4 p-3 text-sm rounded-lg border ${
-        isError
-          ? "bg-red-50 text-red-700 border-red-200"
-          : "bg-green-50 text-green-700 border-green-200"
-      }`}
-    >
-      {params.message}
     </div>
   );
 }

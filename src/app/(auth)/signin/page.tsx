@@ -1,10 +1,11 @@
+"use client";
+
+import { useActionState } from "react";
 import { signIn } from "./actions";
 
-export default function SignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string }>;
-}) {
+export default function SignInPage() {
+  const [state, action, pending] = useActionState(signIn, null);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
@@ -13,9 +14,13 @@ export default function SignInPage({
           <p className="text-sm text-gray-500 mt-1">Kelola keuangan dengan lebih cerdas</p>
         </div>
 
-        <SignInError searchParams={searchParams} />
+        {state?.error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+            ⚠️ {state.error}
+          </div>
+        )}
 
-        <form action={signIn} className="space-y-4">
+        <form action={action} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -48,9 +53,10 @@ export default function SignInPage({
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            disabled={pending}
+            className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-60"
           >
-            Masuk
+            {pending ? "Masuk..." : "Masuk"}
           </button>
         </form>
 
@@ -61,16 +67,6 @@ export default function SignInPage({
           </a>
         </p>
       </div>
-    </div>
-  );
-}
-
-async function SignInError({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
-  const params = await searchParams;
-  if (!params.message) return null;
-  return (
-    <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
-      ⚠️ {params.message}
     </div>
   );
 }

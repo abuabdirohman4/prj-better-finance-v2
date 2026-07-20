@@ -4,17 +4,20 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { handleAuthError } from "@/lib/errorUtils";
 
-export async function signUp(formData: FormData) {
+export async function signUp(
+  _prevState: { error?: string; success?: string } | null,
+  formData: FormData
+): Promise<{ error?: string; success?: string }> {
   const name = formData.get("name")?.toString().trim();
   const email = formData.get("email")?.toString().trim();
   const password = formData.get("password")?.toString();
 
   if (!email || !password || !name) {
-    redirect("/signup?message=❌ Semua field wajib diisi");
+    return { error: "Semua field wajib diisi" };
   }
 
   if (password.length < 8) {
-    redirect("/signup?message=❌ Password minimal 8 karakter");
+    return { error: "Password minimal 8 karakter" };
   }
 
   const supabase = await createClient();
@@ -28,9 +31,8 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    const message = handleAuthError(error);
-    redirect(`/signup?message=❌ ${encodeURIComponent(message)}`);
+    return { error: handleAuthError(error) };
   }
 
-  redirect("/signup?message=✅ Cek email kamu untuk verifikasi akun");
+  redirect("/");
 }

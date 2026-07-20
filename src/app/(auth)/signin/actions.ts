@@ -4,20 +4,22 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { handleAuthError } from "@/lib/errorUtils";
 
-export async function signIn(formData: FormData) {
+export async function signIn(
+  _prevState: { error?: string } | null,
+  formData: FormData
+): Promise<{ error?: string }> {
   const email = formData.get("email")?.toString().trim();
   const password = formData.get("password")?.toString();
 
   if (!email || !password) {
-    redirect("/signin?message=Email dan password wajib diisi");
+    return { error: "Email dan password wajib diisi" };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    const message = handleAuthError(error);
-    redirect(`/signin?message=${encodeURIComponent(message)}`);
+    return { error: handleAuthError(error) };
   }
 
   redirect("/");
