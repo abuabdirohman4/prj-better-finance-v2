@@ -1,0 +1,14 @@
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+
+const connectionString = process.env.DATABASE_URL!;
+
+// Server-only — pakai dalam Server Actions
+// Koneksi via pooler Supabase (Transaction mode: port 6543)
+// Gunakan session mode (port 5432) kalau butuh `SET LOCAL` untuk RLS
+const client = postgres(connectionString, { prepare: false });
+
+export const db = drizzle(client, { schema });
+
+export type DB = typeof db;
