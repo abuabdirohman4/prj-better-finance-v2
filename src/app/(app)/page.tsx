@@ -23,9 +23,9 @@ export default function DashboardPage() {
     [];
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
       {/* Header gradient */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 pt-10 pb-6">
+      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 py-7">
         {/* Wave shape bawah */}
         <div className="absolute bottom-0 left-0 w-full h-8">
           <svg viewBox="0 0 400 32" className="w-full h-full" preserveAspectRatio="none">
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="px-3 pt-2 pb-8 space-y-6">
+      <div className="px-3 pb-8 mt-6 space-y-6">
         {/* Total Assets card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-2">
@@ -66,7 +66,7 @@ export default function DashboardPage() {
               >
                 {hideBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
-              <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-white" />
               </div>
             </div>
@@ -144,7 +144,7 @@ function TransactionRow({ tx, hide }: { tx: RecentTransactionRow; hide: boolean 
   const signed = isEarning ? tx.amount : -tx.amount;
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
       <div
         className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
           isEarning ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"

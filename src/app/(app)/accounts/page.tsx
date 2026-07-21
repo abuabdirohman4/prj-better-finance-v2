@@ -1,11 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, DollarSign, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, DollarSign, Eye, EyeOff, Plus } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AccountCard } from "./_components/AccountCard";
+import { AccountBottomSheet } from "./_components/AccountBottomSheet";
 import { useAccounts } from "./_hooks/useAccounts";
+import { getAccountTypesAction } from "./actions";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
+import { accountKeys } from "@/lib/query";
+import type { AccountRow } from "@/db/queries/accounts";
 
 const MASK = "Rp •••.•••";
 
@@ -14,6 +20,29 @@ export default function AccountsPage() {
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
 
+  // ── Sheet state ──────────────────────────────────────────────────────────────
+  const [sheet, setSheet] = useState<{ mode: "create" | "edit"; account?: AccountRow } | null>(
+    null
+  );
+
+  // ── Account types for the form ───────────────────────────────────────────────
+  const { data: accountTypes } = useQuery({
+    queryKey: ["account-types"],
+    queryFn: async () => {
+      const res = await getAccountTypesAction();
+      if (!res.success) throw new Error(res.message);
+      return res.data!;
+    },
+  });
+
+  // ── Cache invalidation on success ────────────────────────────────────────────
+  const queryClient = useQueryClient();
+  const handleSuccess = () => {
+    setSheet(null);
+    queryClient.invalidateQueries({ queryKey: accountKeys.list() });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  };
+
   const total =
     accounts
       ?.filter((a) => a.include_in_net_worth)
@@ -21,9 +50,9 @@ export default function AccountsPage() {
   const count = accounts?.length ?? 0;
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
       {/* Header gradient */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-4 pt-6 pb-4">
+      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 px-4 pt-6 pb-4">
         {/* Wave shape bawah */}
         <div className="absolute bottom-0 left-0 w-full h-8">
           <svg viewBox="0 0 400 32" className="w-full h-full" preserveAspectRatio="none">
@@ -31,21 +60,23 @@ export default function AccountsPage() {
           </svg>
         </div>
         <div className="relative z-10">
-          <div className="flex items-center mb-2">
+          <div className="flex items-center space-x-3 mb-2">
             <Link
               href="/"
-              className="p-2 -ml-2 rounded-full hover:bg-white/20 transition-colors"
+              className="p-2 rounded-full hover:bg-white/20 transition-colors"
               aria-label="Kembali"
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ChevronLeft className="w-7 h-7 text-white" />
             </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white mb-1">Accounts</h1>
+              <p className="text-blue-100 text-sm">Manage your financial accounts</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Accounts</h1>
-          <p className="text-blue-100 text-sm">Manage your financial accounts</p>
         </div>
       </div>
 
-      <div className="px-3 pt-2 pb-8 space-y-6">
+      <div className="px-3 pb-8 mt-6 space-y-6">
         {/* Total Balance card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-2">
@@ -58,7 +89,7 @@ export default function AccountsPage() {
               >
                 {hideBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
-              <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-white" />
               </div>
             </div>
@@ -89,7 +120,11 @@ export default function AccountsPage() {
         ) : count > 0 ? (
           <div className="grid grid-cols-3 gap-3">
             {accounts!.map((a) => (
-              <AccountCard key={a.id} account={a} />
+              <AccountCard
+                key={a.id}
+                account={a}
+                onClick={() => setSheet({ mode: "edit", account: a })}
+              />
             ))}
           </div>
         ) : (
@@ -98,6 +133,26 @@ export default function AccountsPage() {
           </div>
         )}
       </div>
+
+      {/* FAB — tambah akun */}
+      <button
+        onClick={() => setSheet({ mode: "create" })}
+        className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
+        aria-label="Tambah akun"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
+
+      {/* Bottom sheet */}
+      {sheet && (
+        <AccountBottomSheet
+          mode={sheet.mode}
+          account={sheet.account}
+          accountTypes={accountTypes ?? []}
+          onClose={() => setSheet(null)}
+          onSuccess={handleSuccess}
+        />
+      )}
     </div>
   );
 }

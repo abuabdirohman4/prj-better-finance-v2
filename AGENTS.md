@@ -4,6 +4,47 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## Architecture Patterns
+
+### Data Layer (`src/db/queries/`)
+Drizzle query functions — WAJIB filter `where(eq(table.user_id, userId))` di setiap query.
+DB tidak RLS-aware (pakai admin credentials) — filter manual wajib, jangan rely on Supabase RLS.
+
+### Server Actions (`src/app/(app)/**/actions.ts`)
+Semua Server Actions return `ServerActionResult<T>` dari `lib/errorUtils`:
+- `requireUser()` → throws jika tidak auth
+- Return `{ success: true, data }` atau `{ success: false, message }`
+- Wrap dengan `handleApiError(error, "context")` di catch
+
+### TanStack Query Hooks (`src/app/(app)/**/_hooks/`)
+Hook per feature, co-located di folder feature. Query key generators di `src/lib/query.ts`.
+Pattern: queryFn memanggil Server Action → throw jika `!res.success`.
+
+### Account Visuals (`src/lib/accountVisuals.ts`)
+Key = nama akun exact, case-sensitive (match `accounts.name` di DB).
+`getAccountVisual(name)` → `{ initials, isWalletIcon, iconColor, iconBg, accent, text }`.
+Tambah entry di `LOGOS` + `COLOR_SCHEMES` saat ada akun baru.
+
+### Page Pattern
+Semua halaman fitur: `"use client"` + TanStack Query hook. Server Actions dipanggil dari hook.
+Header gradient + wave SVG: copy dari `src/app/(app)/page.tsx`.
+
+**Tailwind v4:** Pakai `bg-linear-to-{dir}` bukan `bg-gradient-to-{dir}` (breaking change dari v3).
+Contoh: `bg-linear-to-r from-blue-600 to-indigo-800`, `bg-linear-to-br from-gray-50 to-indigo-50`.
+
+**Header accounts page:** back button (`ChevronLeft w-7 h-7`) + judul sejajar horizontal, bukan stacked.
+Body dimulai dengan `mt-6` (bukan `pt-2`) untuk spacing wave → content.
+
+### Currency Formatting (`src/lib/helper.ts`)
+- `formatCurrency(amount)` → `Rp 1.000.000`
+- `formatCurrency(amount, "signs")` → `+Rp 1.000` / `-Rp 1.000`
+- `formatCurrency(amount, "superscript")` → HTML string dengan `<sup>` → pakai `dangerouslySetInnerHTML` (ATM accounts saja)
+- `formatCurrency(amount, "short")` → `1,5 jt`
+
+### Privacy Mask
+`usePrivacyStore` (Zustand) di `src/stores/privacyStore.ts` — `hideBalances: boolean`, `toggleHideBalances()`.
+Semua komponen yang tampilkan saldo WAJIB cek `hideBalances`.
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:7510c1e2 -->
 ## Beads Issue Tracker
 

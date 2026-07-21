@@ -101,6 +101,80 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
   return { accounts: accountRows, totalAssets, recentTransactions };
 }
 
+// ── Mutations ───────────────────────────────────────────────────────────────────
+
+/** Semua tipe akun milik user, urut sort_order. */
+export async function getAccountTypes(
+  userId: string
+): Promise<{ id: string; name: string; slug: string }[]> {
+  return db
+    .select({ id: accountTypes.id, name: accountTypes.name, slug: accountTypes.slug })
+    .from(accountTypes)
+    .where(eq(accountTypes.user_id, userId))
+    .orderBy(accountTypes.sort_order);
+}
+
+export interface CreateAccountInput {
+  name: string;
+  account_type_id: string;
+  current_balance: number;
+  include_in_net_worth: boolean;
+  sort_order: number;
+}
+
+export async function createAccount(userId: string, input: CreateAccountInput): Promise<string> {
+  const slug = input.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const [row] = await db
+    .insert(accounts)
+    .values({
+      user_id: userId,
+      account_type_id: input.account_type_id,
+      name: input.name,
+      slug,
+      current_balance: String(input.current_balance),
+      include_in_net_worth: input.include_in_net_worth,
+      sort_order: input.sort_order,
+    })
+    .returning({ id: accounts.id });
+  return row.id;
+}
+
+export interface UpdateAccountInput {
+  name?: string;
+  current_balance?: number;
+  include_in_net_worth?: boolean;
+  sort_order?: number;
+}
+
+export async function updateAccount(
+  userId: string,
+  accountId: string,
+  input: UpdateAccountInput
+): Promise<void> {
+  const values: Record<string, unknown> = {
+    updated_at: new Date(),
+  };
+  if (input.name !== undefined) {
+    values.name = input.name;
+    values.slug = input.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  }
+  if (input.current_balance !== undefined) values.current_balance = String(input.current_balance);
+  if (input.include_in_net_worth !== undefined) values.include_in_net_worth = input.include_in_net_worth;
+  if (input.sort_order !== undefined) values.sort_order = input.sort_order;
+
+  await db
+    .update(accounts)
+    .set(values)
+    .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
+}
+
+export async function deactivateAccount(userId: string, accountId: string): Promise<void> {
+  await db
+    .update(accounts)
+    .set({ is_active: false, updated_at: new Date() })
+    .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 
 // postgres-js kembalikan numeric sebagai string → cast ke number
