@@ -10,8 +10,7 @@ import { useAccounts } from "./_hooks/useAccounts";
 import { getAccountTypesAction } from "./actions";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
-import { accountKeys } from "@/lib/query";
-import type { AccountRow } from "@/db/queries/accounts";
+import { accountKeys, dashboardKeys } from "@/lib/query";
 
 const MASK = "Rp •••.•••";
 
@@ -20,14 +19,13 @@ export default function AccountsPage() {
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
 
-  // ── Sheet state ──────────────────────────────────────────────────────────────
-  const [sheet, setSheet] = useState<{ mode: "create" | "edit"; account?: AccountRow } | null>(
-    null
-  );
+  // ── Create sheet state (edit moved to [id]/page.tsx) ─────────────────────────
+  const [createOpen, setCreateOpen] = useState(false);
 
-  // ── Account types for the form ───────────────────────────────────────────────
+  // ── Account types for the create form ───────────────────────────────────────
   const { data: accountTypes } = useQuery({
     queryKey: ["account-types"],
+    staleTime: Infinity,
     queryFn: async () => {
       const res = await getAccountTypesAction();
       if (!res.success) throw new Error(res.message);
@@ -35,12 +33,12 @@ export default function AccountsPage() {
     },
   });
 
-  // ── Cache invalidation on success ────────────────────────────────────────────
+  // ── Cache invalidation on create success ────────────────────────────────────
   const queryClient = useQueryClient();
-  const handleSuccess = () => {
-    setSheet(null);
+  const handleCreateSuccess = () => {
+    setCreateOpen(false);
     queryClient.invalidateQueries({ queryKey: accountKeys.list() });
-    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
   };
 
   const total =
@@ -106,7 +104,7 @@ export default function AccountsPage() {
           )}
         </div>
 
-        {/* Accounts grid */}
+        {/* Accounts grid — tap navigates to /accounts/[id] */}
         {isLoading ? (
           <div className="grid grid-cols-3 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -120,11 +118,9 @@ export default function AccountsPage() {
         ) : count > 0 ? (
           <div className="grid grid-cols-3 gap-3">
             {accounts!.map((a) => (
-              <AccountCard
-                key={a.id}
-                account={a}
-                onClick={() => setSheet({ mode: "edit", account: a })}
-              />
+              <Link href={`/accounts/${a.id}`} key={a.id}>
+                <AccountCard account={a} />
+              </Link>
             ))}
           </div>
         ) : (
@@ -136,21 +132,20 @@ export default function AccountsPage() {
 
       {/* FAB — tambah akun */}
       <button
-        onClick={() => setSheet({ mode: "create" })}
+        onClick={() => setCreateOpen(true)}
         className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
         aria-label="Tambah akun"
       >
         <Plus className="w-6 h-6" />
       </button>
 
-      {/* Bottom sheet */}
-      {sheet && (
+      {/* Create bottom sheet */}
+      {createOpen && (
         <AccountBottomSheet
-          mode={sheet.mode}
-          account={sheet.account}
+          mode="create"
           accountTypes={accountTypes ?? []}
-          onClose={() => setSheet(null)}
-          onSuccess={handleSuccess}
+          onClose={() => setCreateOpen(false)}
+          onSuccess={handleCreateSuccess}
         />
       )}
     </div>

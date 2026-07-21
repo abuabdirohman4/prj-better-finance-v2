@@ -97,7 +97,9 @@ export default function DashboardPage() {
           ) : topAccounts.length > 0 ? (
             <div className="grid grid-cols-3 gap-3">
               {topAccounts.map((a) => (
-                <AccountCard key={a.id} account={a} />
+                <Link key={a.id} href={`/accounts/${a.id}`}>
+                  <AccountCard account={a} />
+                </Link>
               ))}
             </div>
           ) : (

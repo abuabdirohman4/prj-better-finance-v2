@@ -8,13 +8,7 @@ import type { AccountRow } from "@/db/queries/accounts";
 
 const MASK = "Rp ••••";
 
-export function AccountCard({
-  account,
-  onClick,
-}: {
-  account: AccountRow;
-  onClick?: () => void;
-}) {
+export function AccountCard({ account }: { account: AccountRow }) {
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const visual = getAccountVisual(account.name);
   const isBank = isBankAccount(account.account_type_slug);
@@ -28,10 +22,7 @@ export function AccountCard({
   const isLowBalance = account.current_balance < 50000;
 
   return (
-    <div
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden cursor-pointer active:scale-95 transition-transform"
-      onClick={onClick}
-    >
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden active:scale-95 transition-transform">
       <div className="p-3 pb-2">
         {/* Logo + nama */}
         <div className="flex flex-col items-center mb-2">

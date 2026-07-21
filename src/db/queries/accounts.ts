@@ -175,6 +175,58 @@ export async function deactivateAccount(userId: string, accountId: string): Prom
     .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
 }
 
+/** Satu akun aktif milik user by ID, join account_type. */
+export async function getAccountById(
+  userId: string,
+  accountId: string
+): Promise<AccountRow | null> {
+  const rows = await db
+    .select({
+      id: accounts.id,
+      name: accounts.name,
+      slug: accounts.slug,
+      current_balance: accounts.current_balance,
+      last_reality_check: accounts.last_reality_check,
+      last_reality_check_at: accounts.last_reality_check_at,
+      asset_category: accounts.asset_category,
+      icon_name: accounts.icon_name,
+      color_hex: accounts.color_hex,
+      is_wallet: accounts.is_wallet,
+      include_in_net_worth: accounts.include_in_net_worth,
+      sort_order: accounts.sort_order,
+      account_type_slug: accountTypes.slug,
+      account_type_name: accountTypes.name,
+    })
+    .from(accounts)
+    .innerJoin(accountTypes, eq(accountTypes.id, accounts.account_type_id))
+    .where(
+      and(
+        eq(accounts.id, accountId),
+        eq(accounts.user_id, userId),
+        eq(accounts.is_active, true)
+      )
+    )
+    .limit(1);
+
+  return rows.length > 0 ? mapAccountRow(rows[0]) : null;
+}
+
+/** Update last_reality_check + last_reality_check_at untuk satu akun. */
+export async function updateRealityCheck(
+  userId: string,
+  accountId: string,
+  realityBalance: number
+): Promise<void> {
+  await db
+    .update(accounts)
+    .set({
+      last_reality_check: String(realityBalance),
+      last_reality_check_at: new Date(),
+      updated_at: new Date(),
+    })
+    .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 
 // postgres-js kembalikan numeric sebagai string → cast ke number

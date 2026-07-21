@@ -57,6 +57,10 @@ export const categoryKeys = {
   byGroup: (group: string) => [...categoryKeys.all, "group", group] as const,
 };
 
+export const dashboardKeys = {
+  all: ["dashboard"] as const,
+};
+
 export const wishlistKeys = {
   all: ["wishlist"] as const,
   list: (status?: string) => [...wishlistKeys.all, "list", status] as const,

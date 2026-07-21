@@ -3,7 +3,7 @@ import { BottomNav } from "@/components/layouts/BottomNav";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50">
-      <main className="mx-auto max-w-md pb-20">{children}</main>
+      <main className="mx-auto max-w-md">{children}</main>
       <BottomNav />
     </div>
   );

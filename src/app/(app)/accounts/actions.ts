@@ -3,8 +3,10 @@
 import {
   getAccountsWithType,
   getAccountTypes,
+  getAccountById,
   createAccount,
   updateAccount,
+  updateRealityCheck,
   deactivateAccount,
   type AccountRow,
   type CreateAccountInput,
@@ -70,5 +72,31 @@ export async function deleteAccountAction(
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "menghapus data").message };
+  }
+}
+
+export async function getAccountAction(
+  accountId: string
+): Promise<ServerActionResult<AccountRow>> {
+  try {
+    const user = await requireUser();
+    const account = await getAccountById(user.id, accountId);
+    if (!account) return { success: false, message: "Akun tidak ditemukan." };
+    return { success: true, data: account };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
+export async function updateRealityCheckAction(
+  accountId: string,
+  realityBalance: number
+): Promise<ServerActionResult<void>> {
+  try {
+    const user = await requireUser();
+    await updateRealityCheck(user.id, accountId, realityBalance);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "mengupdate data").message };
   }
 }

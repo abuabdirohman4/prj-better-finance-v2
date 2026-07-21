@@ -48,10 +48,8 @@ export function formatCurrency(amount: number, format: CurrencyFormat = "rupiah"
     case "superscript": {
       const str = new Intl.NumberFormat("id-ID").format(Math.floor(absAmount));
       const remainder = Math.round((absAmount % 1) * 100);
-      if (remainder > 0) {
-        return `${sign}Rp ${str}<sup>${remainder.toString().padStart(2, "0")}</sup>`;
-      }
-      return `${sign}Rp ${str}`;
+      // Selalu tampil superscript (termasuk "00" untuk bilangan bulat) — sesuai v1
+      return `${sign}Rp ${str}<sup>${remainder.toString().padStart(2, "0")}</sup>`;
     }
 
     default:
