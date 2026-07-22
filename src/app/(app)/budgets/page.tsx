@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronDown, BarChart3 } from "lucide-react";
+import { ChevronLeft, ChevronDown, BarChart3, Calendar } from "lucide-react";
 import { useBudgets } from "./_hooks/useBudgets";
 import { BudgetGroup } from "./_components/BudgetGroup";
 import { BudgetBottomSheet } from "./_components/BudgetBottomSheet";
@@ -63,9 +63,8 @@ export default function BudgetsPage() {
             </div>
           </div>
 
-          {/* Month + Year picker */}
           <div className="flex items-center gap-2">
-            <div className="relative">
+              <div className="relative">
               <select
                 value={month}
                 onChange={(e) => setMonth(Number(e.target.value))}
@@ -89,7 +88,17 @@ export default function BudgetsPage() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/80" />
             </div>
+            </div>
           </div>
+
+        {/* Segmented Control (Toggle) */}
+        <div className="mt-5 mb-2 bg-white/20 p-1 rounded-xl flex items-center relative z-10">
+          <div className="flex-1 text-center py-1.5 bg-white text-blue-700 font-semibold rounded-lg shadow-sm text-sm">
+            Monthly
+          </div>
+          <Link href="/budgets/weekly" className="flex-1 text-center py-1.5 text-white/90 font-medium text-sm hover:text-white">
+            Weekly
+          </Link>
         </div>
       </div>
 

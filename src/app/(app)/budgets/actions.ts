@@ -6,6 +6,7 @@ import {
   getBudgetsWithSpending,
   upsertBudget,
   deleteBudget,
+  getTransactionsForWeeklyBudget,
   type BudgetWithSpending,
 } from "@/db/queries/budgets";
 import { getCategories, type CategoryRow } from "@/db/queries/accounts";
@@ -67,5 +68,25 @@ export async function deleteBudgetAction(
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "menghapus data").message };
+  }
+}
+
+export interface WeeklyTransactionRow {
+  transaction_type: string;
+  category_name: string;
+  amount: number;
+  transaction_date: string;
+}
+
+export async function getWeeklySpendingAction(
+  year: number,
+  month: number
+): Promise<ServerActionResult<WeeklyTransactionRow[]>> {
+  try {
+    const user = await requireUser();
+    const data = await getTransactionsForWeeklyBudget(user.id, year, month);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
   }
 }

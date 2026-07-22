@@ -29,7 +29,7 @@ export async function getBudgets(
     .select({
       id: budgets.id,
       category_id: budgets.category_id,
-      category_name: categories.name,
+      category_name: sql<string>`COALESCE(${categories.name}, '')`,
       category_slug: categories.slug,
       group_name: categories.group_name,
       budgeted_amount: sql<number>`${budgets.budgeted_amount}::numeric`,
@@ -131,4 +131,34 @@ export async function deleteBudget(userId: string, budgetId: string): Promise<vo
   await db
     .delete(budgets)
     .where(and(eq(budgets.id, budgetId), eq(budgets.user_id, userId)));
+}
+
+export async function getTransactionsForWeeklyBudget(
+  userId: string,
+  year: number,
+  month: number
+): Promise<{ transaction_type: string; category_name: string; amount: number; transaction_date: string }[]> {
+  // Extend range: prev month day 1 → next month last day (untuk edge case week 1 dan last week)
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-${new Date(year, month, 0).getDate()}`;
+
+  const rows = await db
+    .select({
+      transaction_type: transactions.transaction_type,
+      category_name: sql<string>`COALESCE(${categories.name}, '')`,
+      amount: sql<number>`${transactions.amount}::numeric`,
+      transaction_date: sql<string>`${transactions.transaction_date}::text`,
+    })
+    .from(transactions)
+    .leftJoin(categories, eq(transactions.category_id, categories.id))
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.transaction_type, "spending"),
+        sql`${transactions.transaction_date} >= ${startDate}`,
+        sql`${transactions.transaction_date} <= ${endDate}`,
+        sql`${transactions.deleted_at} is null`
+      )
+    );
+  return rows;
 }

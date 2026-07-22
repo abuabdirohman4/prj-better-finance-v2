@@ -110,7 +110,7 @@ export function BudgetBottomSheet({
       {
         onSuccess: (res) => {
           if (!res.success) {
-            setError(res.message);
+            setError(res.message ?? "Terjadi kesalahan.");
             return;
           }
           onSuccess();
@@ -126,7 +126,7 @@ export function BudgetBottomSheet({
     deleteMutation.mutate(editBudget.id, {
       onSuccess: (res) => {
         if (!res.success) {
-          setError(res.message);
+          setError(res.message ?? "Terjadi kesalahan.");
           return;
         }
         onSuccess();
