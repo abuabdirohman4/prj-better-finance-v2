@@ -69,6 +69,27 @@ Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
 
 **Reference Projects:** Lihat `docs/reference-projects.md` sebelum explore projek acuan (prj-better-finance v1, portfolio-management-service, prj-better-planner, school-management) — hemat token.
 
+
+## Implementation Workflow
+
+**WAJIB jalankan `/new-feature-workflow` sebelum implementasi apapun** — fitur baru, bug fix, refactor, semua.
+
+Workflow ini (diadaptasi untuk project ini, no GitHub remote):
+
+1. **Explore** — baca file relevan, pahami context
+2. **Plan file** — simpan ke `docs/plans/YYYY-MM-DD-<bf-id>-<feature>.md` (ultra-detail: path, code snippet, command exact)
+3. **Beads issue** — `bd create` (kalau belum ada), lalu `/rename bf-xxx <slug>` di sesi chat
+4. ~~GitHub Issue~~ — **skip** (no git remote di project ini)
+5. **Prompt file** — simpan ke `docs/prompts/YYYY-MM-DD-<bf-id>-<feature>.md` (siap paste ke Antigravity)
+6. **Pilih mode A (Antigravity) atau B (direct)** — threshold: >=3 files ATAU >=100 lines -> A
+
+### Model per phase
+
+| Phase | Model |
+|---|---|
+| Explore + plan (judgment, arsitektur) | **Opus** |
+| Eksekusi dari plan (kode dari spec jelas) | **Sonnet** |
+
 ## Beads Issue Tracker
 
 This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
