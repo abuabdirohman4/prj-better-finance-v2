@@ -26,8 +26,10 @@ const adjustments: { account_id: string; delta: number }[] = [
   { account_id: sourceId, delta: -amount },
   { account_id: destId,   delta: +amount },  // transfer only
 ];
-await applyTransactionBalancesRpc(adjustments);  // src/db/queries/accounts.ts
+await applyTransactionBalancesRpc(user.id, adjustments);  // src/db/queries/accounts.ts
 ```
+
+**WAJIB verifikasi ownership akun SEBELUM mutate** — `getAccountById(user.id, accountId)` untuk SETIAP akun yang disentuh (source + dest), termasuk saat edit ganti akun. RPC `apply_transaction_balances` juga self-guard (`WHERE user_id = p_user_id`, raise exception kalau 0 rows) sebagai lapis kedua — tapi jangan andalkan itu saja, guard di action tetap wajib.
 
 - **Create**: earning → `+amount`, spending/transfer → `-amount`. Transfer juga `+amount` ke `to_account_id`.
 - **Edit/Delete**: kumpulkan reverse lama + apply baru dalam 1 array → 1 RPC call. Lihat `transactions/actions.ts` sebagai referensi.

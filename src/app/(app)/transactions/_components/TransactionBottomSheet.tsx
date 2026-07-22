@@ -7,7 +7,8 @@ import { createTransactionAction, updateTransactionAction, deleteTransactionActi
 import { TransactionForm } from "./TransactionForm";
 import { transactionKeys, accountKeys, dashboardKeys } from "@/lib/query";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
-import type { CreateTransactionInput, UpdateTransactionInput, TransactionRow } from "@/db/queries/transactions";
+import type { TransactionRow } from "@/db/queries/transactions";
+import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
 
 interface TransactionBottomSheetProps {
   open: boolean;

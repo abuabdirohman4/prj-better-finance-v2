@@ -72,7 +72,7 @@ export async function createTransactionAction(
     if (validInput.transaction_type === "transfer" && validInput.to_account_id) {
       adjustments.push({ account_id: validInput.to_account_id, delta: validInput.amount });
     }
-    await applyTransactionBalancesRpc(adjustments);
+    await applyTransactionBalancesRpc(user.id, adjustments);
 
     return { success: true, data: { id } };
   } catch (error) {
@@ -103,6 +103,19 @@ export async function updateTransactionAction(
     const newAccountId = validInput.account_id ?? old.account_id;
     const newToAccountId = "to_account_id" in validInput ? validInput.to_account_id : old.to_account_id;
 
+    // Ownership guard: akun baru (jika diganti) harus milik user
+    if (newAccountId !== old.account_id) {
+      const acc = await getAccountById(user.id, newAccountId);
+      if (!acc) return { success: false, message: "Akun tidak ditemukan." };
+    }
+    if (newType === "transfer" && newToAccountId && newToAccountId !== old.to_account_id) {
+      const destAcc = await getAccountById(user.id, newToAccountId);
+      if (!destAcc) return { success: false, message: "Akun tujuan tidak ditemukan." };
+    }
+    if (newType === "transfer" && newAccountId === newToAccountId) {
+      return { success: false, message: "Akun sumber dan tujuan tidak boleh sama." };
+    }
+
     // All balance adjustments atomic via Postgres RPC
     const adjustments = calcUpdateDeltas(
       {
@@ -118,7 +131,7 @@ export async function updateTransactionAction(
         amount: newAmount,
       }
     );
-    await applyTransactionBalancesRpc(adjustments);
+    await applyTransactionBalancesRpc(user.id, adjustments);
 
     await updateTransaction(user.id, txId, validInput);
     return { success: true };
@@ -144,7 +157,7 @@ export async function deleteTransactionAction(
     if (tx.transaction_type === "transfer" && tx.to_account_id) {
       adjustments.push({ account_id: tx.to_account_id, delta: -tx.amount });
     }
-    await applyTransactionBalancesRpc(adjustments);
+    await applyTransactionBalancesRpc(user.id, adjustments);
 
     await softDeleteTransaction(user.id, txId);
     return { success: true };

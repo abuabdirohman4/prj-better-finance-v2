@@ -8,7 +8,7 @@ import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
-import type { CreateTransactionInput, UpdateTransactionInput } from "@/db/queries/transactions";
+import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
 
 interface TransactionFormProps {
   accounts: AccountRow[];

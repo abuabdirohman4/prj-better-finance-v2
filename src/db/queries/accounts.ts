@@ -301,11 +301,13 @@ export async function getCategories(userId: string): Promise<CategoryRow[]> {
 import { createClient } from "@/lib/supabase/server";
 
 export async function applyTransactionBalancesRpc(
+  userId: string,
   adjustments: { account_id: string; delta: number }[]
 ): Promise<void> {
   if (adjustments.length === 0) return;
   const supabase = await createClient();
   const { error } = await supabase.rpc("apply_transaction_balances", {
+    p_user_id: userId,
     p_adjustments: adjustments,
   });
   if (error) throw new Error(`Balance RPC failed: ${error.message}`);
