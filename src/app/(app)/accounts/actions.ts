@@ -9,11 +9,11 @@ import {
   updateRealityCheck,
   deactivateAccount,
   type AccountRow,
-  type CreateAccountInput,
-  type UpdateAccountInput,
 } from "@/db/queries/accounts";
+import type { CreateAccountInput, UpdateAccountInput } from "@/lib/schemas/account";
 import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
+import { createAccountSchema, updateAccountSchema } from "@/lib/schemas/account";
 
 export async function getAccounts(): Promise<ServerActionResult<AccountRow[]>> {
   try {
@@ -43,7 +43,13 @@ export async function createAccountAction(
 ): Promise<ServerActionResult<{ id: string }>> {
   try {
     const user = await requireUser();
-    const id = await createAccount(user.id, input);
+
+    const parsed = createAccountSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0].message };
+    }
+
+    const id = await createAccount(user.id, parsed.data);
     return { success: true, data: { id } };
   } catch (error) {
     return { success: false, message: handleApiError(error, "menyimpan data").message };
@@ -56,7 +62,13 @@ export async function updateAccountAction(
 ): Promise<ServerActionResult<void>> {
   try {
     const user = await requireUser();
-    await updateAccount(user.id, accountId, input);
+
+    const parsed = updateAccountSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0].message };
+    }
+
+    await updateAccount(user.id, accountId, parsed.data);
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "mengupdate data").message };

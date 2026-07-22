@@ -98,8 +98,8 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 **P1 bugs dulu sebelum fitur baru** (data integrity + auth):
 1. **bf-2v2** — auth callback `/auth/callback` (1 file, ~15 menit)
 2. **bf-ydb** — server-side validation transactions (guard amount, self-transfer, note)
-3. **bf-zrl** — zod validation semua Server Actions (trust boundary)
-4. **bf-uk7** — balance write atomicity via Supabase RPC
+3. ✅ **bf-zrl** — zod validation semua Server Actions (trust boundary) — done
+4. ✅ **bf-uk7** — balance write atomicity via Supabase RPC `apply_transaction_balances` — done
 
 **Lanjut fitur Phase 4** (setelah P1 bugs clear):
 5. **Budgets** — monthly + weekly pool (paling sering dibuka di v1)
@@ -146,9 +146,9 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 
 ### Yang perlu diperhatikan
 
-- **🔴 Zod tidak dipakai sama sekali** — Server Actions 0 validasi runtime → saldo bisa korup. Issue **bf-zrl** (P1). Plan: `docs/plans/2026-07-22-bf-zrl-zod-validation.md`
+- ✅ **Zod validation** — semua Server Actions pakai `safeParse` + `issues[0].message`. Schemas di `src/lib/schemas/`. Issue bf-zrl closed.
 - **RHF belum kepakai**: form CRUD masih manual (bottom sheet + useState), bukan react-hook-form. Bukan bug, tapi menyimpang dari stack yang disepakati. Adopsi saat form makin kompleks (budget/goal), atau biarkan kalau manual sudah cukup — putuskan sadar, jangan drift.
 - **Tidak ada tests**: zero coverage. Issue **bf-13q** (P2) — Vitest untuk balance math `updateTransactionAction`. Plan: `docs/plans/2026-07-22-bf-13q-balance-math-tests.md`
-- **Transfer tidak atomic**: pgBouncer blokir `BEGIN`/`SAVEPOINT`. Debit sukses tapi credit gagal → balance korup. Issue **bf-uk7** (P1). Plan: `docs/plans/2026-07-22-bf-uk7-balance-atomicity.md`
+- ✅ **Balance atomic** — semua mutations via Postgres RPC `apply_transaction_balances`. Issue bf-uk7 closed.
 - **Auth callback missing**: `/auth/callback` route belum ada → email verify → 404. Issue **bf-2v2** (P1). Plan: `docs/plans/2026-07-22-bf-2v2-auth-callback.md`
 - **Server-side validation lemah**: `note`, `amount <= 0`, self-transfer hanya enforced di form — server tidak guard. Issue **bf-ydb** (P1). Plan: `docs/plans/2026-07-22-bf-ydb-server-validation-transactions.md`

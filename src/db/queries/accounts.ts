@@ -114,13 +114,7 @@ export async function getAccountTypes(
     .orderBy(accountTypes.sort_order);
 }
 
-export interface CreateAccountInput {
-  name: string;
-  account_type_id: string;
-  current_balance: number;
-  include_in_net_worth: boolean;
-  sort_order: number;
-}
+import type { CreateAccountInput, UpdateAccountInput } from "@/lib/schemas/account";
 
 export async function createAccount(userId: string, input: CreateAccountInput): Promise<string> {
   const slug = input.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -139,12 +133,7 @@ export async function createAccount(userId: string, input: CreateAccountInput): 
   return row.id;
 }
 
-export interface UpdateAccountInput {
-  name?: string;
-  current_balance?: number;
-  include_in_net_worth?: boolean;
-  sort_order?: number;
-}
+
 
 export async function updateAccount(
   userId: string,
@@ -308,3 +297,16 @@ export async function getCategories(userId: string): Promise<CategoryRow[]> {
     .orderBy(categories.sort_order);
 }
 
+
+import { createClient } from "@/lib/supabase/server";
+
+export async function applyTransactionBalancesRpc(
+  adjustments: { account_id: string; delta: number }[]
+): Promise<void> {
+  if (adjustments.length === 0) return;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("apply_transaction_balances", {
+    p_adjustments: adjustments,
+  });
+  if (error) throw new Error(`Balance RPC failed: ${error.message}`);
+}

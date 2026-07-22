@@ -1,4 +1,5 @@
 "use server";
+import { z } from "zod";
 
 import {
   getTransactions,
@@ -8,12 +9,12 @@ import {
   softDeleteTransaction,
   type TransactionRow,
   type TransactionFilters,
-  type CreateTransactionInput,
-  type UpdateTransactionInput,
 } from "@/db/queries/transactions";
-import { adjustAccountBalance, getAccountById, getCategories, type CategoryRow } from "@/db/queries/accounts";
+import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
+import { getAccountById, getCategories, applyTransactionBalancesRpc, type CategoryRow } from "@/db/queries/accounts";
 import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
+import { createTransactionSchema, updateTransactionSchema } from "@/lib/schemas/transaction";
 
 export async function getTransactionsAction(
   filters: TransactionFilters = {}
@@ -43,26 +44,34 @@ export async function createTransactionAction(
   try {
     const user = await requireUser();
 
+    const parsed = createTransactionSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0].message };
+    }
+    const validInput = parsed.data;
+
     // Validate account ownership before inserting
-    const sourceAccount = await getAccountById(user.id, input.account_id);
+    const sourceAccount = await getAccountById(user.id, validInput.account_id);
     if (!sourceAccount) return { success: false, message: "Akun tidak ditemukan." };
 
-    if (input.transaction_type === "transfer" && input.to_account_id) {
-      const destAccount = await getAccountById(user.id, input.to_account_id);
+    if (validInput.transaction_type === "transfer" && validInput.to_account_id) {
+      if (validInput.account_id === validInput.to_account_id) {
+        return { success: false, message: "Akun sumber dan tujuan tidak boleh sama." };
+      }
+      const destAccount = await getAccountById(user.id, validInput.to_account_id);
       if (!destAccount) return { success: false, message: "Akun tujuan tidak ditemukan." };
     }
 
-    const id = await createTransaction(user.id, input);
+    const id = await createTransaction(user.id, validInput);
 
-    // ponytail: balance updates are 3 sequential awaits with no rollback — Supabase transaction
-    // mode (pgBouncer port 6543) blocks BEGIN/SAVEPOINT. Switch to session mode (port 5432) if
-    // atomicity becomes a hard requirement.
-    const delta = input.transaction_type === "earning" ? input.amount : -input.amount;
-    await adjustAccountBalance(user.id, input.account_id, delta);
-
-    if (input.transaction_type === "transfer" && input.to_account_id) {
-      await adjustAccountBalance(user.id, input.to_account_id, input.amount);
+    const delta = validInput.transaction_type === "earning" ? validInput.amount : -validInput.amount;
+    const adjustments: { account_id: string; delta: number }[] = [
+      { account_id: validInput.account_id, delta },
+    ];
+    if (validInput.transaction_type === "transfer" && validInput.to_account_id) {
+      adjustments.push({ account_id: validInput.to_account_id, delta: validInput.amount });
     }
+    await applyTransactionBalancesRpc(adjustments);
 
     return { success: true, data: { id } };
   } catch (error) {
@@ -82,26 +91,33 @@ export async function updateTransactionAction(
     const old = await getTransactionById(user.id, txId);
     if (!old) return { success: false, message: "Transaksi tidak ditemukan." };
 
-    // Reverse old balance effect
+    const parsed = updateTransactionSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0].message };
+    }
+    const validInput = parsed.data;
+
+    const newType = validInput.transaction_type ?? old.transaction_type;
+    const newAmount = validInput.amount ?? old.amount;
+    const newAccountId = validInput.account_id ?? old.account_id;
+    const newToAccountId = "to_account_id" in validInput ? validInput.to_account_id : old.to_account_id;
+
+    // All balance adjustments atomic via Postgres RPC
     const oldReverseDelta = old.transaction_type === "earning" ? -old.amount : old.amount;
-    await adjustAccountBalance(user.id, old.account_id, oldReverseDelta);
-    if (old.transaction_type === "transfer" && old.to_account_id) {
-      await adjustAccountBalance(user.id, old.to_account_id, -old.amount);
-    }
-
-    // Apply new balance effect
-    const newType = input.transaction_type ?? old.transaction_type;
-    const newAmount = input.amount ?? old.amount;
-    const newAccountId = input.account_id ?? old.account_id;
-    const newToAccountId = "to_account_id" in input ? input.to_account_id : old.to_account_id;
-
     const newDelta = newType === "earning" ? newAmount : -newAmount;
-    await adjustAccountBalance(user.id, newAccountId, newDelta);
-    if (newType === "transfer" && newToAccountId) {
-      await adjustAccountBalance(user.id, newToAccountId, newAmount);
+    const adjustments: { account_id: string; delta: number }[] = [
+      { account_id: old.account_id, delta: oldReverseDelta },
+    ];
+    if (old.transaction_type === "transfer" && old.to_account_id) {
+      adjustments.push({ account_id: old.to_account_id, delta: -old.amount });
     }
+    adjustments.push({ account_id: newAccountId, delta: newDelta });
+    if (newType === "transfer" && newToAccountId) {
+      adjustments.push({ account_id: newToAccountId, delta: newAmount });
+    }
+    await applyTransactionBalancesRpc(adjustments);
 
-    await updateTransaction(user.id, txId, input);
+    await updateTransaction(user.id, txId, validInput);
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "mengupdate data").message };
@@ -113,16 +129,19 @@ export async function deleteTransactionAction(
 ): Promise<ServerActionResult<void>> {
   try {
     const user = await requireUser();
+    const txIdParsed = z.string().uuid().safeParse(txId);
+    if (!txIdParsed.success) return { success: false, message: "ID transaksi tidak valid." };
     const tx = await getTransactionById(user.id, txId);
     if (!tx) return { success: false, message: "Transaksi tidak ditemukan." };
 
-    // Reverse balance before soft-deleting
     const reverseDelta = tx.transaction_type === "earning" ? -tx.amount : tx.amount;
-    await adjustAccountBalance(user.id, tx.account_id, reverseDelta);
-
+    const adjustments: { account_id: string; delta: number }[] = [
+      { account_id: tx.account_id, delta: reverseDelta },
+    ];
     if (tx.transaction_type === "transfer" && tx.to_account_id) {
-      await adjustAccountBalance(user.id, tx.to_account_id, -tx.amount);
+      adjustments.push({ account_id: tx.to_account_id, delta: -tx.amount });
     }
+    await applyTransactionBalancesRpc(adjustments);
 
     await softDeleteTransaction(user.id, txId);
     return { success: true };

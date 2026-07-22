@@ -17,11 +17,21 @@ Semua Server Actions return `ServerActionResult<T>` dari `lib/errorUtils`:
 - Wrap dengan `handleApiError(error, "context")` di catch
 - **Validasi WAJIB di server, bukan hanya form.** Form bisa di-bypass (direct action call). Guard di trust boundary: amount > 0, ownership akun (`getAccountById` sebelum mutate), reject self-transfer (`account_id !== to_account_id`), field required.
 
-### Balance Mutation (`adjustAccountBalance`)
-`adjustAccountBalance(userId, accountId, delta)` pakai SQL delta (`current_balance + delta`), bukan read-then-write — hindari race condition.
+### Balance Mutation
+**Semua balance mutations WAJIB pakai `applyTransactionBalancesRpc`** — atomic via Postgres RPC `apply_transaction_balances`.
+
+```ts
+// Pattern wajib di semua actions yang mutate balance:
+const adjustments: { account_id: string; delta: number }[] = [
+  { account_id: sourceId, delta: -amount },
+  { account_id: destId,   delta: +amount },  // transfer only
+];
+await applyTransactionBalancesRpc(adjustments);  // src/db/queries/accounts.ts
+```
+
 - **Create**: earning → `+amount`, spending/transfer → `-amount`. Transfer juga `+amount` ke `to_account_id`.
-- **Edit/Delete**: WAJIB reverse efek lama dulu, baru apply efek baru. Lihat `transactions/actions.ts` sebagai referensi.
-- ⚠️ Mutation TIDAK atomic (pgBouncer transaction mode port 6543 blokir `BEGIN`/`SAVEPOINT`). Balance bisa korup kalau gagal di tengah. Hardening di issue bf-uk7.
+- **Edit/Delete**: kumpulkan reverse lama + apply baru dalam 1 array → 1 RPC call. Lihat `transactions/actions.ts` sebagai referensi.
+- `adjustAccountBalance` masih ada di query layer untuk non-transaction mutations (e.g. walletDenominations reality check) — jangan dipakai untuk transaction create/edit/delete.
 
 ### TanStack Query Hooks (`src/app/(app)/**/_hooks/`)
 Hook per feature, co-located di folder feature. Query key generators di `src/lib/query.ts`.

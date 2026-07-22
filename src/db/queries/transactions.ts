@@ -85,15 +85,7 @@ export async function getTransactions(
   }));
 }
 
-export interface CreateTransactionInput {
-  transaction_date: string;
-  transaction_type: "spending" | "earning" | "transfer";
-  account_id: string;
-  to_account_id?: string;
-  category_id?: string;
-  amount: number;
-  note?: string;
-}
+import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
 
 export async function createTransaction(
   userId: string,
@@ -114,7 +106,6 @@ export async function createTransaction(
     .returning({ id: transactions.id });
   return row.id;
 }
-
 
 export async function getTransactionById(
   userId: string,
@@ -156,16 +147,6 @@ export async function getTransactionById(
   return { ...rows[0], amount: Number(rows[0].amount) };
 }
 
-
-export interface UpdateTransactionInput {
-  transaction_date?: string;
-  transaction_type?: "spending" | "earning" | "transfer";
-  account_id?: string;
-  to_account_id?: string | null;
-  category_id?: string | null;
-  amount?: number;
-  note?: string | null;
-}
 
 export async function updateTransaction(
   userId: string,
