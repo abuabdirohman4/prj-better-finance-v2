@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-22 · Fase: **Phase 4 aktif** — core loop done; wallet denominations ✅; lanjut P1 bugs (auth callback, validation, atomicity) lalu fitur sekunder (budgets, goals, assets).
+> Diperbarui: 2026-07-22 · Fase: **Phase 4 aktif** — semua P1 bugs closed ✅; lanjut fitur sekunder (budgets, goals, assets).
 
 ---
 
@@ -56,7 +56,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Wishlist | ⏳ | `/wishlist` | Affordability check |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
 | PWA | 🔄 | — | Manifest + globals ada; service worker & install UI belum |
-| Tests | ⏳ | — | Vitest unit + Playwright E2E belum ada |
+| Tests | 🔄 | — | Vitest unit: calcUpdateDeltas 5 cases ✅ (bf-13q). Playwright E2E belum |
 
 > **Schema sudah siap, fitur belum:** semua tabel sudah ada di `src/db/schema.ts` (11 tabel) — `budgets`, `savings_goals`, `wishlists`, `wallet_denominations`, `account_balance_snapshots`, `ai_insights`. Bangun fitur = tinggal query + UI, tidak perlu migrasi schema baru.
 
@@ -70,10 +70,10 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 - [x] Verifikasi free-tier: insert akun ke-6 gagal (`check_account_limit`)
 - [x] `drizzle-kit introspect` sync — `src/db/schema.ts` cocok DB
 
-### Phase 2 — Auth & shell
+### ✅ Phase 2 — Auth & shell
 - [x] Signin/signup via Server Actions + `useActionState`
 - [x] Proxy proteksi route `(app)` — redirect ke `/signin` kalau belum auth
-- [ ] ⚠️ Auth callback route (`/auth/callback`) — **BELUM ADA** (klaim lama salah). `signUp` redirect `emailRedirectTo: .../auth/callback` → 404 saat verify email. Bikin `src/app/auth/callback/route.ts` yang `exchangeCodeForSession`. Issue **bf-2v2**
+- [x] Auth callback route (`/auth/callback`) — `src/app/auth/callback/route.ts`, `exchangeCodeForSession`, redirect ke `/`. Issue bf-2v2 ✅
 
 ### ✅ Phase 3 — Seed dummy data
 > Migrasi data asli Sheets → Supabase **ditunda ke Phase 6**. Phase 3 diselesaikan dengan seed dummy supaya fitur (Phase 4) bisa dibangun + diuji tanpa perlu data asli. Setelah semua fitur jadi, baru Phase 6 replace dummy dengan data real dari Sheets.
@@ -95,19 +95,18 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [ ] Wishlist — affordability check
 - [ ] Settings — profil user + privacy preference persistence
 
-**P1 bugs dulu sebelum fitur baru** (data integrity + auth):
-1. **bf-2v2** — auth callback `/auth/callback` (1 file, ~15 menit)
-2. **bf-ydb** — server-side validation transactions (guard amount, self-transfer, note)
-3. ✅ **bf-zrl** — zod validation semua Server Actions (trust boundary) — done
-4. ✅ **bf-uk7** — balance write atomicity via Supabase RPC `apply_transaction_balances` — done
+✅ **Semua P1 bugs closed:**
+1. ✅ **bf-2v2** — auth callback `/auth/callback`
+2. ✅ **bf-ydb** — server-side validation (covered by bf-zrl)
+3. ✅ **bf-zrl** — zod schemas + safeParse semua Server Actions
+4. ✅ **bf-uk7** — balance atomic via Postgres RPC `apply_transaction_balances`
+5. ✅ **bf-13q** — `calcUpdateDeltas` pure function + 5 Vitest cases
 
-**Lanjut fitur Phase 4** (setelah P1 bugs clear):
-5. **Budgets** — monthly + weekly pool (paling sering dibuka di v1)
-6. **Goals** — progress, grouped by type, CRUD
-7. **Assets** — net worth toggle, non-liquid accounts
-8. **Wishlist** → **Settings**
-
-**bf-13q** (Vitest balance math tests) — paralel dengan fitur, kerjakan setelah bf-ydb selesai
+**Lanjut fitur Phase 4:**
+1. **Budgets** — monthly + weekly pool (paling sering dibuka di v1)
+2. **Goals** — progress, grouped by type, CRUD
+3. **Assets** — net worth toggle, non-liquid accounts
+4. **Wishlist** → **Settings**
 
 ### Phase 5 — Polish + PWA + Tests
 
@@ -140,15 +139,15 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 ### Yang berjalan baik
 
 - **Arsitektur solid**: Server Actions → TanStack Query → page pattern konsisten di semua fitur yang sudah jadi. Mudah direplikasi ke fitur baru.
-- **Data integrity (per-query)**: `adjustAccountBalance` pakai SQL delta atomik (no race per-update). Soft delete. User-id filter manual di **setiap** query (verified). RLS ON penuh (11 tabel, 21 policy) sebagai defense-in-depth walau Drizzle bypass via connection string. Catatan: atomik per-update ≠ atomik per-transfer (lihat bawah).
+- **Data integrity solid**: balance mutations atomic via Postgres RPC (`apply_transaction_balances`). Zod validation di semua Server Actions. Soft delete. User-id filter manual di setiap query. RLS ON penuh sebagai defense-in-depth.
 - **UI kit terpusat**: MultiSelect dengan portal dropdown, `direction` prop, searchable, group support — sudah cukup untuk semua form fitur berikutnya.
-- **Pace cepat**: 5 issue closed dalam satu sprint (dashboard, accounts, transactions, balancing, UI kit). Core finance loop sudah jalan end-to-end.
+- **Pace cepat**: 10+ issue closed — core loop end-to-end + P1 security/integrity bugs semua clear. Siap lanjut fitur Phase 4 (budgets).
 
 ### Yang perlu diperhatikan
 
 - ✅ **Zod validation** — semua Server Actions pakai `safeParse` + `issues[0].message`. Schemas di `src/lib/schemas/`. Issue bf-zrl closed.
-- **RHF belum kepakai**: form CRUD masih manual (bottom sheet + useState), bukan react-hook-form. Bukan bug, tapi menyimpang dari stack yang disepakati. Adopsi saat form makin kompleks (budget/goal), atau biarkan kalau manual sudah cukup — putuskan sadar, jangan drift.
-- **Tidak ada tests**: zero coverage. Issue **bf-13q** (P2) — Vitest untuk balance math `updateTransactionAction`. Plan: `docs/plans/2026-07-22-bf-13q-balance-math-tests.md`
+- **RHF: keputusan tidak dipakai** — form manual (`useState`) cukup untuk semua form yang direncanakan (max 5 field). Adopt hanya jika ada form >8 field atau wizard multi-step.
+- 🔄 **Tests**: Vitest unit ada (calcUpdateDeltas, bf-13q ✅). Playwright E2E belum — tambah setelah Phase 4 fitur stabil.
 - ✅ **Balance atomic** — semua mutations via Postgres RPC `apply_transaction_balances`. Issue bf-uk7 closed.
-- **Auth callback missing**: `/auth/callback` route belum ada → email verify → 404. Issue **bf-2v2** (P1). Plan: `docs/plans/2026-07-22-bf-2v2-auth-callback.md`
-- **Server-side validation lemah**: `note`, `amount <= 0`, self-transfer hanya enforced di form — server tidak guard. Issue **bf-ydb** (P1). Plan: `docs/plans/2026-07-22-bf-ydb-server-validation-transactions.md`
+- ✅ **Auth callback** — `src/app/auth/callback/route.ts` done. bf-2v2 closed.
+- ✅ **Server-side validation** — zod schemas + guards (amount, self-transfer, note) di semua actions. bf-ydb + bf-zrl closed.
