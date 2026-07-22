@@ -26,7 +26,7 @@ export const accountKeys = {
 
 export const transactionKeys = {
   all: ["transactions"] as const,
-  list: (filters?: Record<string, unknown>) => [...transactionKeys.all, "list", filters] as const,
+  list: (filters?: unknown) => [...transactionKeys.all, "list", filters] as const,
   byMonth: (year: number, month: number) =>
     [...transactionKeys.all, "month", year, month] as const,
   detail: (id: string) => [...transactionKeys.all, "detail", id] as const,

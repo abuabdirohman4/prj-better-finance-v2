@@ -27,7 +27,7 @@ export function formatCurrency(amount: number, format: CurrencyFormat = "rupiah"
       return isNegative ? `(${formatRupiah(absAmount)})` : formatRupiah(amount);
 
     case "signs":
-      return `${isNegative ? "-" : "+"}${formatRupiah(absAmount)}`;
+      return `${isNegative ? "- " : "+ "}${formatRupiah(absAmount)}`;
 
     case "short": {
       if (absAmount >= 1_000_000_000) {

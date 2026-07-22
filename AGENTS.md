@@ -30,6 +30,7 @@ Semua halaman fitur: `"use client"` + TanStack Query hook. Server Actions dipang
 Header gradient + wave SVG: copy dari `src/app/(app)/page.tsx`.
 
 **Tailwind v4:** Pakai `bg-linear-to-{dir}` bukan `bg-gradient-to-{dir}` (breaking change dari v3).
+Pakai `shrink-0` bukan `flex-shrink-0` (v4 shorthand).
 Contoh: `bg-linear-to-r from-blue-600 to-indigo-800`, `bg-linear-to-br from-gray-50 to-indigo-50`.
 
 **Header accounts page:** back button (`ChevronLeft w-7 h-7`) + judul sejajar horizontal, bukan stacked.
@@ -46,6 +47,18 @@ Body dimulai dengan `mt-6` (bukan `pt-2`) untuk spacing wave → content.
 Semua komponen yang tampilkan saldo WAJIB cek `hideBalances`.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:7510c1e2 -->
+### UI Components (`src/components/ui/`)
+Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
+
+| Component | Kapan pakai |
+|---|---|
+| `Button` | Semua tombol aksi. `variant="outline"` untuk secondary, `variant="ghost"` untuk subtle |
+| `Input` | Text/date/email input dengan label + error state |
+| `Select` | Single dropdown — form field atau `variant="filter"` untuk filter inline |
+| `MultiSelect` | Multi-select dengan searchable + checkbox. Pakai `iconPrefix` emoji untuk filter v1-style |
+
+**Reference Projects:** Lihat `docs/reference-projects.md` sebelum explore projek acuan (prj-better-finance v1, portfolio-management-service, prj-better-planner, school-management) — hemat token.
+
 ## Beads Issue Tracker
 
 This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.

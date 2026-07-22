@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, accountTypes, categories, transactions } from "@/db/schema";
 
@@ -227,6 +227,25 @@ export async function updateRealityCheck(
     .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
 }
 
+/**
+ * Update current_balance dengan delta atomik.
+ * spending → delta negatif, earning → delta positif,
+ * transfer → panggil 2x: -amount source, +amount dest.
+ */
+export async function adjustAccountBalance(
+  userId: string,
+  accountId: string,
+  delta: number   // positive = add, negative = subtract
+): Promise<void> {
+  await db
+    .update(accounts)
+    .set({
+      current_balance: sql`${accounts.current_balance} + ${String(delta)}`,
+      updated_at: new Date(),
+    })
+    .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 
 // postgres-js kembalikan numeric sebagai string → cast ke number
@@ -263,3 +282,29 @@ function mapAccountRow(r: {
     account_type_name: r.account_type_name,
   };
 }
+
+// ── Categories ───────────────────────────────────────────────────────────────────
+
+export interface CategoryRow {
+  id: string;
+  name: string;
+  slug: string;
+  group_name: string;
+  icon_name: string | null;
+}
+
+/** Semua kategori aktif milik user, urut sort_order. */
+export async function getCategories(userId: string): Promise<CategoryRow[]> {
+  return db
+    .select({
+      id: categories.id,
+      name: categories.name,
+      slug: categories.slug,
+      group_name: categories.group_name,
+      icon_name: categories.icon_name,
+    })
+    .from(categories)
+    .where(and(eq(categories.user_id, userId), eq(categories.is_active, true)))
+    .orderBy(categories.sort_order);
+}
+
