@@ -15,6 +15,7 @@ import { getAccountById, getCategories, applyTransactionBalancesRpc, type Catego
 import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
 import { createTransactionSchema, updateTransactionSchema } from "@/lib/schemas/transaction";
+import { calcUpdateDeltas } from "./_lib/balanceDelta";
 
 export async function getTransactionsAction(
   filters: TransactionFilters = {}
@@ -103,18 +104,20 @@ export async function updateTransactionAction(
     const newToAccountId = "to_account_id" in validInput ? validInput.to_account_id : old.to_account_id;
 
     // All balance adjustments atomic via Postgres RPC
-    const oldReverseDelta = old.transaction_type === "earning" ? -old.amount : old.amount;
-    const newDelta = newType === "earning" ? newAmount : -newAmount;
-    const adjustments: { account_id: string; delta: number }[] = [
-      { account_id: old.account_id, delta: oldReverseDelta },
-    ];
-    if (old.transaction_type === "transfer" && old.to_account_id) {
-      adjustments.push({ account_id: old.to_account_id, delta: -old.amount });
-    }
-    adjustments.push({ account_id: newAccountId, delta: newDelta });
-    if (newType === "transfer" && newToAccountId) {
-      adjustments.push({ account_id: newToAccountId, delta: newAmount });
-    }
+    const adjustments = calcUpdateDeltas(
+      {
+        account_id: old.account_id,
+        to_account_id: old.to_account_id,
+        transaction_type: old.transaction_type as "spending" | "earning" | "transfer",
+        amount: old.amount,
+      },
+      {
+        account_id: newAccountId,
+        to_account_id: newToAccountId ?? null,
+        transaction_type: newType as "spending" | "earning" | "transfer",
+        amount: newAmount,
+      }
+    );
     await applyTransactionBalancesRpc(adjustments);
 
     await updateTransaction(user.id, txId, validInput);
