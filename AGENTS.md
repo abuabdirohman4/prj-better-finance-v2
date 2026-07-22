@@ -15,6 +15,13 @@ Semua Server Actions return `ServerActionResult<T>` dari `lib/errorUtils`:
 - `requireUser()` → throws jika tidak auth
 - Return `{ success: true, data }` atau `{ success: false, message }`
 - Wrap dengan `handleApiError(error, "context")` di catch
+- **Validasi WAJIB di server, bukan hanya form.** Form bisa di-bypass (direct action call). Guard di trust boundary: amount > 0, ownership akun (`getAccountById` sebelum mutate), reject self-transfer (`account_id !== to_account_id`), field required.
+
+### Balance Mutation (`adjustAccountBalance`)
+`adjustAccountBalance(userId, accountId, delta)` pakai SQL delta (`current_balance + delta`), bukan read-then-write — hindari race condition.
+- **Create**: earning → `+amount`, spending/transfer → `-amount`. Transfer juga `+amount` ke `to_account_id`.
+- **Edit/Delete**: WAJIB reverse efek lama dulu, baru apply efek baru. Lihat `transactions/actions.ts` sebagai referensi.
+- ⚠️ Mutation TIDAK atomic (pgBouncer transaction mode port 6543 blokir `BEGIN`/`SAVEPOINT`). Balance bisa korup kalau gagal di tengah. Hardening di issue bf-uk7.
 
 ### TanStack Query Hooks (`src/app/(app)/**/_hooks/`)
 Hook per feature, co-located di folder feature. Query key generators di `src/lib/query.ts`.
@@ -53,9 +60,12 @@ Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
 | Component | Kapan pakai |
 |---|---|
 | `Button` | Semua tombol aksi. `variant="outline"` untuk secondary, `variant="ghost"` untuk subtle |
-| `Input` | Text/date/email input dengan label + error state |
-| `Select` | Single dropdown — form field atau `variant="filter"` untuk filter inline |
+| `Input` | Text/date/email/number input dengan label + error state. Pakai ini juga untuk field custom (mis. Jumlah dual-state) biar tinggi konsisten |
+| `Select` | Native dropdown — **hindari untuk form** (dropdown OS jelek, no search). Pakai `SingleSelect` |
+| `SingleSelect` | Single-pick di form. Diekspor dari `MultiSelect.tsx` (wrapper tipis). Portal dropdown, searchable, optgroup |
 | `MultiSelect` | Multi-select dengan searchable + checkbox. Pakai `iconPrefix` emoji untuk filter v1-style |
+
+`MultiSelect`/`SingleSelect` prop `direction`: `"down" | "up" | "auto"` (default `"auto"` — flip otomatis kalau ruang bawah sempit). Pakai `"up"` untuk field di bagian bawah bottom sheet.
 
 **Reference Projects:** Lihat `docs/reference-projects.md` sebelum explore projek acuan (prj-better-finance v1, portfolio-management-service, prj-better-planner, school-management) — hemat token.
 
