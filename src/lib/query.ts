@@ -66,3 +66,9 @@ export const wishlistKeys = {
   list: (status?: string) => [...wishlistKeys.all, "list", status] as const,
   detail: (id: string) => [...wishlistKeys.all, "detail", id] as const,
 };
+
+export const walletDenominationKeys = {
+  all: ["wallet-denominations"] as const,
+  byAccount: (accountId: string) => [...walletDenominationKeys.all, accountId] as const,
+};
+

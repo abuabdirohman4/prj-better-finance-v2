@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-22 · Fase: **Phase 4 hampir selesai** — core loop (dashboard → accounts → transactions → balancing) done end-to-end; lanjut fitur sekunder.
+> Diperbarui: 2026-07-22 · Fase: **Phase 4 aktif** — core loop done; wallet denominations ✅; lanjut P1 bugs (auth callback, validation, atomicity) lalu fitur sekunder (budgets, goals, assets).
 
 ---
 
@@ -52,7 +52,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Budgets | ⏳ | `/budgets` | Monthly + weekly pool, progress bar |
 | Goals | ⏳ | `/goals` | Progress, grouped by type, CRUD |
 | Assets | ⏳ | `/assets` | Net worth toggle, non-liquid accounts |
-| Wallet denominations | ⏳ | `/accounts/[id]` | Rincian pecahan uang fisik utk akun wallet (`is_wallet`). Table `wallet_denominations` sudah ada di schema. Ada di v1 |
+| Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
 | Wishlist | ⏳ | `/wishlist` | Affordability check |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
 | PWA | 🔄 | — | Manifest + globals ada; service worker & install UI belum |
@@ -88,14 +88,26 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Dashboard — wire ke data real ✅
 - [x] Accounts — list, CRUD, balancing ✅
 - [x] Transactions — list per bulan + filter, CRUD, transfer, soft-delete ✅
-- [ ] Wallet denominations — rincian pecahan fisik untuk akun wallet (`is_wallet`). Table `wallet_denominations` sudah di schema. Ada di v1 route `/accounts/[id]`
+- [x] Wallet denominations — section di `/accounts/[id]`, grid pecahan fisik, live total, auto reality check. Issue bf-p8w ✅
 - [ ] Budgets — monthly + weekly pool distribution
 - [ ] Goals — progress, grouped by type, CRUD
 - [ ] Assets — net worth toggle, filter non-liquid accounts
 - [ ] Wishlist — affordability check
 - [ ] Settings — profil user + privacy preference persistence
 
-**Urutan next:** Budgets (paling sering dibuka di v1, depends transactions ✅) → Goals → Assets → Wallet denominations → Wishlist → Settings
+**P1 bugs dulu sebelum fitur baru** (data integrity + auth):
+1. **bf-2v2** — auth callback `/auth/callback` (1 file, ~15 menit)
+2. **bf-ydb** — server-side validation transactions (guard amount, self-transfer, note)
+3. **bf-zrl** — zod validation semua Server Actions (trust boundary)
+4. **bf-uk7** — balance write atomicity via Supabase RPC
+
+**Lanjut fitur Phase 4** (setelah P1 bugs clear):
+5. **Budgets** — monthly + weekly pool (paling sering dibuka di v1)
+6. **Goals** — progress, grouped by type, CRUD
+7. **Assets** — net worth toggle, non-liquid accounts
+8. **Wishlist** → **Settings**
+
+**bf-13q** (Vitest balance math tests) — paralel dengan fitur, kerjakan setelah bf-ydb selesai
 
 ### Phase 5 — Polish + PWA + Tests
 
@@ -134,9 +146,9 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 
 ### Yang perlu diperhatikan
 
-- **🔴 Zod tidak dipakai sama sekali** (padahal keputusan planning: RHF + zod). Server Actions terima `input: CreateTransactionInput` — TS type = **0 validasi runtime**. Client bisa kirim `amount` negatif/NaN, `transaction_type` arbitrer, `transaction_date` sampah → saldo korup. `requireUser` + account-ownership check sudah ada, tapi **field-level validation di trust boundary belum**. Ini bukan lazy-skip. Fix: 1 zod schema per action input di `lib/schemas/`, `.parse()` di awal action. Issue **bf-zrl**.
+- **🔴 Zod tidak dipakai sama sekali** — Server Actions 0 validasi runtime → saldo bisa korup. Issue **bf-zrl** (P1). Plan: `docs/plans/2026-07-22-bf-zrl-zod-validation.md`
 - **RHF belum kepakai**: form CRUD masih manual (bottom sheet + useState), bukan react-hook-form. Bukan bug, tapi menyimpang dari stack yang disepakati. Adopsi saat form makin kompleks (budget/goal), atau biarkan kalau manual sudah cukup — putuskan sadar, jangan drift.
-- **Tidak ada tests**: zero coverage saat ini. Bug di balance calculation atau filter logic tidak akan ketahuan sampai user report. Minimal tambah Vitest untuk `formatCurrency` + `adjustAccountBalance` logic sebelum launch.
-- **Transfer tidak atomic**: pgBouncer transaction mode (port 6543) blokir `BEGIN`/`SAVEPOINT`. Kalau debit sukses tapi credit gagal, balance inkonsisten. Fix: switch ke session mode (port 5432) atau pakai Supabase Edge Function dengan `pg_transaction`. Prioritaskan sebelum banyak user.
-- **Auth belum diuji E2E**: signin/signup ada tapi belum ada test atau verifikasi end-to-end dengan real user flow.
-- **`note` wajib di transactions**: keputusan UX yang bagus untuk searchability, tapi perlu konsisten di validasi server-side juga (saat ini hanya enforced di form).
+- **Tidak ada tests**: zero coverage. Issue **bf-13q** (P2) — Vitest untuk balance math `updateTransactionAction`. Plan: `docs/plans/2026-07-22-bf-13q-balance-math-tests.md`
+- **Transfer tidak atomic**: pgBouncer blokir `BEGIN`/`SAVEPOINT`. Debit sukses tapi credit gagal → balance korup. Issue **bf-uk7** (P1). Plan: `docs/plans/2026-07-22-bf-uk7-balance-atomicity.md`
+- **Auth callback missing**: `/auth/callback` route belum ada → email verify → 404. Issue **bf-2v2** (P1). Plan: `docs/plans/2026-07-22-bf-2v2-auth-callback.md`
+- **Server-side validation lemah**: `note`, `amount <= 0`, self-transfer hanya enforced di form — server tidak guard. Issue **bf-ydb** (P1). Plan: `docs/plans/2026-07-22-bf-ydb-server-validation-transactions.md`

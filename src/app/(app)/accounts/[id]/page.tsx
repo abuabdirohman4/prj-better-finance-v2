@@ -8,6 +8,7 @@ import { getAccountAction, updateRealityCheckAction, getAccountTypesAction } fro
 import { formatCurrency } from "@/lib/helper";
 import { CalculationBalanceCard } from "./_components/CalculationBalanceCard";
 import { RealityCheckForm } from "./_components/RealityCheckForm";
+import { WalletDenominations } from "./_components/WalletDenominations";
 import { AccountBottomSheet } from "../_components/AccountBottomSheet";
 import { accountKeys, dashboardKeys } from "@/lib/query";
 import { getAccountVisual } from "@/lib/accountVisuals";
@@ -28,6 +29,9 @@ export default function AccountDetailPage({
   const [successDiff, setSuccessDiff] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+
+  // ── Wallet live preview state — total pecahan sebelum disimpan ───────────────
+  const [liveWalletTotal, setLiveWalletTotal] = useState<number | null>(null);
 
   // ── Edit sheet state ─────────────────────────────────────────────────────────
   const [editOpen, setEditOpen] = useState(false);
@@ -174,7 +178,7 @@ export default function AccountDetailPage({
       </div>
 
       {/* Body */}
-      <div className="px-4 mt-6 pb-10 space-y-4">
+      <div className="px-4 mt-6 pb-24 space-y-4">
         {isLoading ? (
           <>
             <div className="animate-pulse bg-white rounded-2xl h-40 shadow-lg" />
@@ -188,25 +192,43 @@ export default function AccountDetailPage({
           <>
             <CalculationBalanceCard
               account={account}
-              liveRealityCheck={liveRealityCheck}
+              liveRealityCheck={account.is_wallet ? liveWalletTotal : liveRealityCheck}
               hideBalances={hideBalances}
             />
-            <RealityCheckForm
-              accountName={account.name}
-              value={rawValue}
-              displayValue={displayValue}
-              onChange={(raw, display) => {
-                setRawValue(raw);
-                setDisplayValue(display);
-                setLastResult(null); // reset result on new input
-              }}
-              onSubmit={handleSubmit}
-              isPending={isPending}
-              lastResult={lastResult}
-              successAmount={successAmount}
-              successDiff={successDiff}
-              errorMessage={errorMsg}
-            />
+            {/* Wallet: RealityCheckForm disembunyikan — total pecahan = reality balance */}
+            {!account.is_wallet && (
+              <RealityCheckForm
+                accountName={account.name}
+                value={rawValue}
+                displayValue={displayValue}
+                onChange={(raw, display) => {
+                  setRawValue(raw);
+                  setDisplayValue(display);
+                  setLastResult(null);
+                }}
+                onSubmit={handleSubmit}
+                isPending={isPending}
+                lastResult={lastResult}
+                successAmount={successAmount}
+                successDiff={successDiff}
+                errorMessage={errorMsg}
+              />
+            )}
+            {account.is_wallet && (
+              <WalletDenominations
+                accountId={id}
+                currentBalance={account.current_balance}
+                onLiveTotal={setLiveWalletTotal}
+                onSaveTotal={(total) => {
+                  startTransition(async () => {
+                    await updateRealityCheckAction(id, total);
+                    queryClient.invalidateQueries({ queryKey: accountKeys.detail(id) });
+                    queryClient.invalidateQueries({ queryKey: accountKeys.list() });
+                    queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+                  });
+                }}
+              />
+            )}
           </>
         )}
       </div>
