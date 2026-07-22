@@ -1,10 +1,173 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronDown, BarChart3 } from "lucide-react";
+import { useBudgets } from "./_hooks/useBudgets";
+import { BudgetGroup } from "./_components/BudgetGroup";
+import { BudgetBottomSheet } from "./_components/BudgetBottomSheet";
+import { Fab } from "@/components/layouts/Fab";
+import { usePrivacyStore } from "@/stores/privacyStore";
+import { formatCurrency } from "@/lib/helper";
+import type { BudgetWithSpending } from "@/db/queries/budgets";
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 export default function BudgetsPage() {
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editBudget, setEditBudget] = useState<BudgetWithSpending | null>(null);
+  const hideBalances = usePrivacyStore((s) => s.hideBalances);
+
+  const { query, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
+
+  const budgets = query.data ?? [];
+
+  // Group by group_name
+  const groups = budgets.reduce<Record<string, BudgetWithSpending[]>>((acc, b) => {
+    const g = b.group_name || "lainnya";
+    if (!acc[g]) acc[g] = [];
+    acc[g].push(b);
+    return acc;
+  }, {});
+
+  const totalBudgeted = budgets.reduce((s, b) => s + Number(b.budgeted_amount), 0);
+  const totalSpent = budgets.reduce((s, b) => s + Number(b.actual_spending), 0);
+  const overallPercent = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+  const overallRemaining = totalBudgeted - totalSpent;
+
+  function openCreate() { setEditBudget(null); setSheetOpen(true); }
+  function openEdit(b: BudgetWithSpending) { setEditBudget(b); setSheetOpen(true); }
+
+  const MASK = "Rp •••";
+
   return (
-    <div className="px-4 py-6">
-      <h1 className="text-xl font-bold text-gray-900 mb-4">Budget</h1>
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <p className="text-gray-400 text-sm">Halaman budgets — coming soon.</p>
+    <div className="bg-blue-50 min-h-screen">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 px-4 pt-5 pb-6">
+        <div className="absolute bottom-0 left-0 w-full h-8">
+          <svg viewBox="0 0 400 32" className="w-full h-full" preserveAspectRatio="none">
+            <path d="M0,32 Q100,20 200,32 T400,20 L400,32 Z" fill="rgb(239 246 255)" />
+          </svg>
+        </div>
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Back">
+              <ChevronLeft className="w-7 h-7 text-white" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white leading-tight">Budgets</h1>
+              <p className="text-blue-100 text-sm">Track your spending limits</p>
+            </div>
+          </div>
+
+          {/* Month + Year picker */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <select
+                value={month}
+                onChange={(e) => setMonth(Number(e.target.value))}
+                className="appearance-none bg-white/20 text-white border border-white/30 rounded-xl px-3 py-2 pr-7 text-sm font-semibold focus:outline-none cursor-pointer"
+              >
+                {MONTHS.map((m, i) => (
+                  <option key={i} value={i + 1} className="text-gray-900 bg-white">{m}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/80" />
+            </div>
+            <div className="relative">
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="appearance-none bg-white/20 text-white border border-white/30 rounded-xl px-3 py-2 pr-7 text-sm font-semibold focus:outline-none cursor-pointer"
+              >
+                {Array.from({ length: 5 }, (_, i) => now.getFullYear() - i).map((y) => (
+                  <option key={y} value={y} className="text-gray-900 bg-white">{y}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/80" />
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div className="px-4 mt-4 pb-24 space-y-6">
+        {/* Overall Progress Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="font-semibold text-gray-800">Overall Budgets Progress</h2>
+            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+              <BarChart3 className="w-4 h-4 text-purple-600" />
+            </div>
+          </div>
+
+          <div className="flex justify-between mb-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Budget</p>
+              <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(totalBudgeted, "short")}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Spending</p>
+              <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(totalSpent, "short")}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Remaining</p>
+              <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(overallRemaining, "short")}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500 rounded-full transition-all"
+                style={{ width: `${Math.min(overallPercent, 100)}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-green-600">{overallPercent.toFixed(0)}%</span>
+          </div>
+        </div>
+
+        {/* Loading */}
+        {query.isLoading && (
+          <div className="space-y-4">
+            {[1,2,3].map(i => <div key={i} className="animate-pulse bg-white rounded-2xl h-32 shadow-sm" />)}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!query.isLoading && budgets.length === 0 && (
+          <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
+            <p className="text-gray-400 text-sm">No budgets for this month.</p>
+            <p className="text-gray-400 text-xs mt-1">Tap + to add category budgets.</p>
+          </div>
+        )}
+
+        {/* Budget Spending Title */}
+        {!query.isLoading && budgets.length > 0 && (
+          <h2 className="font-bold text-gray-900 text-lg">Budget Spending</h2>
+        )}
+
+        {/* Groups */}
+        {Object.entries(groups).map(([group, items]) => (
+          <BudgetGroup key={group} group={group} items={items} hideBalances={hideBalances} onEdit={openEdit} />
+        ))}
+      </div>
+
+      <Fab onClick={openCreate} label="Add budget" />
+
+      <BudgetBottomSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        categories={categoriesQuery.data ?? []}
+        editBudget={editBudget}
+        year={year}
+        month={month}
+        onSuccess={() => setSheetOpen(false)}
+        upsertMutation={upsertMutation}
+        deleteMutation={deleteMutation}
+      />
     </div>
   );
 }
