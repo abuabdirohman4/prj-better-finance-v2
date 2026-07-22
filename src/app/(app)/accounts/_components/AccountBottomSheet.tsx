@@ -142,8 +142,8 @@ export function AccountBottomSheet({
 
       {/* Sheet */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 transition-transform duration-300 shadow-2xl"
-        style={{ transform: visible ? "translateY(0)" : "translateY(100%)" }}
+        className="fixed bottom-0 left-1/2 w-full max-w-md bg-white rounded-t-3xl z-50 p-6 transition-transform duration-300 shadow-2xl"
+        style={{ transform: visible ? "translate(-50%, 0)" : "translate(-50%, 100%)" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">

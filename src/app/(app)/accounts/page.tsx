@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, DollarSign, Eye, EyeOff, Plus } from "lucide-react";
+import { ChevronLeft, DollarSign, Eye, EyeOff } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AccountCard } from "./_components/AccountCard";
 import { AccountBottomSheet } from "./_components/AccountBottomSheet";
@@ -11,6 +11,7 @@ import { getAccountTypesAction } from "./actions";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { accountKeys, dashboardKeys } from "@/lib/query";
+import { Fab } from "@/components/layouts/Fab";
 
 const MASK = "Rp •••.•••";
 
@@ -131,13 +132,7 @@ export default function AccountsPage() {
       </div>
 
       {/* FAB — tambah akun */}
-      <button
-        onClick={() => setCreateOpen(true)}
-        className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
-        aria-label="Tambah akun"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      <Fab onClick={() => setCreateOpen(true)} label="Tambah akun" />
 
       {/* Create bottom sheet */}
       {createOpen && (

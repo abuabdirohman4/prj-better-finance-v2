@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Plus, Calculator, ArrowUpRight, ArrowDownLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft, Calculator, ArrowUpRight, ArrowDownLeft, ChevronDown } from "lucide-react";
 import { useTransactions } from "./_hooks/useTransactions";
 import { useAccounts } from "../accounts/_hooks/useAccounts";
 import { useCategories } from "./_hooks/useCategories";
@@ -12,6 +12,7 @@ import { FilterBar, FilterBarPanel } from "./_components/FilterBar";
 import { formatCurrency, formatDate } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import type { TransactionFilters, TransactionRow } from "@/db/queries/transactions";
+import { Fab } from "@/components/layouts/Fab";
 
 const MASK = "Rp •••";
 
@@ -72,7 +73,7 @@ export default function TransactionsPage() {
   const sortedDates = Object.keys(grouped).sort((a, b) => (a < b ? 1 : -1));
 
   return (
-    <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="bg-blue-50 min-h-screen">
       {/* Header */}
       <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 px-4 pt-5 pb-6">
         <div className="absolute bottom-0 left-0 w-full h-8">
@@ -225,13 +226,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* FAB */}
-      <button
-        onClick={openCreate}
-        className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
-        aria-label="Tambah transaksi"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      <Fab onClick={openCreate} label="Tambah transaksi" />
 
       <TransactionBottomSheet
         open={sheetOpen}
