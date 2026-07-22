@@ -4,7 +4,7 @@ Better Finance v2 — Next.js 16 App Router, React 19, TypeScript strict, Tailwi
 CRITICAL: Baca @AGENTS.md untuk SEMUA coding rules, patterns, dan constraints sebelum mulai.
 
 TASK:
-Eksekusi implementation plan di @docs/plans/2026-07-22-bf-gol-goals-feature.md
+Eksekusi implementation plan di @docs/plans/2026-07-22-bf-73n-goals-feature.md
 
 ISSUE: bf-73n
 
@@ -25,7 +25,7 @@ KEY PATTERNS (wajib ikut):
 - SingleSelect: dieksport dari `@/components/ui/MultiSelect.tsx`
 
 REFERENCE FILES:
-- Plan: @docs/plans/2026-07-22-bf-gol-goals-feature.md
+- Plan: @docs/plans/2026-07-22-bf-73n-goals-feature.md
 - AGENTS.md: @AGENTS.md
 - Pattern Server Action: @src/app/(app)/budgets/actions.ts (setelah budgets selesai) atau @src/app/(app)/transactions/actions.ts
 - Pattern hook: @src/app/(app)/transactions/_hooks/useTransactions.ts

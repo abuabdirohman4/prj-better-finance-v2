@@ -1,7 +1,7 @@
-# Plan: Goals Feature (bf-gol)
+# Plan: Goals Feature (bf-73n)
 
 **Date:** 2026-07-22
-**Issue:** bf-gol · P2 Feature
+**Issue:** bf-73n · P2 Feature
 **Route:** `/goals`
 **Scope:** Savings goals list + progress + CRUD bottom sheet
 

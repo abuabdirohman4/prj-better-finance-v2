@@ -1,7 +1,7 @@
-# Plan: Wishlist Feature (bf-wsl)
+# Plan: Wishlist Feature (bf-ez2)
 
 **Date:** 2026-07-22
-**Issue:** bf-wsl · P2 Feature
+**Issue:** bf-ez2 · P2 Feature
 **Route:** `/wishlist`
 **Scope:** Wishlist items list + affordability check + CRUD
 

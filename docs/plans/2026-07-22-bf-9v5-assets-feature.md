@@ -1,7 +1,7 @@
-# Plan: Assets Feature (bf-ast)
+# Plan: Assets Feature (bf-9v5)
 
 **Date:** 2026-07-22
-**Issue:** bf-ast · P2 Feature
+**Issue:** bf-9v5 · P2 Feature
 **Route:** `/assets`
 **Scope:** Net worth view — akun grouped by asset_category, toggle include/exclude non-liquid
 

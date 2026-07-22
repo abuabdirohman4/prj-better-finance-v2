@@ -1,7 +1,7 @@
-# Plan: Settings Feature (bf-set)
+# Plan: Settings Feature (bf-9vf)
 
 **Date:** 2026-07-22
-**Issue:** bf-set · P3 Feature
+**Issue:** bf-9vf · P3 Feature
 **Route:** `/settings`
 **Scope:** User profile display + privacy preference + app info
 

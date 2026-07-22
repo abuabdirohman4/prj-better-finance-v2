@@ -4,7 +4,7 @@ Better Finance v2 — Next.js 16 App Router, React 19, TypeScript strict, Tailwi
 CRITICAL: Baca @AGENTS.md untuk SEMUA coding rules, patterns, dan constraints sebelum mulai.
 
 TASK:
-Eksekusi implementation plan di @docs/plans/2026-07-22-bf-ast-assets-feature.md
+Eksekusi implementation plan di @docs/plans/2026-07-22-bf-9v5-assets-feature.md
 
 ISSUE: bf-9v5
 
@@ -24,7 +24,7 @@ KEY PATTERNS (wajib ikut):
 - Tidak ada FAB di halaman ini
 
 REFERENCE FILES:
-- Plan: @docs/plans/2026-07-22-bf-ast-assets-feature.md
+- Plan: @docs/plans/2026-07-22-bf-9v5-assets-feature.md
 - AGENTS.md: @AGENTS.md
 - AccountRow type + getAccountsWithType: @src/db/queries/accounts.ts
 - Pattern hook (read-only): @src/app/(app)/transactions/_hooks/useTransactions.ts

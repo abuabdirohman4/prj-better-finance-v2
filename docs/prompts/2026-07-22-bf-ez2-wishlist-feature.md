@@ -4,7 +4,7 @@ Better Finance v2 — Next.js 16 App Router, React 19, TypeScript strict, Tailwi
 CRITICAL: Baca @AGENTS.md untuk SEMUA coding rules, patterns, dan constraints sebelum mulai.
 
 TASK:
-Eksekusi implementation plan di @docs/plans/2026-07-22-bf-wsl-wishlist-feature.md
+Eksekusi implementation plan di @docs/plans/2026-07-22-bf-ez2-wishlist-feature.md
 
 ISSUE: bf-ez2
 
@@ -25,7 +25,7 @@ KEY PATTERNS (wajib ikut):
 - Affordability: ambil liquid balance dari `getAccountsWithType` filter `asset_category === "liquid"`
 
 REFERENCE FILES:
-- Plan: @docs/plans/2026-07-22-bf-wsl-wishlist-feature.md
+- Plan: @docs/plans/2026-07-22-bf-ez2-wishlist-feature.md
 - AGENTS.md: @AGENTS.md
 - Pattern Server Action: @src/app/(app)/transactions/actions.ts
 - Pattern bottom sheet: @src/app/(app)/transactions/_components/TransactionBottomSheet.tsx

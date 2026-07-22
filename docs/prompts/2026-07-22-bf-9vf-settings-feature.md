@@ -4,7 +4,7 @@ Better Finance v2 — Next.js 16 App Router, React 19, TypeScript strict, Tailwi
 CRITICAL: Baca @AGENTS.md untuk SEMUA coding rules, patterns, dan constraints sebelum mulai.
 
 TASK:
-Eksekusi implementation plan di @docs/plans/2026-07-22-bf-set-settings-feature.md
+Eksekusi implementation plan di @docs/plans/2026-07-22-bf-9vf-settings-feature.md
 
 ISSUE: bf-9vf
 
@@ -24,7 +24,7 @@ KEY PATTERNS (wajib ikut):
 - Privacy toggle: pakai `usePrivacyStore` dari `@/stores/privacyStore.ts`
 
 REFERENCE FILES:
-- Plan: @docs/plans/2026-07-22-bf-set-settings-feature.md
+- Plan: @docs/plans/2026-07-22-bf-9vf-settings-feature.md
 - AGENTS.md: @AGENTS.md
 - privacyStore: @src/stores/privacyStore.ts
 - Supabase client (untuk signOut): @src/lib/supabase/client.ts

@@ -1,7 +1,7 @@
-# Plan: Budgets Feature (bf-bud)
+# Plan: Budgets Feature (bf-n43)
 
 **Date:** 2026-07-22
-**Issue:** bf-bud · P2 Feature
+**Issue:** bf-n43 · P2 Feature
 **Route:** `/budgets`
 **Scope:** Monthly budget per category — list, CRUD bottom sheet, progress bar vs actual spending
 
@@ -249,6 +249,11 @@ export async function upsertBudgetAction(
     const parsed = upsertBudgetSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, message: parsed.error.issues[0].message };
+    }
+    // Ownership guard: category_id harus milik user (getCategories sudah filter user_id)
+    const cats = await getCategories(user.id);
+    if (!cats.some((c) => c.id === parsed.data.category_id)) {
+      return { success: false, message: "Kategori tidak valid." };
     }
     const id = await upsertBudget(user.id, parsed.data);
     return { success: true, data: { id } };
