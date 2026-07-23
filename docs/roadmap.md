@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif** — Budgets + Goals CRUD ✅; lanjut integrasi (goal_id), Assets, Wishlist, Settings. Lihat **§Urutan Kerja** di bawah.
+> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif** — Goals integrasi (bf-4ln) ✅ + Net Worth (bf-9v5) ✅ + account types Cash/Bank/E-wallet. **Next: Wishlist (bf-ez2)**. Lihat **§Urutan Kerja**.
 
 ---
 
@@ -53,7 +53,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Budgets | ✅ | `/budgets`, `/budgets/weekly` | Monthly CRUD + progress bar (bf-n43 ✅); weekly cascade algorithm (bf-9qc ✅) |
 | Goals — CRUD | ✅ | `/goals` | Progress, grouped by type, CRUD (bf-73n ✅). Akun terhubung wajib + ConfirmDialog delete |
 | Goals — integrasi | ✅ | `/goals` | goal_id di transaksi, collected derived, transfer grup Akun/Goals (**bf-4ln** ✅) |
-| Net Worth | ⏳ | `/assets` | REVISI: nama "Net Worth". Layout ala v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun. AP/AR ikut nanti (bf-13t). Issue **bf-9v5** |
+| Net Worth | ✅ | `/assets` | Layout v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun, dibedakan warna. AP/AR ikut nanti (bf-13t). Issue **bf-9v5** ✅ |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
 | Wishlist | ⏳ | `/wishlist` | Affordability check |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
@@ -94,7 +94,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Budgets — monthly CRUD + progress bar (bf-n43 ✅) + weekly cascade (bf-9qc ✅)
 - [x] Goals — progress, grouped by type, CRUD (bf-73n ✅)
 - [x] Goals integrasi — goal_id + collected derived + transfer UI + akun wajib + ConfirmDialog (bf-4ln ✅)
-- [ ] Net Worth — layout v1 (kartu Accounts agregat + non-liquid per akun), nama "Net Worth" (bf-9v5)
+- [x] Net Worth — layout v1 (kartu Accounts agregat + non-liquid per akun), nama "Net Worth" (bf-9v5 ✅) + rename account types Cash/Bank/E-wallet
 - [ ] Wishlist — affordability check
 - [ ] Settings — profil user + privacy preference persistence
 
@@ -133,18 +133,20 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 
 | # | Issue | Fitur | Prio | Kenapa urutan ini | Plan/Prompt |
 |---|---|---|---|---|---|
-| 1 | **bf-4ln** | Goals-transactions integration | P2 | **Fondasi** — `goal_id` + collected derived + transfer grup Akun/Goals. Fitur pembeda. DB sudah disiapkan. Blok migrasi (bf-bwh butuh goal_id). | ✅ `2026-07-23-bf-4ln-*` |
-| 2 | **bf-9v5** | Assets net worth | P2 | Derived dari accounts (data sudah ada). Independen, cepat. | ✅ `2026-07-23-bf-9v5-*` |
-| 3 | **bf-ez2** | Wishlist + promote→goal | P2 | Butuh goals ada (Task 8 promote pakai savings_goals). | ✅ `2026-07-22-bf-ez2-*` (+Task 8) |
-| 4 | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
-| 5 | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
-| 6 | **bf-gv5** | CFP analysis + insights | P3 | Butuh data (bisa dari sheet/DB). Mode 1 (chat) bisa sekarang tanpa coding. | ✅ `2026-07-23-bf-gv5-*` |
+| ✅ | ~~bf-4ln~~ | Goals-transactions integration | P2 | **DONE** (commit c259410) — goal_id + collected derived + transfer grup Akun/Goals + akun wajib + ConfirmDialog. Reality check → follow-up bf-kvk. | closed |
+| ✅ | ~~bf-9v5~~ | Net Worth | P2 | **DONE** — layout v1 (kartu Accounts agregat + non-liquid per akun), nama Net Worth, rename account types Cash/Bank/E-wallet. | closed |
+| **1** | **bf-ez2** | Wishlist + promote→goal | P2 | **NEXT.** Butuh goals ada (Task 8 promote pakai savings_goals). | ✅ `2026-07-22-bf-ez2-*` (+Task 8) |
+| **2** | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
+| **3** | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
+| **4** | **bf-gv5** | CFP analysis + insights | P3 | Butuh data (bisa dari sheet/DB). Mode 1 (chat) bisa sekarang tanpa coding. | ✅ `2026-07-23-bf-gv5-*` |
 | 7 | **bf-qxb** | UI kit lengkap | P3 | On-demand — kerjakan saat fitur butuh komponen baru (mis. DatePicker). Tidak berurutan. | ✅ `2026-07-22-bf-qxb-*` |
 | — | **bf-lp4** | UI polish cursor-pointer | P3 | Polish global, bukan blocker. Batch di Phase 5, atau sekalian saat sentuh UI fitur. Tidak berurutan. | ✅ `2026-07-23-bf-lp4-*` |
+| — | **bf-13t** | AP/AR utang/piutang | P2 | Fitur unggulan + fondasi bisnis. **Butuh BRAINSTORM desain dulu** (schema, field, integrasi). Tabel terpisah, ikut Net Worth. | ⏳ brainstorm dulu |
+| — | **bf-kvk** | Goal reality check | P3 | Follow-up bf-4ln scope(5): SUM(collected per akun) ≈ current_balance → warning. | ⏳ belum |
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → commit → **sesi Claude BARU** untuk review (`/rename bf-xxx review`). 1 issue = 1 sesi review.
 
-**Prioritas sekarang:** mulai **bf-4ln**.
+**Prioritas sekarang:** mulai **bf-ez2** (Wishlist).
 
 ## Ditunda
 
