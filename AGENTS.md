@@ -6,6 +6,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Architecture Patterns
 
+> **Integrasi fitur (Goals/Assets/Transactions/Budgets):** READ `docs/architecture-integration.md` sebelum kerja di goals/assets/budget derivation — jelaskan model 1-source-of-truth (transaksi → semua view derived) + keputusan `goal_id` eksplisit.
+
 ### Data Layer (`src/db/queries/`)
 Drizzle query functions — WAJIB filter `where(eq(table.user_id, userId))` di setiap query.
 DB tidak RLS-aware (pakai admin credentials) — filter manual wajib, jangan rely on Supabase RLS.

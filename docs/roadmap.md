@@ -130,7 +130,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - AI insights (`ai_insights`) + integrasi model
 - Subscription enforcement penuh + Stripe
 - Realtime subscriptions
-- Multi-household / sharing
+- Multi-household / sharing — **shared ledger + audit trail** (suami-istri: shared + private ledger). Konsep di `docs/konsep-keuangan.md` §7. Butuh geser scope `user_id` → `ledger_id`. Tier Family.
 
 ---
 
