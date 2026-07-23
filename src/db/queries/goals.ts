@@ -1,6 +1,6 @@
-import { and, eq, desc, sql } from "drizzle-orm";
+import { and, eq, desc, sql, inArray, isNull, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { savingsGoals, accounts, transactions } from "@/db/schema";
+import { savingsGoals, transactions } from "@/db/schema";
 
 export interface GoalRow {
   id: string;
@@ -12,8 +12,6 @@ export interface GoalRow {
   monthly_contribution: number | null;
   deadline_date: string | null;
   duration_label: string | null;
-  linked_account_id: string | null;
-  linked_account_name: string | null;
   is_active: boolean;
   percent: number; // collected / target * 100
 }
@@ -39,12 +37,9 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
       monthly_contribution: sql<number>`${savingsGoals.monthly_contribution}::numeric`,
       deadline_date: savingsGoals.deadline_date,
       duration_label: savingsGoals.duration_label,
-      linked_account_id: savingsGoals.linked_account_id,
-      linked_account_name: accounts.name,
       is_active: savingsGoals.is_active,
     })
     .from(savingsGoals)
-    .leftJoin(accounts, eq(savingsGoals.linked_account_id, accounts.id))
     .where(and(eq(savingsGoals.user_id, userId), eq(savingsGoals.is_active, true)))
     .orderBy(savingsGoals.goal_type, desc(savingsGoals.collected_amount));
 
@@ -63,7 +58,6 @@ export async function createGoal(
     target_amount: number;
     monthly_contribution?: number | null;
     deadline_date?: string | null;
-    linked_account_id?: string | null;
   }
 ): Promise<string> {
   const result = await db
@@ -76,7 +70,6 @@ export async function createGoal(
       target_amount: String(input.target_amount),
       monthly_contribution: input.monthly_contribution ? String(input.monthly_contribution) : null,
       deadline_date: input.deadline_date ?? null,
-      linked_account_id: input.linked_account_id ?? null,
     })
     .returning({ id: savingsGoals.id });
   return result[0].id;
@@ -93,7 +86,6 @@ export async function updateGoal(
     monthly_contribution: number | null;
     deadline_date: string | null;
     collected_amount: number;
-    linked_account_id: string | null;
   }>
 ): Promise<void> {
   const set: Record<string, unknown> = { updated_at: sql`now()` };
@@ -105,7 +97,6 @@ export async function updateGoal(
     set.monthly_contribution = input.monthly_contribution ? String(input.monthly_contribution) : null;
   if (input.deadline_date !== undefined) set.deadline_date = input.deadline_date;
   if (input.collected_amount !== undefined) set.collected_amount = String(input.collected_amount);
-  if (input.linked_account_id !== undefined) set.linked_account_id = input.linked_account_id;
 
   await db
     .update(savingsGoals)
@@ -123,8 +114,6 @@ export async function softDeleteGoal(userId: string, goalId: string): Promise<vo
 export interface GoalSelectRow {
   id: string;
   name: string;
-  linked_account_id: string | null;
-  linked_account_name: string | null;
   goal_type: string;
 }
 
@@ -133,12 +122,30 @@ export async function getGoalsForSelect(userId: string): Promise<GoalSelectRow[]
     .select({
       id: savingsGoals.id,
       name: savingsGoals.name,
-      linked_account_id: savingsGoals.linked_account_id,
-      linked_account_name: accounts.name,
       goal_type: savingsGoals.goal_type,
     })
     .from(savingsGoals)
-    .leftJoin(accounts, eq(savingsGoals.linked_account_id, accounts.id))
     .where(and(eq(savingsGoals.user_id, userId), eq(savingsGoals.is_active, true)))
     .orderBy(savingsGoals.goal_type, savingsGoals.name);
+}
+
+// Sum of transfer amounts tagged to any active goal that landed in a liquid account.
+// Used by affordability: this money still sits in the liquid pool and is earmarked.
+export async function getLiquidGoalAllocated(userId: string, liquidAccountIds: string[]): Promise<number> {
+  if (liquidAccountIds.length === 0) return 0;
+  const [row] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(${transactions.amount}::numeric), 0)`,
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.transaction_type, "transfer"),
+        isNotNull(transactions.goal_id),
+        inArray(transactions.to_account_id, liquidAccountIds),
+        isNull(transactions.deleted_at),
+      ),
+    );
+  return Number(row?.total ?? 0);
 }
