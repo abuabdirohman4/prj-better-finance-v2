@@ -129,7 +129,6 @@ export interface SavingsGoalBase {
   description: string | null;
   icon_name: string | null;
   goal_type: GoalType;
-  linked_account_id: string | null;
   target_amount: number;
   monthly_contribution: number | null;
   deadline_date: string | null;
@@ -144,8 +143,6 @@ export interface SavingsGoalBase {
 }
 
 export interface GoalWithProgress extends SavingsGoalBase {
-  linked_account_name: string | null;
-  linked_account_balance: number | null;
   progress_percent: number;
 }
 

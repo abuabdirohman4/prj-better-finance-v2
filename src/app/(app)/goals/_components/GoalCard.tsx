@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, TrendingUp, Calendar as CalendarIcon, Wallet } from "lucide-react";
+import { Target, TrendingUp, Calendar as CalendarIcon } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
 import type { GoalRow } from "@/db/queries/goals";
 
@@ -33,12 +33,6 @@ export function GoalCard({ goal, onEdit, hideBalances }: Props) {
           </div>
           <div>
             <h3 className="font-bold text-gray-900 text-base">{goal.name}</h3>
-            {goal.linked_account_name && (
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                <Wallet className="w-3 h-3" />
-                <span>{goal.linked_account_name}</span>
-              </div>
-            )}
           </div>
         </div>
         <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${colors.badge}`}>
