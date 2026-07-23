@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/agents-md-reminder.cjs\""
+          },
+          {
+            "type": "command",
+            "command": "[ -n \"$(git status --porcelain)\" ] && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"Stop\",\"additionalContext\":\"Ada perubahan git belum di-commit. Jalankan /git-commit-message untuk generate commit message.\"}}' || true"
           }
         ]
       }

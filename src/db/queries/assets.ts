@@ -6,7 +6,7 @@ export interface AssetRow {
   id: string;
   name: string;
   current_balance: number;
-  asset_category: string; // "liquid" | "non-liquid"
+  asset_category: string; // "liquid" | "investment"
   icon_name: string | null;
   color_hex: string | null;
 }
@@ -37,7 +37,7 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
     .orderBy(accounts.asset_category, accounts.sort_order);
 
   const totalLiquid = rows.filter(r => r.asset_category === "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
-  // Non-liquid = anything not liquid (investment/property/other). DB never stores "non-liquid".
+  // Non-liquid = anything not liquid (investment). DB never stores "non-liquid".
   const totalNonLiquid = rows.filter(r => r.asset_category !== "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
 
   return { 

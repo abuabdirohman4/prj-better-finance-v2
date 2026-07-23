@@ -8,13 +8,14 @@ import {
   deleteAccountAction,
 } from "../actions";
 import type { AccountRow } from "@/db/queries/accounts";
+import { SingleSelect } from "@/components/ui/MultiSelect";
 
 interface AccountBottomSheetProps {
   mode: "create" | "edit";
   account?: AccountRow;
   accountTypes: { id: string; name: string; slug: string }[];
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (assetCategory?: "liquid" | "investment") => void;
 }
 
 export function AccountBottomSheet({
@@ -32,9 +33,9 @@ export function AccountBottomSheet({
   const [balance, setBalance] = useState(
     account ? String(account.current_balance) : "0"
   );
-  const [assetCategory, setAssetCategory] = useState<
-    "liquid" | "investment" | "property" | "other"
-  >((account?.asset_category as "liquid" | "investment" | "property" | "other") ?? "liquid");
+  const [assetCategory, setAssetCategory] = useState<"liquid" | "investment">(
+    (account?.asset_category as "liquid" | "investment") ?? "liquid"
+  );
   const [includeInNetWorth, setIncludeInNetWorth] = useState(
     account?.include_in_net_worth ?? true
   );
@@ -120,7 +121,7 @@ export function AccountBottomSheet({
           return;
         }
       }
-      onSuccess();
+      onSuccess(mode === "create" ? assetCategory : undefined);
     });
   }
 
@@ -189,21 +190,13 @@ export function AccountBottomSheet({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tipe Akun <span className="text-red-500">*</span>
               </label>
-              <select
+              <SingleSelect
                 value={accountTypeId}
-                onChange={(e) => setAccountTypeId(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                {accountTypes.length === 0 && (
-                  <option value="">Belum ada tipe akun</option>
-                )}
-                {accountTypes.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+                onChange={setAccountTypeId}
+                searchable={false}
+                options={accountTypes.map((t) => ({ value: t.id, label: t.name }))}
+                placeholder={accountTypes.length === 0 ? "Belum ada tipe akun" : "Pilih tipe akun"}
+              />
             </div>
           )}
 
@@ -212,20 +205,15 @@ export function AccountBottomSheet({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Kategori Aset
             </label>
-            <select
+            <SingleSelect
               value={assetCategory}
-              onChange={(e) =>
-                setAssetCategory(
-                  e.target.value as "liquid" | "investment" | "property" | "other"
-                )
-              }
-              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="liquid">🟢 Liquid — uang cair (Bank/Cash/E-wallet)</option>
-              <option value="investment">📈 Investment — Reksadana/Saham/Crypto</option>
-              <option value="property">🏠 Property — Emas/Tanah/Rumah</option>
-              <option value="other">📦 Other — BPJS/JHT/lainnya</option>
-            </select>
+              onChange={(v) => setAssetCategory(v as "liquid" | "investment")}
+              searchable={false}
+              options={[
+                { value: "liquid", label: "🟢 Liquid — uang cair (Bank/Cash/E-wallet)" },
+                { value: "investment", label: "📈 Investment — Reksadana/Saham/Emas/dll" },
+              ]}
+            />
           </div>
 
           {/* Saldo */}

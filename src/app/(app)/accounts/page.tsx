@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, DollarSign, Eye, EyeOff } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +23,7 @@ export default function AccountsPage() {
 
   // ── Create sheet state (edit moved to [id]/page.tsx) ─────────────────────────
   const [createOpen, setCreateOpen] = useState(false);
+  const router = useRouter();
 
   // ── Account types for the create form ───────────────────────────────────────
   const { data: accountTypes } = useQuery({
@@ -36,13 +38,15 @@ export default function AccountsPage() {
 
   // ── Cache invalidation on create success ────────────────────────────────────
   const queryClient = useQueryClient();
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = (assetCategory?: "liquid" | "investment") => {
     setCreateOpen(false);
     queryClient.invalidateQueries({ queryKey: accountKeys.list() });
     queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    // Non-liquid accounts live on /assets, so send the user there after creating one.
+    if (assetCategory && assetCategory !== "liquid") router.push("/assets");
   };
 
-  // /accounts shows liquid accounts only; non-liquid (investment/property/other) lives on /assets.
+  // /accounts shows liquid accounts only; non-liquid (investment) lives on /assets.
   const liquidAccounts = accounts?.filter((a) => a.asset_category === "liquid") ?? [];
   const total = liquidAccounts
     .filter((a) => a.include_in_net_worth)

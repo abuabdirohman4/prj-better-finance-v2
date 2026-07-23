@@ -12,7 +12,7 @@ export const MONTH_NUMBERS: Record<Month, number> = {
 
 export type TransactionType = "spending" | "earning" | "transfer";
 
-export type AssetCategory = "liquid" | "investment" | "property" | "other";
+export type AssetCategory = "liquid" | "investment";
 
 export type GoalType = "sinking" | "wishlist" | "emergency" | "investment" | "business";
 

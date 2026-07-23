@@ -138,10 +138,11 @@ npm run format     # prettier --write
 
 ## Asset Category (`accounts.asset_category`)
 
-Enum: `"liquid" | "investment" | "property" | "other"` (lihat `src/lib/constants.ts`).
-- **liquid** = uang siap pakai (Wallet, Bank, e-wallet) → dasar "uang bebas" di wishlist affordability + agregat kartu Accounts di Net Worth.
-- **investment/property/other** = non-liquid → kartu per-akun di Net Worth.
-`getAccountsWithType(userId)` return `asset_category` per akun. Filter `=== "liquid"` untuk liquid balance.
+Enum: `"liquid" | "investment"` (lihat `src/lib/constants.ts`; DB CHECK constraint `accounts_asset_category_check` juga 2 nilai). Property/other DIHAPUS (2026-07-24, bf-yts) — tambah balik kalau benar butuh.
+- **liquid** = uang siap pakai (Wallet, Bank, e-wallet) → muncul di halaman `/accounts`, dasar "uang bebas" wishlist + agregat kartu Accounts di Net Worth.
+- **investment** = non-liquid → TIDAK muncul di `/accounts`, hanya kartu per-akun di Net Worth (`/assets`). Buat akun investment dari `/accounts` → redirect ke `/assets` setelah save.
+- Non-liquid derive: filter `!== "liquid"` (bukan `=== "non-liquid"` — string itu tak pernah ada di DB). Sengaja robust kalau enum ditambah lagi.
+`getAccountsWithType(userId)` return semua akun; `/accounts` page filter `=== "liquid"`, Net Worth pakai `!== "liquid"` untuk non-liquid.
 
 ## Goals: `collected_amount` derived (bf-4ln)
 
