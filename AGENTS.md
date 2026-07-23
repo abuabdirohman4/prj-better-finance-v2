@@ -6,6 +6,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Architecture Patterns
 
+## Language: English-first (UI wording)
+
+**Semua wording di UI aplikasi WAJIB English** — label, button, placeholder, empty state, error message yang tampil ke user, tooltip. Multi-bahasa (termasuk Indonesian) menyusul lewat i18n; sampai itu ada, default English.
+
+- Berlaku: teks JSX, zod schema messages, thrown Error messages yang di-surface ke UI.
+- TIDAK berlaku: komentar kode, nama variabel (boleh apa adanya), doc internal (plan/prompt boleh Indonesian).
+- **Debt:** `ErrorContext` union di `src/lib/errorUtils.ts` + fallback `getErrorMessage` masih Indonesian (shared semua fitur). Translate saat i18n pass global, bukan per-fitur.
+
+
 > **Integrasi fitur (Goals/Assets/Transactions/Budgets):** READ `docs/architecture-integration.md` sebelum kerja di goals/assets/budget derivation — jelaskan model 1-source-of-truth (transaksi → semua view derived) + keputusan `goal_id` eksplisit.
 
 ### Data Layer (`src/db/queries/`)
@@ -67,7 +76,6 @@ Body dimulai dengan `mt-6` (bukan `pt-2`) untuk spacing wave → content.
 `usePrivacyStore` (Zustand) di `src/stores/privacyStore.ts` — `hideBalances: boolean`, `toggleHideBalances()`.
 Semua komponen yang tampilkan saldo WAJIB cek `hideBalances`.
 
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:7510c1e2 -->
 ### UI Components (`src/components/ui/`)
 Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
 
@@ -104,49 +112,32 @@ Workflow ini (diadaptasi untuk project ini, no GitHub remote):
 | Explore + plan (judgment, arsitektur) | **Opus** |
 | Eksekusi dari plan (kode dari spec jelas) | **Sonnet** |
 
-## Beads Issue Tracker
-
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
-
-### Quick Reference
+## Build / Test / Lint
 
 ```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work
-bd close <id>         # Complete work
+npm run dev        # dev server (next dev)
+npm run build      # production build — WAJIB lolos sebelum close issue (satu-satunya cara catch typo query/import)
+npm run test:run   # vitest sekali jalan (balance math unit tests)
+npm run test:e2e   # playwright
+npm run format     # prettier --write
 ```
+> Claude: JANGAN jalankan `build`/`test` sendiri (boros token) — minta user, analisa hasilnya saja.
 
-### Rules
+## Asset Category (`accounts.asset_category`)
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+Enum: `"liquid" | "investment" | "property" | "other"` (lihat `src/lib/constants.ts`).
+- **liquid** = uang siap pakai (Wallet, Bank, e-wallet) → dasar "uang bebas" di wishlist affordability + agregat kartu Accounts di Net Worth.
+- **investment/property/other** = non-liquid → kartu per-akun di Net Worth.
+`getAccountsWithType(userId)` return `asset_category` per akun. Filter `=== "liquid"` untuk liquid balance.
 
-**Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
+## Goals: `collected_amount` derived (bf-4ln)
 
-## Session Completion
+`getGoals` (`src/db/queries/goals.ts`) hitung `collected_amount` = base kolom + Σ `transactions` bertipe `transfer` dengan `goal_id` match (deleted_at NULL). **Derived, bukan kolom mentah** — jangan baca `savings_goals.collected_amount` langsung untuk progress. `percent = collected/target*100`.
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+## Wishlist Affordability (bf-ez2)
 
-**MANDATORY WORKFLOW:**
+"Bisa beli" ≠ punya uang. Patokan = **uang bebas** = liquid − Σ sisa target goal aktif (dana darurat = `goal_type "emergency"`, jadi ikut terhitung). 3 tingkat: 🟢 freeCash≥harga · ⚠️ liquid cukup tapi kuras alokasi · 🔴 liquid kurang. Lihat `getAffordabilityAction` di `wishlist/actions.ts`.
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+## Feature Pages (`src/app/(app)/`)
 
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-<!-- END BEADS INTEGRATION -->
+`accounts` · `assets` (Net Worth) · `budgets` · `goals` · `settings` · `transactions` · `wishlist`. Semua ikut Page Pattern di atas.

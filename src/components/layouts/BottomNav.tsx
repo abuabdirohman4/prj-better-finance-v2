@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ArrowLeftRight, PieChart, Target } from "lucide-react";
+import { Home, ArrowLeftRight, PieChart, Target, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
+  { href: "/transactions", label: "Trxn", icon: ArrowLeftRight },
   { href: "/budgets", label: "Budget", icon: PieChart },
   { href: "/goals", label: "Goals", icon: Target },
+  { href: "/wishlist", label: "Wishlist", icon: ShoppingBag },
 ] as const;
 
 export function BottomNav() {
