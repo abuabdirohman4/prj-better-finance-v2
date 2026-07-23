@@ -9,7 +9,6 @@ export const createGoalSchema = z.object({
   target_amount: z.number().positive("Target harus lebih dari 0"),
   monthly_contribution: z.number().positive().optional().nullable(),
   deadline_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
-  linked_account_id: z.string().uuid("Akun terhubung wajib dipilih"),
 });
 
 export const updateGoalSchema = createGoalSchema.partial().extend({
