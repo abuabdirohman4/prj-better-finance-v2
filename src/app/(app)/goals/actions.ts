@@ -9,7 +9,6 @@ import {
   softDeleteGoal,
   type GoalRow,
 } from "@/db/queries/goals";
-import { getAccountById } from "@/db/queries/accounts";
 import { createGoalSchema, updateGoalSchema, type CreateGoalInput, type UpdateGoalInput } from "@/lib/schemas/goal";
 import { z } from "zod";
 
@@ -32,13 +31,6 @@ export async function createGoalAction(
     if (!parsed.success) {
       return { success: false, message: parsed.error.issues[0].message };
     }
-    
-    if (parsed.data.linked_account_id) {
-      const account = await getAccountById(user.id, parsed.data.linked_account_id);
-      if (!account) {
-        return { success: false, message: "Akun tidak valid atau bukan milik Anda." };
-      }
-    }
 
     const id = await createGoal(user.id, parsed.data);
     return { success: true, data: { id } };
@@ -60,13 +52,6 @@ export async function updateGoalAction(
     const parsed = updateGoalSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, message: parsed.error.issues[0].message };
-    }
-
-    if (parsed.data.linked_account_id) {
-      const account = await getAccountById(user.id, parsed.data.linked_account_id);
-      if (!account) {
-        return { success: false, message: "Akun tidak valid atau bukan milik Anda." };
-      }
     }
 
     await updateGoal(user.id, goalId, parsed.data);
