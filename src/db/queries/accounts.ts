@@ -126,6 +126,7 @@ export async function createAccount(userId: string, input: CreateAccountInput): 
       name: input.name,
       slug,
       current_balance: String(input.current_balance),
+      asset_category: input.asset_category,
       include_in_net_worth: input.include_in_net_worth,
       sort_order: input.sort_order,
     })
@@ -148,6 +149,7 @@ export async function updateAccount(
     values.slug = input.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   }
   if (input.current_balance !== undefined) values.current_balance = String(input.current_balance);
+  if (input.asset_category !== undefined) values.asset_category = input.asset_category;
   if (input.include_in_net_worth !== undefined) values.include_in_net_worth = input.include_in_net_worth;
   if (input.sort_order !== undefined) values.sort_order = input.sort_order;
 
