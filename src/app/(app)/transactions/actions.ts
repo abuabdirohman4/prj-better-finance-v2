@@ -44,8 +44,7 @@ export async function getGoalsForTransferAction(): Promise<ServerActionResult<Go
   try {
     const user = await requireUser();
     const all = await getGoalsForSelect(user.id);
-    // hanya goal yang punya linked_account_id (bisa jadi tujuan transfer)
-    return { success: true, data: all.filter((g) => g.linked_account_id !== null) };
+    return { success: true, data: all };
   } catch (error) {
     return { success: false, message: handleApiError(error, "memuat data").message };
   }
