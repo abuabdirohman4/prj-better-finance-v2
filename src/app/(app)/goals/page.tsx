@@ -17,9 +17,8 @@ export default function GoalsPage() {
   const [editGoal, setEditGoal] = useState<GoalRow | null>(null);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
 
-  const { query, accountsQuery, createMutation, updateMutation, deleteMutation } = useGoals();
+  const { query, createMutation, updateMutation, deleteMutation } = useGoals();
   const goals = query.data ?? [];
-  const accounts = accountsQuery.data ?? [];
 
   const savingGoals = goals.filter((g) => g.goal_type === "Saving");
   const investingGoals = goals.filter((g) => g.goal_type === "Investment");
@@ -163,7 +162,6 @@ export default function GoalsPage() {
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         goal={editGoal}
-        accounts={accounts}
         onSave={handleSave}
         onDelete={handleDelete}
       />

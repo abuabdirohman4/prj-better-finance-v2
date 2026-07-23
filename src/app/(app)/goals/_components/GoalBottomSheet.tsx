@@ -8,19 +8,17 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { GoalRow } from "@/db/queries/goals";
 import type { CreateGoalInput } from "@/lib/schemas/goal";
-import type { AccountRow } from "@/db/queries/accounts";
 import { formatCurrency } from "@/lib/helper";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   goal: GoalRow | null; // null = create mode
-  accounts: AccountRow[];
   onSave: (input: CreateGoalInput & { collected_amount?: number }) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelete }: Props) {
+export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props) {
   const [name, setName] = useState("");
   const [goalType, setGoalType] = useState<"Saving" | "Investment">("Saving");
   const [targetAmountRaw, setTargetAmountRaw] = useState("");
@@ -30,7 +28,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
   const [monthlyContributionRaw, setMonthlyContributionRaw] = useState("");
   const [monthlyContributionDisplay, setMonthlyContributionDisplay] = useState("");
   const [deadlineDate, setDeadlineDate] = useState("");
-  const [linkedAccountId, setLinkedAccountId] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -51,7 +48,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
       setMonthlyContributionDisplay(goal?.monthly_contribution ? formatCurrency(goal.monthly_contribution) : "");
       
       setDeadlineDate(goal?.deadline_date || "");
-      setLinkedAccountId(goal?.linked_account_id || "");
       
       setErrorMsg("");
       setIsSubmitting(false);
@@ -69,7 +65,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
     setErrorMsg("");
     if (!name.trim()) return setErrorMsg("Nama goal harus diisi");
     if (!targetAmountRaw) return setErrorMsg("Target amount harus diisi");
-    if (!linkedAccountId) return setErrorMsg("Akun terhubung wajib dipilih");
 
     setIsSubmitting(true);
     try {
@@ -80,7 +75,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
         collected_amount: collectedAmountRaw ? Number(collectedAmountRaw) : 0,
         monthly_contribution: monthlyContributionRaw ? Number(monthlyContributionRaw) : null,
         deadline_date: deadlineDate || null,
-        linked_account_id: linkedAccountId,
       });
       onClose();
     } catch (err: any) {
@@ -195,17 +189,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
               value={deadlineDate}
               onChange={(e) => setDeadlineDate(e.target.value)}
             />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Akun Terhubung</label>
-              <SingleSelect
-                options={accounts.map(a => ({ value: a.id, label: a.name }))}
-                value={linkedAccountId}
-                onChange={setLinkedAccountId}
-                placeholder="Pilih akun..."
-                direction="up"
-              />
-            </div>
 
             <div className="pt-4 flex gap-3">
               {goal && (
