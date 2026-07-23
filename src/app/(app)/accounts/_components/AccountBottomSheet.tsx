@@ -32,6 +32,9 @@ export function AccountBottomSheet({
   const [balance, setBalance] = useState(
     account ? String(account.current_balance) : "0"
   );
+  const [assetCategory, setAssetCategory] = useState<
+    "liquid" | "investment" | "property" | "other"
+  >((account?.asset_category as "liquid" | "investment" | "property" | "other") ?? "liquid");
   const [includeInNetWorth, setIncludeInNetWorth] = useState(
     account?.include_in_net_worth ?? true
   );
@@ -91,6 +94,7 @@ export function AccountBottomSheet({
           name: name.trim(),
           account_type_id: accountTypeId,
           current_balance: parsedBalance,
+          asset_category: assetCategory,
           include_in_net_worth: includeInNetWorth,
           sort_order: parsedOrder ?? 999,
         });
@@ -102,6 +106,8 @@ export function AccountBottomSheet({
         const res = await updateAccountAction(account!.id, {
           name: name.trim() !== account!.name ? name.trim() : undefined,
           current_balance: parsedBalance !== account!.current_balance ? parsedBalance : undefined,
+          asset_category:
+            assetCategory !== account!.asset_category ? assetCategory : undefined,
           include_in_net_worth:
             includeInNetWorth !== account!.include_in_net_worth ? includeInNetWorth : undefined,
           sort_order:
@@ -200,6 +206,27 @@ export function AccountBottomSheet({
               </select>
             </div>
           )}
+
+          {/* Kategori Aset */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Kategori Aset
+            </label>
+            <select
+              value={assetCategory}
+              onChange={(e) =>
+                setAssetCategory(
+                  e.target.value as "liquid" | "investment" | "property" | "other"
+                )
+              }
+              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="liquid">🟢 Liquid — uang cair (Bank/Cash/E-wallet)</option>
+              <option value="investment">📈 Investment — Reksadana/Saham/Crypto</option>
+              <option value="property">🏠 Property — Emas/Tanah/Rumah</option>
+              <option value="other">📦 Other — BPJS/JHT/lainnya</option>
+            </select>
+          </div>
 
           {/* Saldo */}
           <div>
