@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-24 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: ~~bf-yts~~ (kode ✅, testing) → bf-wrp → **bf-bwh (migrasi data)**. Sisanya Post-MVP. Lihat **§MVP & Post-MVP**.
+> Diperbarui: 2026-07-24 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: ~~bf-yts~~ ✅ → **bf-wrp (kategori management)** → **bf-bwh (migrasi data)**. Sisanya Post-MVP. Lihat **§MVP & Post-MVP**.
 
 ---
 
@@ -18,9 +18,9 @@ Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus (tanpa data ka
 | # | Issue | Kenapa MVP | Status |
 |---|---|---|---|
 | ✅ | ~~bf-kt2~~ | Fix form kategori campur — **DONE** (closed). | ✅ closed |
-| 🔄 | **bf-yts** | Akun non-liquid (picker Kategori Aset) + transfer pisah Ke Akun/Untuk Goal + drop linked_account_id (goal multi-akun via transaksi). **KODE SELESAI** (12 commit), lagi testing + fix bug (edit preload, clear persist, stale build). | 🔄 testing |
-| 3 | **bf-wrp** | Migrasi butuh ini: kategori custom sheet gak ada di app → transaksi gagal/masuk Others. | ✅ design (`2026-07-23-bf-wrp-*`) |
-| 4 | **bf-bwh** | 🎯 **Tujuan MVP.** Import data sheet 2025-2026. Aman setelah #2 & #3 (wadah non-liquid + kategori siap). | ✅ prompt (`2026-07-23-bf-bwh-*`) |
+| ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field + drop linked_account_id + goal collected derived (LEFT JOIN fix) + Net Worth non-liquid render + /accounts liquid-only + redirect. **DONE** (closed). Follow-up: bf-alx, bf-7m3. | ✅ closed |
+| 2 | **bf-wrp** | 🎯 **NEXT.** Migrasi butuh ini: kategori custom sheet gak ada di app → transaksi gagal/masuk Others. | ✅ design (`2026-07-23-bf-wrp-*`) |
+| 3 | **bf-bwh** | 🎯 **Tujuan MVP.** Import data sheet 2025-2026. Aman setelah kategori siap. | ✅ prompt (`2026-07-23-bf-bwh-*`) |
 
 ### Post-MVP — NANTI (fitur, bukan blocker migrasi)
 
@@ -83,18 +83,18 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Transactions — filter | ✅ | `/transactions` | 2-col panel: type/account/category/note, MultiSelect searchable |
 | Transactions — CRUD | ✅ | `/transactions` | Bottom sheet create/edit/delete; balance reversal on edit/delete |
 | Transactions — transfer | ✅ | `/transactions` | Pisah **Ke Akun** (wajib) + **Untuk Goal** (opsional, tag goal_id). Goal multi-akun via transaksi. bf-yts 🔄 |
-| UI kit — minimal | ✅ | `src/components/ui/` | Button, Input, Select, MultiSelect (portal, searchable, groups) + SingleSelect (dari MultiSelect.tsx). Issue bf-bq8 |
+| UI kit — minimal | ✅ | `src/components/ui/` | Button, Input, Select, MultiSelect (portal, searchable, groups) + SingleSelect (dari MultiSelect.tsx; dipakai form akun bf-yts). Issue bf-bq8 |
 | UI kit — lengkap | 🔄 | `src/components/ui/` | ConfirmDialog ✅ (ganti `window.confirm`). Sisa: Checkbox, Toast/Sonner, DatePicker, Badge, Skeleton, Textarea, Switch. Issue **bf-qxb** (P3, open) |
 | UI polish — cursor | ⏳ | seluruh app | `cursor-pointer` di semua clickable (base Button + ~17 file raw). Issue **bf-lp4** (P3, open) |
 | Budgets | ✅ | `/budgets`, `/budgets/weekly` | Monthly CRUD + progress bar (bf-n43 ✅); weekly cascade algorithm (bf-9qc ✅) |
 | Goals — CRUD | ✅ | `/goals` | Progress, grouped by type, CRUD (bf-73n ✅). **linked_account_id di-DROP** (bf-yts) — goal tak lagi terikat 1 akun; lokasi dana derive dari transaksi |
 | Goals — integrasi | ✅ | `/goals` | goal_id di transaksi, collected derived (**bf-4ln** ✅). Transfer tag goal (bf-yts) — 1 goal bisa sebar multi-akun |
-| Net Worth | ✅ | `/assets` | Layout v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun, dibedakan warna. AP/AR ikut nanti (bf-13t). Issue **bf-9v5** ✅ |
+| Net Worth | ✅ | `/assets` | Layout v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun. Non-liquid filter `!== "liquid"` (bf-yts fix). Rename→/net-worth: **bf-alx**. AP/AR nanti (bf-13t). **bf-9v5** ✅ |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
 | Wishlist | ✅ | `/wishlist` | CRUD + status tabs + promote→goal + affordability (free cash = liquid − goals di akun liquid) + breakdown tooltip. UI English. Issue **bf-ez2** ✅ |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
 | Kategori — management | ⏳ | TBD | **Gap: user TIDAK bisa tambah/edit/hapus kategori** — cuma seed default. Brainstorm dulu (di mana kelola, custom group?). Issue **bf baru** |
-| Akun — non-liquid | 🔄 | `/accounts` | Picker **Kategori Aset** (Liquid/Investment/Property/Other) di form akun — bisa bikin Reksadana/Emas/Saham/BPJS/Crypto. Muncul di Net Worth non-liquid. **bf-yts** (kode ✅, testing) |
+| Akun — non-liquid | ✅ | `/accounts` → `/assets` | **Kategori Aset** 2 opsi (Liquid/Investment) via SingleSelect. Non-liquid tak muncul di /accounts (liquid-only), buat dari /accounts → redirect ke /assets. Enum DB shrink 4→2. **bf-yts** ✅ |
 | PWA | 🔄 | — | Manifest + globals ada; service worker & install UI belum |
 | Tests | 🔄 | — | Vitest unit: calcUpdateDeltas 5 cases ✅ (bf-13q). Playwright E2E belum |
 
@@ -134,9 +134,9 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Goals integrasi — goal_id + collected derived + transfer UI + akun wajib + ConfirmDialog (bf-4ln ✅)
 - [x] Net Worth — layout v1 (kartu Accounts agregat + non-liquid per akun), nama "Net Worth" (bf-9v5 ✅) + rename account types Cash/Bank/E-wallet
 - [x] Wishlist — CRUD + promote→goal + affordability free-cash (bf-ez2 ✅)
+- [x] Fix kategori transaksi — filter by txType (earning vs spending terpisah di form)
+- [x] akun non-liquid + akun goals (fondasi Net Worth non-liquid)
 - [ ] Settings — profil user + privacy preference persistence
-- [ ] Fix kategori transaksi — filter by txType (earning vs spending terpisah di form)
-- [ ] Brainstorm: akun non-liquid + akun goals (fondasi Net Worth non-liquid)
 - [ ] Brainstorm: kategori management (user tambah/edit kategori)
 
 ✅ **Semua P1 bugs closed:**
@@ -178,8 +178,8 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 | ✅ | ~~bf-9v5~~ | Net Worth | P2 | **DONE** — layout v1 (kartu Accounts agregat + non-liquid per akun), nama Net Worth, rename account types Cash/Bank/E-wallet. | closed |
 | ✅ | ~~bf-ez2~~ | Wishlist + promote→goal | P2 | **DONE** — CRUD + affordability free-cash + promote→goal + tooltip. UI English. | closed |
 | ✅ | ~~bf-kt2~~ | Fix kategori transaksi | P2 | **DONE** (closed) — form filter kategori by txType. | closed |
-| 🔄 | **bf-yts** | Akun non-liquid + transfer 2-field | P2 | **KODE SELESAI** (brainstorm + plan + 12 commit). Picker Kategori Aset + transfer pisah Ke Akun/Untuk Goal + drop linked_account_id. Lagi testing + fix bug. Design: `2026-07-23-bf-yts-*`. | 🔄 testing |
-| **3** | **bf-wrp** | Kategori management | P2 | **BRAINSTORM dulu.** User belum bisa tambah/edit/hapus kategori (cuma seed default). Di mana kelola + custom group? | ⏳ brainstorm |
+| ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field | P2 | **DONE** (closed). + goal collected LEFT JOIN fix, Net Worth non-liquid render, /accounts liquid-only, SingleSelect, enum 4→2. Follow-up bf-alx/bf-7m3. Design: `2026-07-23-bf-yts-*`. | closed |
+| **2** | **bf-wrp** | Kategori management | P2 | 🎯 **NEXT — BRAINSTORM dulu.** User belum bisa tambah/edit/hapus kategori (cuma seed default). Di mana kelola + custom group? Blocker migrasi bf-bwh. | ⏳ brainstorm |
 | **4** | **bf-13t** | AP/AR utang/piutang | P2 | Fitur unggulan + fondasi bisnis. **BRAINSTORM desain dulu** (schema, field, integrasi). Tabel terpisah, ikut Net Worth. | ⏳ brainstorm |
 | **5** | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
 | **6** | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
@@ -191,7 +191,7 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → commit → **sesi Claude BARU** untuk review (`/rename bf-xxx review`). 1 issue = 1 sesi review.
 
-**Prioritas sekarang:** **fix kategori transaksi** (quick win) → lalu brainstorm akun non-liquid + kategori management.
+**Prioritas sekarang:** **bf-wrp kategori management** (brainstorm dulu — blocker migrasi) → **bf-bwh migrasi data sheet** (tujuan MVP).
 
 ## Ditunda
 
