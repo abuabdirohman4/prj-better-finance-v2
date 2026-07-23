@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Calculator, ArrowUpRight, ArrowDownLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft, Calculator, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import { useTransactions } from "./_hooks/useTransactions";
 import { useAccounts } from "../accounts/_hooks/useAccounts";
 import { useCategories } from "./_hooks/useCategories";
@@ -142,7 +142,7 @@ export default function TransactionsPage() {
           <div className="bg-linear-to-br from-green-50 to-emerald-100 rounded-2xl border border-green-200 p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-white" />
+                <ArrowUp className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-medium text-green-800">Earning</span>
             </div>
@@ -153,7 +153,7 @@ export default function TransactionsPage() {
           <div className="bg-linear-to-br from-red-50 to-rose-100 rounded-2xl border border-red-200 p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <ArrowDownLeft className="w-4 h-4 text-white" />
+                <ArrowDown className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-medium text-red-800">Spending</span>
             </div>

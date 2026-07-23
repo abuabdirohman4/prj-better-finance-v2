@@ -9,8 +9,8 @@ import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { TransactionFilters } from "@/db/queries/transactions";
 
 const TX_TYPE_OPTIONS = [
-  { value: "spending", label: "Pengeluaran" },
-  { value: "earning", label: "Pemasukan" },
+  { value: "spending", label: "Spending" },
+  { value: "earning", label: "Earning" },
   { value: "transfer", label: "Transfer" },
 ];
 
@@ -86,7 +86,7 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
             onChange={setTypes}
             placeholder="All Types"
             iconPrefix="💰"
-            allOptionLabel="Semua Tipe"
+            allOptionLabel="All Types"
           />
         </div>
 

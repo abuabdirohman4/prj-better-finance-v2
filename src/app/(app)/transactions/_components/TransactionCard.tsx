@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Building2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowLeftRight, Building2 } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { cn } from "@/lib/utils";
@@ -10,14 +10,14 @@ const MASK = "Rp \u2022\u2022\u2022\u2022";
 
 const TYPE_CONFIG = {
   spending: {
-    icon: ArrowDownLeft,
+    icon: ArrowDown,
     iconBg: "bg-red-100",
     iconColor: "text-red-600",
     amountColor: "text-red-600",
     sign: "signs" as const,
   },
   earning: {
-    icon: ArrowUpRight,
+    icon: ArrowUp,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
     amountColor: "text-green-600",
@@ -71,8 +71,9 @@ export function TransactionCard({
         <p className="text-sm font-semibold text-gray-900 truncate mb-0.5">{title}</p>
         {isTransfer ? (
           <p className="text-xs text-gray-500 flex items-center gap-1 truncate">
+            {tx.account_name} 
             <ArrowLeftRight className="w-3 h-3 shrink-0" />
-            {tx.account_name} \u2192 {tx.to_account_name ?? "?"}
+            {tx.to_account_name ?? "?"}
           </p>
         ) : (
           <p className="text-xs text-gray-500 flex items-center gap-1 truncate">
