@@ -5,6 +5,7 @@ import { X, Trash2 } from "lucide-react";
 import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { GoalRow } from "@/db/queries/goals";
 import type { CreateGoalInput } from "@/lib/schemas/goal";
 import type { AccountRow } from "@/db/queries/accounts";
@@ -33,6 +34,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -67,6 +69,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
     setErrorMsg("");
     if (!name.trim()) return setErrorMsg("Nama goal harus diisi");
     if (!targetAmountRaw) return setErrorMsg("Target amount harus diisi");
+    if (!linkedAccountId) return setErrorMsg("Akun terhubung wajib dipilih");
 
     setIsSubmitting(true);
     try {
@@ -77,7 +80,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
         collected_amount: collectedAmountRaw ? Number(collectedAmountRaw) : 0,
         monthly_contribution: monthlyContributionRaw ? Number(monthlyContributionRaw) : null,
         deadline_date: deadlineDate || null,
-        linked_account_id: linkedAccountId || null,
+        linked_account_id: linkedAccountId,
       });
       onClose();
     } catch (err: any) {
@@ -87,11 +90,12 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
     }
   };
 
-  const handleDelete = async () => {
-    if (!goal || !window.confirm("Hapus goal ini?")) return;
+  const confirmDelete = async () => {
+    if (!goal) return;
     setIsSubmitting(true);
     try {
       await onDelete(goal.id);
+      setConfirmOpen(false);
       onClose();
     } catch (err: any) {
       setErrorMsg(err.message || "Gagal menghapus");
@@ -165,13 +169,16 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
             />
 
             {goal && (
-              <Input
-                label="Uang Terkumpul Saat Ini"
-                value={collectedAmountDisplay}
-                onChange={(e) => handleAmountChange(e.target.value, setCollectedAmountRaw, setCollectedAmountDisplay)}
-                placeholder="Rp 0"
-                inputMode="numeric"
-              />
+              <div className="space-y-1">
+                <Input
+                  label="Saldo Awal (opening)"
+                  value={collectedAmountDisplay}
+                  onChange={(e) => handleAmountChange(e.target.value, setCollectedAmountRaw, setCollectedAmountDisplay)}
+                  placeholder="Rp 0"
+                  inputMode="numeric"
+                />
+                <p className="text-xs text-gray-500">Uang yang sudah terkumpul sebelum pakai app. Kontribusi berikutnya otomatis dari transaksi transfer ke goal ini.</p>
+              </div>
             )}
 
             <Input
@@ -190,7 +197,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Akun Terhubung (Opsional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Akun Terhubung</label>
               <SingleSelect
                 options={accounts.map(a => ({ value: a.id, label: a.name }))}
                 value={linkedAccountId}
@@ -198,7 +205,6 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
                 placeholder="Pilih akun..."
                 direction="up"
               />
-              <p className="text-xs text-gray-400 mt-1">Goal ini hanya untuk pencatatan (progress di-update manual), menghubungkan akun tidak otomatis memotong saldo.</p>
             </div>
 
             <div className="pt-4 flex gap-3">
@@ -206,7 +212,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleDelete}
+                  onClick={() => setConfirmOpen(true)}
                   disabled={isSubmitting}
                   className="px-4 text-red-600 border-red-200 hover:bg-red-50"
                 >
@@ -220,6 +226,15 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
           </form>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Hapus goal ini?"
+        message="Goal akan dihapus. Transaksi yang sudah ter-tag goal ini tetap ada, hanya kehilangan tautannya."
+        loading={isSubmitting}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </>
   );
 }

@@ -14,6 +14,7 @@ export interface TransactionRow {
   category_name: string | null;
   to_account_id: string | null;
   to_account_name: string | null;
+  goal_id: string | null;
 }
 
 export interface TransactionFilters {
@@ -49,6 +50,7 @@ export async function getTransactions(
       category_name: categories.name,
       to_account_id: transactions.to_account_id,
       to_account_name: toAccounts.name,
+      goal_id: transactions.goal_id,
     })
     .from(transactions)
     .innerJoin(accounts, eq(accounts.id, transactions.account_id))
@@ -100,6 +102,7 @@ export async function createTransaction(
       account_id: input.account_id,
       to_account_id: input.to_account_id ?? null,
       category_id: input.category_id ?? null,
+      goal_id: input.goal_id ?? null,
       amount: String(input.amount),
       note: input.note ?? null,
     })
@@ -129,6 +132,7 @@ export async function getTransactionById(
       category_name: categories.name,
       to_account_id: transactions.to_account_id,
       to_account_name: toAccounts.name,
+      goal_id: transactions.goal_id,
     })
     .from(transactions)
     .innerJoin(accounts, eq(accounts.id, transactions.account_id))
@@ -159,6 +163,7 @@ export async function updateTransaction(
   if (input.account_id !== undefined) values.account_id = input.account_id;
   if ("to_account_id" in input) values.to_account_id = input.to_account_id ?? null;
   if ("category_id" in input) values.category_id = input.category_id ?? null;
+  if ("goal_id" in input) values.goal_id = input.goal_id ?? null;
   if (input.amount !== undefined) values.amount = String(input.amount);
   if ("note" in input) values.note = input.note ?? null;
 

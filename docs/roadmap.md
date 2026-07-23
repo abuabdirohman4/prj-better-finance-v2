@@ -48,10 +48,11 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Transactions — CRUD | ✅ | `/transactions` | Bottom sheet create/edit/delete; balance reversal on edit/delete |
 | Transactions — transfer | ✅ | `/transactions` | From/to account, balance delta pada kedua akun |
 | UI kit — minimal | ✅ | `src/components/ui/` | Button, Input, Select, MultiSelect (portal, searchable, groups) + SingleSelect (dari MultiSelect.tsx). Issue bf-bq8 |
-| UI kit — lengkap | ⏳ | `src/components/ui/` | Checkbox, Modal reusable, Toast/Sonner, DatePicker, Badge, Skeleton, Textarea, Switch. Issue **bf-qxb** (P3, open) |
+| UI kit — lengkap | 🔄 | `src/components/ui/` | ConfirmDialog ✅ (ganti `window.confirm`). Sisa: Checkbox, Toast/Sonner, DatePicker, Badge, Skeleton, Textarea, Switch. Issue **bf-qxb** (P3, open) |
+| UI polish — cursor | ⏳ | seluruh app | `cursor-pointer` di semua clickable (base Button + ~17 file raw). Issue **bf-lp4** (P3, open) |
 | Budgets | ✅ | `/budgets`, `/budgets/weekly` | Monthly CRUD + progress bar (bf-n43 ✅); weekly cascade algorithm (bf-9qc ✅) |
-| Goals — CRUD | ✅ | `/goals` | Progress, grouped by type, CRUD (bf-73n ✅). collected manual — integrasi derived = bf-4ln |
-| Goals — integrasi | ⏳ | `/goals` | goal_id di transaksi, collected derived, transfer grup Akun/Goals (**bf-4ln**) |
+| Goals — CRUD | ✅ | `/goals` | Progress, grouped by type, CRUD (bf-73n ✅). Akun terhubung wajib + ConfirmDialog delete |
+| Goals — integrasi | ✅ | `/goals` | goal_id di transaksi, collected derived, transfer grup Akun/Goals (**bf-4ln** ✅) |
 | Assets | ⏳ | `/assets` | Net worth toggle, non-liquid accounts |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
 | Wishlist | ⏳ | `/wishlist` | Affordability check |
@@ -92,7 +93,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Wallet denominations — section di `/accounts/[id]`, grid pecahan fisik, live total, auto reality check. Issue bf-p8w ✅
 - [x] Budgets — monthly CRUD + progress bar (bf-n43 ✅) + weekly cascade (bf-9qc ✅)
 - [x] Goals — progress, grouped by type, CRUD (bf-73n ✅)
-- [ ] Goals integrasi — goal_id + collected derived + transfer UI (bf-4ln)
+- [x] Goals integrasi — goal_id + collected derived + transfer UI + akun wajib + ConfirmDialog (bf-4ln ✅)
 - [ ] Assets — net worth toggle, filter non-liquid accounts (bf-9v5)
 - [ ] Wishlist — affordability check
 - [ ] Settings — profil user + privacy preference persistence
@@ -112,6 +113,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - Vitest: helper finansial (formatCurrency, budget color, week calc)
 - Playwright: E2E signin → tambah transaksi → cek dashboard update
 - UI kit lengkap (**bf-qxb**, P3 open) — sudah dipindah ke tabel Status Fitur di atas; kerjakan on-demand saat fitur baru butuh komponen (mis. DatePicker utk budgets)
+- UI polish cursor-pointer (**bf-lp4**, P3 open) — base Button + ~17 file raw clickable. Batch di sini, atau sekalian saat sentuh UI fitur lain
 
 ### Phase 6 — Migrasi data v1 → v2 (opsional, belum dikerjakan)
 
@@ -138,6 +140,7 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 | 5 | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
 | 6 | **bf-gv5** | CFP analysis + insights | P3 | Butuh data (bisa dari sheet/DB). Mode 1 (chat) bisa sekarang tanpa coding. | ✅ `2026-07-23-bf-gv5-*` |
 | 7 | **bf-qxb** | UI kit lengkap | P3 | On-demand — kerjakan saat fitur butuh komponen baru (mis. DatePicker). Tidak berurutan. | ✅ `2026-07-22-bf-qxb-*` |
+| — | **bf-lp4** | UI polish cursor-pointer | P3 | Polish global, bukan blocker. Batch di Phase 5, atau sekalian saat sentuh UI fitur. Tidak berurutan. | ✅ `2026-07-23-bf-lp4-*` |
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → commit → **sesi Claude BARU** untuk review (`/rename bf-xxx review`). 1 issue = 1 sesi review.
 

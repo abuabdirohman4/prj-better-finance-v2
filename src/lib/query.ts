@@ -30,6 +30,7 @@ export const transactionKeys = {
   byMonth: (year: number, month: number) =>
     [...transactionKeys.all, "month", year, month] as const,
   detail: (id: string) => [...transactionKeys.all, "detail", id] as const,
+  goalsForTransfer: () => [...transactionKeys.all, "goals-for-transfer"] as const,
 };
 
 export const budgetKeys = {

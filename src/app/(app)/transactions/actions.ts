@@ -12,6 +12,7 @@ import {
 } from "@/db/queries/transactions";
 import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
 import { getAccountById, getCategories, applyTransactionBalancesRpc, type CategoryRow } from "@/db/queries/accounts";
+import { getGoalsForSelect, type GoalSelectRow } from "@/db/queries/goals";
 import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
 import { createTransactionSchema, updateTransactionSchema } from "@/lib/schemas/transaction";
@@ -39,6 +40,17 @@ export async function getCategoriesAction(): Promise<ServerActionResult<Category
   }
 }
 
+export async function getGoalsForTransferAction(): Promise<ServerActionResult<GoalSelectRow[]>> {
+  try {
+    const user = await requireUser();
+    const all = await getGoalsForSelect(user.id);
+    // hanya goal yang punya linked_account_id (bisa jadi tujuan transfer)
+    return { success: true, data: all.filter((g) => g.linked_account_id !== null) };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
 export async function createTransactionAction(
   input: CreateTransactionInput
 ): Promise<ServerActionResult<{ id: string }>> {
@@ -61,6 +73,13 @@ export async function createTransactionAction(
       }
       const destAccount = await getAccountById(user.id, validInput.to_account_id);
       if (!destAccount) return { success: false, message: "Akun tujuan tidak ditemukan." };
+    }
+
+    if (validInput.goal_id) {
+      const goals = await getGoalsForSelect(user.id);
+      if (!goals.find((g) => g.id === validInput.goal_id)) {
+        return { success: false, message: "Goal tidak ditemukan atau bukan milik Anda." };
+      }
     }
 
     const id = await createTransaction(user.id, validInput);
@@ -114,6 +133,14 @@ export async function updateTransactionAction(
     }
     if (newType === "transfer" && newAccountId === newToAccountId) {
       return { success: false, message: "Akun sumber dan tujuan tidak boleh sama." };
+    }
+
+    const newGoalId = "goal_id" in validInput ? validInput.goal_id : old.goal_id;
+    if (newGoalId && newGoalId !== old.goal_id) {
+      const goals = await getGoalsForSelect(user.id);
+      if (!goals.find((g) => g.id === newGoalId)) {
+        return { success: false, message: "Goal tidak ditemukan atau bukan milik Anda." };
+      }
     }
 
     // All balance adjustments atomic via Postgres RPC

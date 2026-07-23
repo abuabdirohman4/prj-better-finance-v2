@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/helper";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { transactionKeys } from "@/lib/query";
+import { getGoalsForTransferAction } from "../actions";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
 
@@ -21,6 +23,7 @@ interface TransactionFormProps {
     transaction_date: string;
     account_id: string;
     to_account_id?: string | null;
+    goal_id?: string | null;
     category_id?: string | null;
     amount: number;
     note?: string | null;
@@ -59,7 +62,9 @@ export function TransactionForm({
   const [txType, setTxType] = useState<TxType>((init?.transaction_type as TxType) ?? "spending");
   const [date, setDate] = useState(init?.transaction_date ?? todayStr());
   const [accountId, setAccountId] = useState(init?.account_id ?? accounts[0]?.id ?? "");
-  const [toAccountId, setToAccountId] = useState(init?.to_account_id ?? "");
+  const [toAccountId, setToAccountId] = useState(
+    init?.goal_id ? `goal:${init.goal_id}` : init?.to_account_id ? `acc:${init.to_account_id}` : ""
+  );
   const [categoryId, setCategoryId] = useState(init?.category_id ?? "");
   const [rawAmount, setRawAmount] = useState(initAmount);
   const [displayAmount, setDisplayAmount] = useState(
@@ -67,10 +72,27 @@ export function TransactionForm({
   );
   const [note, setNote] = useState(init?.note ?? "");
 
+  const { data: goalsRes } = useQuery({
+    queryKey: transactionKeys.goalsForTransfer(),
+    queryFn: async () => getGoalsForTransferAction(),
+    enabled: txType === "transfer",
+  });
+  const goalsForTransfer = (goalsRes?.success ? goalsRes.data : []) ?? [];
+
   const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }));
-  const toAccountOptions = accounts
-    .filter((a) => a.id !== accountId)
-    .map((a) => ({ value: a.id, label: a.name }));
+  
+  const toAccountOptions = [
+    ...accounts
+      .filter((a) => a.id !== accountId)
+      .map((a) => ({ value: `acc:${a.id}`, label: a.name, group: "AKUN" })),
+    ...goalsForTransfer
+      .map((g) => ({ 
+        value: `goal:${g.id}`, 
+        label: `${g.name} → ${g.linked_account_name}`, 
+        group: "GOALS" 
+      })),
+  ];
+
   const categoryOptions = categories.map((c) => ({
     value: c.id,
     label: c.name,
@@ -92,15 +114,33 @@ export function TransactionForm({
     if (!date) return;
 
     if (!note.trim()) return;
-    onSubmit({
+
+    let finalToAccount: string | undefined;
+    let finalGoalId: string | undefined;
+
+    if (txType === "transfer" && toAccountId) {
+      if (toAccountId.startsWith("acc:")) {
+        finalToAccount = toAccountId.replace("acc:", "");
+      } else if (toAccountId.startsWith("goal:")) {
+        const gId = toAccountId.replace("goal:", "");
+        finalGoalId = gId;
+        const goal = goalsForTransfer.find((g) => g.id === gId);
+        if (!goal || !goal.linked_account_id) return; // goal tak punya akun tujuan, batalkan
+        finalToAccount = goal.linked_account_id;
+      }
+    }
+
+    const submitData: UpdateTransactionInput = {
       transaction_date: date,
       transaction_type: txType,
       account_id: accountId,
-      to_account_id: txType === "transfer" ? toAccountId || undefined : undefined,
+      to_account_id: finalToAccount,
+      goal_id: finalGoalId,
       category_id: txType !== "transfer" ? categoryId || undefined : undefined,
       amount,
       note: note.trim(),
-    });
+    };
+    onSubmit(submitData);
   }
 
   return (

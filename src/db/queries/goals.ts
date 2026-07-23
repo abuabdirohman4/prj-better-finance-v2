@@ -1,6 +1,6 @@
 import { and, eq, desc, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { savingsGoals, accounts } from "@/db/schema";
+import { savingsGoals, accounts, transactions } from "@/db/schema";
 
 export interface GoalRow {
   id: string;
@@ -26,7 +26,16 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
       description: savingsGoals.description,
       goal_type: savingsGoals.goal_type,
       target_amount: sql<number>`${savingsGoals.target_amount}::numeric`,
-      collected_amount: sql<number>`${savingsGoals.collected_amount}::numeric`,
+      collected_amount: sql<number>`
+        ${savingsGoals.collected_amount}::numeric
+        + COALESCE((
+            SELECT SUM(t.amount)
+            FROM transactions t
+            WHERE t.goal_id = ${savingsGoals.id}
+              AND t.transaction_type = 'transfer'
+              AND t.deleted_at IS NULL
+          ), 0)
+      `,
       monthly_contribution: sql<number>`${savingsGoals.monthly_contribution}::numeric`,
       deadline_date: savingsGoals.deadline_date,
       duration_label: savingsGoals.duration_label,
@@ -109,4 +118,27 @@ export async function softDeleteGoal(userId: string, goalId: string): Promise<vo
     .update(savingsGoals)
     .set({ is_active: false, updated_at: sql`now()` })
     .where(and(eq(savingsGoals.id, goalId), eq(savingsGoals.user_id, userId)));
+}
+
+export interface GoalSelectRow {
+  id: string;
+  name: string;
+  linked_account_id: string | null;
+  linked_account_name: string | null;
+  goal_type: string;
+}
+
+export async function getGoalsForSelect(userId: string): Promise<GoalSelectRow[]> {
+  return db
+    .select({
+      id: savingsGoals.id,
+      name: savingsGoals.name,
+      linked_account_id: savingsGoals.linked_account_id,
+      linked_account_name: accounts.name,
+      goal_type: savingsGoals.goal_type,
+    })
+    .from(savingsGoals)
+    .leftJoin(accounts, eq(savingsGoals.linked_account_id, accounts.id))
+    .where(and(eq(savingsGoals.user_id, userId), eq(savingsGoals.is_active, true)))
+    .orderBy(savingsGoals.goal_type, savingsGoals.name);
 }
