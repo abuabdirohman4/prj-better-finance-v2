@@ -1,0 +1,1 @@
+saat ini close open collapse di card belum tersimpan, seharusnya ini bisa disimpan kan di zustand? jadi kalau sebelum sudah dibuka, saat kembali bisa terbuka juga

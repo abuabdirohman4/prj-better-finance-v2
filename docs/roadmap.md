@@ -1,7 +1,43 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif** — Goals integrasi (bf-4ln) ✅ + Net Worth (bf-9v5) ✅ + Wishlist (bf-ez2) ✅. **Next: fix kategori transaksi (bf baru) → brainstorm akun non-liquid + kategori management → bf-13t AP/AR / bf-9vf Settings**. Lihat **§Urutan Kerja**.
+> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: bf-yts → bf-wrp → **bf-bwh (migrasi data)**. Sisanya Post-MVP. Lihat **§MVP & Post-MVP**.
+
+---
+
+## 🎯 MVP & Post-MVP (per 2026-07-23)
+
+> **Definisi MVP: app cukup buat GANTI Google Sheet — dogfood harian.**
+> Aturan pilah: *"issue ini nampung DATA sheet, atau nambah FITUR baru?"* → nampung data = MVP, fitur baru = nanti.
+> Beads gak bikin kerjaan nambah — dia parkiran ide biar visi ke-capture tanpa dikerjain sekarang. 21 issue udah closed; yang "bengkak" cuma spin-off ide (bagus, terparkir).
+
+### MVP — SEKARANG (jalur ke migrasi)
+
+Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus (tanpa data kacau).
+
+| # | Issue | Kenapa MVP | Status |
+|---|---|---|---|
+| ✅ | ~~bf-kt2~~ | Fix form kategori campur — **DONE** (closed). | ✅ closed |
+| 2 | **bf-yts** | Migrasi butuh ini: akun non-liquid (Reksadana/Emas/dll) belum bisa disimpan → tanpa ini data non-liquid kacau. | ✅ design (`2026-07-23-bf-yts-*`) |
+| 3 | **bf-wrp** | Migrasi butuh ini: kategori custom sheet gak ada di app → transaksi gagal/masuk Others. | ✅ design (`2026-07-23-bf-wrp-*`) |
+| 4 | **bf-bwh** | 🎯 **Tujuan MVP.** Import data sheet 2025-2026. Aman setelah #2 & #3 (wadah non-liquid + kategori siap). | ✅ prompt (`2026-07-23-bf-bwh-*`) |
+
+### Post-MVP — NANTI (fitur, bukan blocker migrasi)
+
+Semua ini **nambah fitur**, gak nampung data sheet. Sheet tetap jalan sementara. Kerjakan setelah dogfood.
+
+| Issue | Fitur | Catatan |
+|---|---|---|
+| bf-13t | AP/AR utang/piutang | fitur unggulan, brainstorm dulu |
+| bf-4z1 | income budget | planning pemasukan, bukan data |
+| bf-btz | goal usage ledger | spend-down + history per goal, anti double-count |
+| bf-yz4 | budget saving/transfer | target nabung per goal |
+| bf-aq8 | breakdown produk investasi | sub-produk (Saham BCA, Emas cincin); depends bf-yts |
+| bf-kvk | goal reality check | pengaman collected ≈ saldo |
+| bf-9vf | settings + privacy | shell |
+| bf-gv5 | CFP analysis + insights | butuh data dulu |
+| bf-bp5 | global i18n pass | English-first + multi-bahasa |
+| bf-qxb / bf-lp4 | UI kit lengkap / cursor polish | on-demand / batch Phase 5 |
 
 ---
 
