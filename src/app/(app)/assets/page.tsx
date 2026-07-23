@@ -1,10 +1,163 @@
+"use client";
+
+import { Eye, EyeOff, Wallet, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { useAssets } from "./_hooks/useAssets";
+import { formatCurrency } from "@/lib/helper";
+import { usePrivacyStore } from "@/stores/privacyStore";
+import { getAccountVisual } from "@/lib/accountVisuals";
+import type { AssetRow } from "@/db/queries/assets";
+
+const MASK = "Rp •••.•••";
+
 export default function AssetsPage() {
+  const { data, isLoading, isError } = useAssets();
+  const hideBalances = usePrivacyStore((s) => s.hideBalances);
+  const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+
+  const netWorth = data?.netWorth ?? 0;
+  const liquid = data?.totalLiquid ?? 0;
+  const nonLiquid = data?.totalNonLiquid ?? 0;
+  
+  const liquidPercent = netWorth > 0 ? (liquid / netWorth) * 100 : 0;
+  const nonLiquidPercent = netWorth > 0 ? (nonLiquid / netWorth) * 100 : 0;
+
   return (
-    <div className="px-4 py-6">
-      <h1 className="text-xl font-bold text-gray-900 mb-4">Aset & Portofolio</h1>
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <p className="text-gray-400 text-sm">Halaman assets — coming soon.</p>
+    <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen pb-24">
+      {/* Header gradient */}
+      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 py-7">
+        {/* Wave shape bawah */}
+        <div className="absolute bottom-0 left-0 w-full h-8">
+          <svg viewBox="0 0 400 32" className="w-full h-full" preserveAspectRatio="none">
+            <path d="M0,32 Q100,20 200,32 T400,20 L400,32 Z" fill="rgb(249 250 251)" />
+          </svg>
+        </div>
+        
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Link href="/" className="text-white hover:bg-white/20 p-1.5 rounded-full transition-colors">
+              <ChevronLeft className="w-7 h-7" />
+            </Link>
+            <h1 className="text-xl font-bold text-white">Net Worth</h1>
+          </div>
+          <button
+            onClick={toggle}
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+            aria-label="Toggle saldo"
+          >
+            {hideBalances ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 pb-8 mt-6 space-y-6">
+        {/* Total Assets card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center justify-center text-center">
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Net Worth</p>
+          {isLoading ? (
+            <div className="animate-pulse bg-gray-200 h-10 w-48 rounded" />
+          ) : (
+            <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
+              {hideBalances ? MASK : formatCurrency(netWorth)}
+            </h2>
+          )}
+        </div>
+
+        {/* Breakdown bar */}
+        <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+          <div className="flex justify-between items-center mb-3 text-sm font-semibold">
+            <span className="text-blue-600 flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Liquid
+            </span>
+            <span className="text-emerald-600 flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Non-Liquid
+            </span>
+          </div>
+          
+          <div className="h-3 w-full flex rounded-full overflow-hidden bg-gray-100 mb-3">
+            <div className="bg-blue-500 h-full transition-all duration-1000" style={{ width: `${liquidPercent}%` }}></div>
+            <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${nonLiquidPercent}%` }}></div>
+          </div>
+          
+          <div className="flex justify-between items-center text-sm font-bold text-gray-900">
+            <span>{hideBalances ? MASK : formatCurrency(liquid, "short")}</span>
+            <span>{hideBalances ? MASK : formatCurrency(nonLiquid, "short")}</span>
+          </div>
+        </div>
+
+        {/* Grid gabung: kartu "Accounts" (agregat liquid) + non-liquid per akun. Liquid/non-liquid dibedakan warna kartu. */}
+        {isLoading ? (
+          <div className="grid grid-cols-3 gap-3"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
+        ) : isError ? (
+          <p className="text-red-500 text-sm px-1">Gagal memuat data.</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {/* Kartu Accounts = agregat semua akun liquid, klik -> /accounts */}
+            <Link href="/accounts" className="block bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden active:scale-95 transition-transform hover:shadow-xl group">
+              <div className="flex flex-col items-center p-3 pb-3">
+                <div className="mb-1.5 w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                  <Wallet className="w-5 h-5" strokeWidth={1.8} />
+                </div>
+                <h3 className="font-bold text-gray-900 text-xs text-center group-hover:text-blue-600 transition-colors">Accounts</h3>
+              </div>
+              <div className="text-center py-1.5 px-1 mt-auto bg-blue-100/50 text-blue-600">
+                <p className="font-bold text-[9px] truncate">
+                  {hideBalances ? MASK : formatCurrency(liquid)}
+                </p>
+              </div>
+            </Link>
+
+            {/* Non-liquid per akun */}
+            {data?.assets.filter(a => a.asset_category === "non-liquid").map(a => (
+              <AssetCard key={a.id} asset={a} hideBalances={hideBalances} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+function AssetCard({ asset, hideBalances }: { asset: AssetRow; hideBalances: boolean }) {
+  const visual = getAccountVisual(asset.name);
+  const initials = visual.initials || asset.name.substring(0, 2).toUpperCase();
+  const isLiquid = asset.asset_category === "liquid";
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col active:scale-95 transition-transform hover:shadow-xl group">
+      <div className="flex flex-col items-center p-3 pb-3">
+        {visual.isWalletIcon ? (
+          <div className={`mb-1.5 ${isLiquid ? "text-blue-500" : "text-emerald-500"}`}>
+            <Wallet className="w-6 h-6" strokeWidth={1.8} />
+          </div>
+        ) : (
+          <div className={`mb-1.5 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${isLiquid ? "bg-blue-500" : "bg-emerald-500"}`}>
+            {initials}
+          </div>
+        )}
+        <h3 className="font-bold text-gray-900 text-xs text-center truncate w-full group-hover:text-blue-600 transition-colors">
+          {asset.name}
+        </h3>
+      </div>
+      <div className={`text-center py-1.5 px-1 mt-auto ${isLiquid ? "bg-blue-100/50 text-blue-600" : "bg-emerald-100/50 text-emerald-700"}`}>
+        <p className="font-bold text-[9px] truncate">
+          {hideBalances ? MASK : formatCurrency(asset.current_balance)}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col">
+      <div className="flex flex-col items-center p-3 pb-3">
+        <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse mb-1.5" />
+        <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+      </div>
+      <div className="h-6 bg-gray-100 mt-auto" />
+    </div>
+  );
+}
+
+

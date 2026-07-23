@@ -50,6 +50,7 @@ export const assetKeys = {
   all: ["assets"] as const,
   list: () => [...assetKeys.all, "list"] as const,
   netWorth: () => [...assetKeys.all, "net-worth"] as const,
+  summary: () => [...assetKeys.all, "summary"] as const,
 };
 
 export const categoryKeys = {

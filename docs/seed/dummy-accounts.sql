@@ -6,9 +6,9 @@
 DO $$
 DECLARE
   v_user   UUID := (SELECT id FROM public.user_profiles ORDER BY created_at LIMIT 1);
-  v_wallet UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'wallet');
-  v_atm    UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'atm');
-  v_plat   UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'platform');
+  v_wallet UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'cash');
+  v_atm    UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'bank');
+  v_plat   UUID := (SELECT id FROM public.account_types WHERE user_id = v_user AND slug = 'ewallet');
   v_mandiri_id UUID;
 BEGIN
   -- ── Accounts ──────────────────────────────────────────────────────────────

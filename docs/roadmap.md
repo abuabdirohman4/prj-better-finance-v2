@@ -53,7 +53,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Budgets | ✅ | `/budgets`, `/budgets/weekly` | Monthly CRUD + progress bar (bf-n43 ✅); weekly cascade algorithm (bf-9qc ✅) |
 | Goals — CRUD | ✅ | `/goals` | Progress, grouped by type, CRUD (bf-73n ✅). Akun terhubung wajib + ConfirmDialog delete |
 | Goals — integrasi | ✅ | `/goals` | goal_id di transaksi, collected derived, transfer grup Akun/Goals (**bf-4ln** ✅) |
-| Assets | ⏳ | `/assets` | Net worth toggle, non-liquid accounts |
+| Net Worth | ⏳ | `/assets` | REVISI: nama "Net Worth". Layout ala v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun. AP/AR ikut nanti (bf-13t). Issue **bf-9v5** |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
 | Wishlist | ⏳ | `/wishlist` | Affordability check |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
@@ -94,7 +94,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Budgets — monthly CRUD + progress bar (bf-n43 ✅) + weekly cascade (bf-9qc ✅)
 - [x] Goals — progress, grouped by type, CRUD (bf-73n ✅)
 - [x] Goals integrasi — goal_id + collected derived + transfer UI + akun wajib + ConfirmDialog (bf-4ln ✅)
-- [ ] Assets — net worth toggle, filter non-liquid accounts (bf-9v5)
+- [ ] Net Worth — layout v1 (kartu Accounts agregat + non-liquid per akun), nama "Net Worth" (bf-9v5)
 - [ ] Wishlist — affordability check
 - [ ] Settings — profil user + privacy preference persistence
 
@@ -151,6 +151,7 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 - AI insights (`ai_insights`) + integrasi model
 - Subscription enforcement penuh + Stripe
 - Realtime subscriptions
+- **AP/AR (utang/piutang)** — tabel terpisah receivables/payables, fitur unggulan + fondasi bisnis/UMKM. Ikut Net Worth (AR+, AP−). Issue **bf-13t** (P2). Konsep: bd memory `assets-networth-apar-concept`. BELUM ada plan/prompt — konsep dulu.
 - Multi-household / sharing — **shared ledger + audit trail** (suami-istri: shared + private ledger). Konsep di `docs/konsep-keuangan.md` §7. Butuh geser scope `user_id` → `ledger_id`. Tier Family.
 
 ---

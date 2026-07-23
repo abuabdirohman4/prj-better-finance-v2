@@ -54,13 +54,16 @@ export default function DashboardPage() {
       </div>
 
       <div className="px-3 pb-8 mt-6 space-y-6">
-        {/* Total Assets card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        {/* Net Worth card */}
+        <Link href="/assets" className="block bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow group">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-800">Total Assets</h2>
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">Net Worth</h2>
             <div className="flex items-center space-x-2">
               <button
-                onClick={toggle}
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggle();
+                }}
                 className="p-1 rounded-full hover:bg-gray-100 text-gray-400"
                 aria-label="Toggle saldo"
               >
@@ -78,7 +81,7 @@ export default function DashboardPage() {
               {hideBalances ? MASK : formatCurrency(data?.totalAssets ?? 0)}
             </p>
           )}
-        </div>
+        </Link>
 
         {/* Top Used Accounts */}
         <div>

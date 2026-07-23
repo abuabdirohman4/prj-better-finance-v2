@@ -22,7 +22,7 @@ export function AccountCard({ account }: { account: AccountRow }) {
   const isLowBalance = account.current_balance < 50000;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden active:scale-95 transition-transform">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden active:scale-95 transition-all hover:shadow-xl group">
       <div className="p-3 pb-2">
         {/* Logo + nama */}
         <div className="flex flex-col items-center mb-2">
@@ -37,7 +37,7 @@ export function AccountCard({ account }: { account: AccountRow }) {
               {visual.initials}
             </div>
           )}
-          <h3 className="font-bold text-gray-900 text-sm text-center truncate w-full">
+          <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm text-center truncate w-full">
             {account.name}
           </h3>
         </div>

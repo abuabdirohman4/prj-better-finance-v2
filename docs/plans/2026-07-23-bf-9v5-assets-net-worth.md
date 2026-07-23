@@ -124,14 +124,22 @@ export function useAssets() {
 
 Pattern: `"use client"` + header gradient/wave (copy dari `src/app/(app)/page.tsx`), body `mt-6`.
 
-Struktur:
-1. **Net Worth card** (atas) — total netWorth besar. Cek `hideBalances` dari `usePrivacyStore` → mask `Rp •••`.
-2. **Toggle liquid/non-liquid breakdown** — 2 sub-total (Liquid, Non-Liquid) dengan bar proporsi.
-3. **Group Liquid** — list AssetRow (nama + saldo). Pakai `formatCurrency`.
-4. **Group Non-Liquid** — sama.
-5. Loading skeleton + empty state.
+> **REVISI 2026-07-23 (keputusan user):** Layout = REPLIKA v1 (Image #4), bukan pecah per-akun liquid. Nama halaman = **"Net Worth"** (sudah termasuk AP/AR nanti). Akun liquid TIDAK ditampilkan satu-satu (sudah ada di halaman Accounts) — dijadikan 1 kartu agregat "Accounts" yang KLIK -> navigate `/accounts`. Non-liquid tampil per-akun. Lihat bd memory `assets-networth-apar-concept`.
 
-Komponen kartu: bisa inline atau `_components/AssetCard.tsx` (opsional). Icon: pakai `getAccountVisual(name)` dari `src/lib/accountVisuals.ts` kalau cocok, atau `asset_category` warna (liquid=biru, non-liquid=hijau seperti v1).
+Struktur:
+1. **Net Worth card** (atas) — total netWorth besar. Cek `hideBalances` -> mask `Rp bullet`.
+2. **Bar proporsi liquid/non-liquid** — 2 subtotal (Liquid, Non-Liquid) + bar.
+3. **Grid kartu aset:**
+   - Kartu **"Accounts"** = AGREGAT `totalLiquid` (semua akun Cash+Bank+E-wallet dijumlah jadi 1 kartu). `onClick` -> `router.push('/accounts')`. Ikon dompet/bank.
+   - Kartu **per-akun non-liquid** (Reksadana, Emas, BPJS, JHT, dll) — 1 kartu per akun non-liquid. Nama + saldo.
+   - Warna kartu bedakan tipe (liquid=aksen merah/biru, non-liquid=aksen hijau — lihat v1 Image #4).
+4. Loading skeleton + empty state (kalau belum ada non-liquid, cukup kartu Accounts).
+
+> **Catatan query:** `getAssets` perlu balikin `totalLiquid` (kartu Accounts agregat) + list akun **non-liquid saja** untuk kartu individual. Tambah `nonLiquidAssets: AssetRow[]` (filter `asset_category='non-liquid'`) ke `AssetsSummary`, pertahankan `totalLiquid`/`totalNonLiquid`/`netWorth`.
+
+> **Slot AP/AR (bf-13t, belum diimplement):** siapkan tempat subtotal Piutang (AR +) & Utang (AP -) di breakdown — tampil hanya kalau tabel receivables/payables sudah ada. Sekarang skip (data belum ada), tapi jangan hardcode kaku "netWorth = liquid+nonLiquid".
+
+Komponen kartu: inline atau `_components/AssetCard.tsx`. Icon: `getAccountVisual(name)` kalau cocok.
 
 Semua angka WAJIB cek `hideBalances`.
 
