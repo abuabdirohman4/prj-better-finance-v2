@@ -139,6 +139,7 @@ export const transactions = pgTable(
       .references(() => accounts.id),
     category_id: uuid("category_id").references(() => categories.id),
     to_account_id: uuid("to_account_id").references(() => accounts.id),
+    goal_id: uuid("goal_id").references(() => savingsGoals.id, { onDelete: "set null" }),
     note: text("note"),
     amount: numeric("amount", { precision: 18, scale: 2 }).notNull(),
     source_month: text("source_month"),
@@ -153,6 +154,7 @@ export const transactions = pgTable(
     index("idx_transactions_user_type").on(t.user_id, t.transaction_type),
     index("idx_transactions_user_account").on(t.user_id, t.account_id),
     index("idx_transactions_user_category").on(t.user_id, t.category_id),
+    index("idx_transactions_goal_id").on(t.goal_id),
   ]
 );
 

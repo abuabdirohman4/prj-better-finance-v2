@@ -227,6 +227,85 @@ Edit mode: tambah status toggle (active/purchased/cancelled) + Delete button.
 
 ---
 
+## Task 8 — Promote Wishlist → Goal (linked_goal_id)
+
+**Konsep:** wishlist = etalase keinginan; saat serius mau dicicil, "promote" jadi goal. Skema `wishlists.linked_goal_id` (FK savings_goals) SUDAH ADA. Baca `docs/konsep-keuangan.md` §5.
+
+### 8a. Query — `promoteWishlistToGoal` (`src/db/queries/wishlist.ts`)
+
+```ts
+import { savingsGoals } from "@/db/schema";
+
+// buat goal dari wishlist, set linked_goal_id di wishlist, return goalId
+export async function promoteWishlistToGoal(
+  userId: string,
+  wishlistId: string,
+  linkedAccountId: string | null,
+): Promise<string> {
+  // 1. ambil wishlist (guard user_id)
+  const [w] = await db.select().from(wishlists)
+    .where(and(eq(wishlists.id, wishlistId), eq(wishlists.user_id, userId)));
+  if (!w) throw new Error("Wishlist tidak ditemukan");
+  if (w.linked_goal_id) throw new Error("Wishlist sudah jadi goal");
+
+  // 2. buat goal (goal_type 'Saving', target = estimated_price)
+  const [g] = await db.insert(savingsGoals).values({
+    user_id: userId,
+    name: w.name,
+    goal_type: "Saving",
+    target_amount: String(w.estimated_price),
+    linked_account_id: linkedAccountId,
+    deadline_date: w.target_date,
+  }).returning({ id: savingsGoals.id });
+
+  // 3. link balik
+  await db.update(wishlists)
+    .set({ linked_goal_id: g.id, updated_at: sql`now()` })
+    .where(and(eq(wishlists.id, wishlistId), eq(wishlists.user_id, userId)));
+
+  return g.id;
+}
+```
+
+### 8b. Server action (`src/app/(app)/wishlist/actions.ts`)
+
+```ts
+export async function promoteWishlistToGoalAction(
+  wishlistId: string,
+  linkedAccountId: string | null,
+): Promise<ServerActionResult<{ goalId: string }>> {
+  try {
+    const user = await requireUser();
+    // validasi UUID wishlistId
+    const parsed = z.string().uuid().safeParse(wishlistId);
+    if (!parsed.success) return { success: false, message: "ID wishlist tidak valid." };
+    // ownership akun jika ada
+    if (linkedAccountId) {
+      const acc = await getAccountById(user.id, linkedAccountId);
+      if (!acc) return { success: false, message: "Akun tidak valid." };
+    }
+    const goalId = await promoteWishlistToGoal(user.id, wishlistId, linkedAccountId);
+    return { success: true, data: { goalId } };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "menyimpan data").message };
+  }
+}
+```
+
+### 8c. Hook + UI
+
+- Hook `useWishlist`: tambah `promoteMutation` → invalidate `wishlistKeys.all` + `goalKeys.all`.
+- `WishlistCard`: kalau `linked_goal_id` NULL → tombol "🎯 Mulai Nabung". Kalau sudah ada → badge "Sudah jadi Goal" + (opsional) link ke /goals.
+- Tombol "Mulai Nabung" → buka dialog kecil pilih akun tabungan (SingleSelect accounts, opsional) → panggil promoteMutation → toast/redirect ke /goals.
+
+### 8d. Verifikasi Task 8
+1. Wishlist item → tombol "Mulai Nabung" → pilih akun → goal terbuat dengan target = estimated_price.
+2. `wishlists.linked_goal_id` terisi, tombol berubah jadi badge.
+3. Goal baru muncul di /goals dengan progress 0%.
+4. Promote wishlist yang sudah ter-link → ditolak.
+
+---
+
 ## Verifikasi
 
 1. List active items render
@@ -235,6 +314,7 @@ Edit mode: tambah status toggle (active/purchased/cancelled) + Delete button.
 4. Edit status → purchased → pindah ke tab Purchased
 5. Delete → hilang
 6. `hideBalances` → harga sensor
+7. Promote item → goal terbuat + link tercatat (lihat Task 8d)
 
 ## CLAUDE.md Check
-- [ ] Pattern sama dengan budgets/goals — tidak ada yang baru
+- [x] Pattern baru: wishlist→goal promotion (linked_goal_id). Terdokumentasi di docs/konsep-keuangan.md §5.

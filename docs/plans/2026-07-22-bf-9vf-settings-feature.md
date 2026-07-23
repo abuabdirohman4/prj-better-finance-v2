@@ -192,6 +192,11 @@ Sections:
 
 Tidak pakai FAB. Tidak pakai Bottom sheet — edit nama inline.
 
+**Task 6 — Un-hide menu Settings di BottomNav:**
+`src/components/layouts/BottomNav.tsx` — menu `/settings` di-comment saat fitur belum jadi. Aktifkan kembali:
+- Uncomment baris `{ href: "/settings", label: "Setelan", icon: Settings }`
+- Tambah balik import `Settings` dari lucide-react (`import { Home, ArrowLeftRight, PieChart, Target, Settings } from "lucide-react"`)
+
 ---
 
 ## Verifikasi

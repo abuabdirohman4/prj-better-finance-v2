@@ -9,7 +9,7 @@ Eksekusi implementation plan di @docs/plans/2026-07-22-bf-9vf-settings-feature.m
 ISSUE: bf-9vf
 
 REQUIREMENTS:
-1. Ikuti plan task-by-task (Task 1 → 5) secara berurutan
+1. Ikuti plan task-by-task (Task 1 → 6) secara berurutan
 2. Jangan commit — user yang commit setelah review
 3. Output per task: "✅ Task N complete: [ringkasan singkat]"
 4. Jangan deviate dari plan tanpa tanya user dulu
@@ -22,6 +22,7 @@ KEY PATTERNS (wajib ikut):
 - Sign out: `(await createClient()).auth.signOut()` lalu `router.push("/signin")`
 - Tailwind v4: `bg-linear-to-{dir}` bukan `bg-gradient-to-{dir}`
 - Privacy toggle: pakai `usePrivacyStore` dari `@/stores/privacyStore.ts`
+- Task 6: un-hide menu Settings di `src/components/layouts/BottomNav.tsx` (uncomment + import Settings icon)
 
 REFERENCE FILES:
 - Plan: @docs/plans/2026-07-22-bf-9vf-settings-feature.md

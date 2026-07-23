@@ -8,7 +8,7 @@ import { GoalCard } from "./GoalCard";
 
 interface Props {
   title: string;
-  type: "Saving" | "Investing";
+  type: "Saving" | "Investment";
   goals: GoalRow[];
   onEdit: (goal: GoalRow) => void;
   hideBalances: boolean;

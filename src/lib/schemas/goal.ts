@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const goalTypeSchema = z.enum(["Saving", "Investing"]);
+export const goalTypeSchema = z.enum(["Saving", "Investment"]);
 
 export const createGoalSchema = z.object({
   name: z.string().min(1, "Nama goal wajib diisi").max(100),

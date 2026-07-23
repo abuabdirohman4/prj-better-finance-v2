@@ -22,7 +22,7 @@ export default function GoalsPage() {
   const accounts = accountsQuery.data ?? [];
 
   const savingGoals = goals.filter((g) => g.goal_type === "Saving");
-  const investingGoals = goals.filter((g) => g.goal_type === "Investing");
+  const investingGoals = goals.filter((g) => g.goal_type === "Investment");
 
   const totalTarget = goals.reduce((s, g) => s + Number(g.target_amount), 0);
   const totalCollected = goals.reduce((s, g) => s + Number(g.collected_amount), 0);
@@ -147,7 +147,7 @@ export default function GoalsPage() {
               />
               <GoalCategoryCard
                 title="Investment"
-                type="Investing"
+                type="Investment"
                 goals={investingGoals}
                 onEdit={openEdit}
                 hideBalances={hideBalances}

@@ -21,7 +21,7 @@ interface Props {
 
 export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelete }: Props) {
   const [name, setName] = useState("");
-  const [goalType, setGoalType] = useState<"Saving" | "Investing">("Saving");
+  const [goalType, setGoalType] = useState<"Saving" | "Investment">("Saving");
   const [targetAmountRaw, setTargetAmountRaw] = useState("");
   const [targetAmountDisplay, setTargetAmountDisplay] = useState("");
   const [collectedAmountRaw, setCollectedAmountRaw] = useState("");
@@ -37,7 +37,7 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
   useEffect(() => {
     if (open) {
       setName(goal?.name || "");
-      setGoalType((goal?.goal_type as "Saving" | "Investing") || "Saving");
+      setGoalType((goal?.goal_type as "Saving" | "Investment") || "Saving");
       
       setTargetAmountRaw(goal ? String(goal.target_amount) : "");
       setTargetAmountDisplay(goal ? formatCurrency(goal.target_amount) : "");
@@ -147,10 +147,10 @@ export function GoalBottomSheet({ open, onClose, goal, accounts, onSave, onDelet
               <SingleSelect
                 options={[
                   { value: "Saving", label: "Saving" },
-                  { value: "Investing", label: "Investing" },
+                  { value: "Investment", label: "Investment" },
                 ]}
                 value={goalType}
-                onChange={(val) => setGoalType(val as "Saving" | "Investing")}
+                onChange={(val) => setGoalType(val as "Saving" | "Investment")}
                 placeholder="Pilih tipe"
                 direction="down"
               />
