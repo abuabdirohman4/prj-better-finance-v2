@@ -108,7 +108,7 @@ export default function AssetsPage() {
             </Link>
 
             {/* Non-liquid per akun */}
-            {data?.assets.filter(a => a.asset_category === "non-liquid").map(a => (
+            {data?.assets.filter(a => a.asset_category !== "liquid").map(a => (
               <AssetCard key={a.id} asset={a} hideBalances={hideBalances} />
             ))}
           </div>

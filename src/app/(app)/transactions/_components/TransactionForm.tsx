@@ -111,13 +111,15 @@ export function TransactionForm({
 
     if (!note.trim()) return;
 
+    // Cleared optional fields send null (not undefined) so edit persists the clear —
+    // undefined is stripped by zod .partial(), leaving the old value in place.
     const submitData: UpdateTransactionInput = {
       transaction_date: date,
       transaction_type: txType,
       account_id: accountId,
-      to_account_id: txType === "transfer" ? toAccountId || undefined : undefined,
-      goal_id: txType === "transfer" ? goalId || undefined : undefined,
-      category_id: txType !== "transfer" ? categoryId || undefined : undefined,
+      to_account_id: txType === "transfer" ? toAccountId || null : null,
+      goal_id: txType === "transfer" ? goalId || null : null,
+      category_id: txType !== "transfer" ? categoryId || null : null,
       amount,
       note: note.trim(),
     };

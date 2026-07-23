@@ -101,7 +101,6 @@ export async function deleteWishlistItem(userId: string, itemId: string): Promis
 export async function promoteWishlistToGoal(
   userId: string,
   wishlistId: string,
-  linkedAccountId: string | null,
 ): Promise<string> {
   // 1. fetch wishlist (guard user_id)
   const [w] = await db.select().from(wishlists)
@@ -115,7 +114,6 @@ export async function promoteWishlistToGoal(
     name: w.name,
     goal_type: "Saving",
     target_amount: String(w.estimated_price),
-    linked_account_id: linkedAccountId,
     deadline_date: w.target_date,
   }).returning({ id: savingsGoals.id });
 

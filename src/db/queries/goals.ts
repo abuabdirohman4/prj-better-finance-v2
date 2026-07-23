@@ -17,6 +17,26 @@ export interface GoalRow {
 }
 
 export async function getGoals(userId: string): Promise<GoalRow[]> {
+  // Sum transfers per goal in a grouped subquery, then LEFT JOIN — avoids a
+  // correlated subquery whose `${savingsGoals.id}` renders unqualified `"id"`
+  // and mis-binds to transactions.id inside the sub-select.
+  const transfersByGoal = db
+    .select({
+      goal_id: transactions.goal_id,
+      total: sql<number>`SUM(${transactions.amount}::numeric)`.as("total"),
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.transaction_type, "transfer"),
+        isNotNull(transactions.goal_id),
+        isNull(transactions.deleted_at),
+      ),
+    )
+    .groupBy(transactions.goal_id)
+    .as("transfers_by_goal");
+
   const rows = await db
     .select({
       id: savingsGoals.id,
@@ -24,22 +44,14 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
       description: savingsGoals.description,
       goal_type: savingsGoals.goal_type,
       target_amount: sql<number>`${savingsGoals.target_amount}::numeric`,
-      collected_amount: sql<number>`
-        ${savingsGoals.collected_amount}::numeric
-        + COALESCE((
-            SELECT SUM(t.amount)
-            FROM transactions t
-            WHERE t.goal_id = ${savingsGoals.id}
-              AND t.transaction_type = 'transfer'
-              AND t.deleted_at IS NULL
-          ), 0)
-      `,
+      collected_amount: sql<number>`${savingsGoals.collected_amount}::numeric + COALESCE(${transfersByGoal.total}, 0)`,
       monthly_contribution: sql<number>`${savingsGoals.monthly_contribution}::numeric`,
       deadline_date: savingsGoals.deadline_date,
       duration_label: savingsGoals.duration_label,
       is_active: savingsGoals.is_active,
     })
     .from(savingsGoals)
+    .leftJoin(transfersByGoal, eq(transfersByGoal.goal_id, savingsGoals.id))
     .where(and(eq(savingsGoals.user_id, userId), eq(savingsGoals.is_active, true)))
     .orderBy(savingsGoals.goal_type, desc(savingsGoals.collected_amount));
 

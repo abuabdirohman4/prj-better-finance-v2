@@ -37,7 +37,8 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
     .orderBy(accounts.asset_category, accounts.sort_order);
 
   const totalLiquid = rows.filter(r => r.asset_category === "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
-  const totalNonLiquid = rows.filter(r => r.asset_category === "non-liquid").reduce((s, r) => s + Number(r.current_balance), 0);
+  // Non-liquid = anything not liquid (investment/property/other). DB never stores "non-liquid".
+  const totalNonLiquid = rows.filter(r => r.asset_category !== "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
 
   return { 
     assets: rows.map(r => ({ ...r, current_balance: Number(r.current_balance) })), 

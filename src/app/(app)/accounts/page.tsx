@@ -42,11 +42,12 @@ export default function AccountsPage() {
     queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
   };
 
-  const total =
-    accounts
-      ?.filter((a) => a.include_in_net_worth)
-      .reduce((sum, a) => sum + a.current_balance, 0) ?? 0;
-  const count = accounts?.length ?? 0;
+  // /accounts shows liquid accounts only; non-liquid (investment/property/other) lives on /assets.
+  const liquidAccounts = accounts?.filter((a) => a.asset_category === "liquid") ?? [];
+  const total = liquidAccounts
+    .filter((a) => a.include_in_net_worth)
+    .reduce((sum, a) => sum + a.current_balance, 0);
+  const count = liquidAccounts.length;
 
   return (
     <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
@@ -118,7 +119,7 @@ export default function AccountsPage() {
           </div>
         ) : count > 0 ? (
           <div className="grid grid-cols-3 gap-3">
-            {accounts!.map((a) => (
+            {liquidAccounts.map((a) => (
               <Link href={`/accounts/${a.id}`} key={a.id}>
                 <AccountCard account={a} />
               </Link>

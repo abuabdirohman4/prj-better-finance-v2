@@ -91,6 +91,19 @@ Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
 
 **Reference Projects:** Lihat `docs/reference-projects.md` sebelum explore projek acuan (prj-better-finance v1, portfolio-management-service, prj-better-planner, school-management) — hemat token.
 
+## Dokumentasi yang Wajib Di-update Tiap Sesi
+
+Kalau sesi nambah pattern/gotcha/konvensi/command/fitur baru, WAJIB cek + update **ketiga** file ini (bukan cuma satu):
+
+| File | Kapan update |
+|---|---|
+| `AGENTS.md` | Pattern arsitektur, konvensi kode, gotcha teknis, command baru |
+| `CLAUDE.md` | Aturan workflow Claude, session-completion protocol |
+| `README.md` | Fitur user-facing baru, cara setup/run berubah, deskripsi produk. **Sering kelupaan — cek eksplisit tiap sesi.** |
+| `docs/roadmap.md` | Status fitur berubah (done/in-progress), issue baru difile, urutan kerja/MVP bergeser. **Cek eksplisit tiap sesi.** |
+
+Claude: JANGAN cuma update AGENTS.md/CLAUDE.md lalu lupa README + roadmap. Ingatkan user + tawarkan update keduanya kalau sesi menyentuh fitur/status/setup yang bikin file itu basi.
+
 
 ## Implementation Workflow
 

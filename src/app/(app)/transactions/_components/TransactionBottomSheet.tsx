@@ -150,6 +150,7 @@ export function TransactionBottomSheet({
               transaction_date: editTx.transaction_date,
               account_id: editTx.account_id,
               to_account_id: editTx.to_account_id,
+              goal_id: editTx.goal_id,
               category_id: editTx.category_id,
               amount: editTx.amount,
               note: editTx.note,

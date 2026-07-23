@@ -6,14 +6,10 @@ import { ChevronLeft, Eye, EyeOff, ShoppingBag, Wallet, Info } from "lucide-reac
 import { useWishlist } from "./_hooks/useWishlist";
 import { WishlistCard } from "./_components/WishlistCard";
 import { WishlistBottomSheet } from "./_components/WishlistBottomSheet";
-import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Fab } from "@/components/layouts/Fab";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
-import { getAccounts } from "@/app/(app)/accounts/actions";
-import { useQuery } from "@tanstack/react-query";
-import { accountKeys } from "@/lib/query";
 import type { WishlistRow } from "@/db/queries/wishlist";
 
 const MASK = "Rp •••.•••";
@@ -32,19 +28,6 @@ export default function WishlistPage() {
 
   // Promote dialog state
   const [promoteItem, setPromoteItem] = useState<WishlistRow | null>(null);
-  const [promoteAccountId, setPromoteAccountId] = useState("");
-
-
-  // Fetch accounts for promote dialog
-  const accountsQuery = useQuery({
-    queryKey: accountKeys.list(),
-    queryFn: async () => {
-      const res = await getAccounts();
-      if (!res.success) throw new Error(res.message);
-      return res.data!;
-    },
-    enabled: promoteItem !== null,
-  });
 
   const liquidBalance = affordability.data?.liquidBalance ?? 0;
   const freeCash = affordability.data?.freeCash ?? 0;
@@ -86,10 +69,8 @@ export default function WishlistPage() {
     if (!promoteItem) return;
     await promoteMutation.mutateAsync({
       wishlistId: promoteItem.id,
-      linkedAccountId: promoteAccountId || null,
     });
     setPromoteItem(null);
-    setPromoteAccountId("");
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
@@ -246,7 +227,7 @@ export default function WishlistPage() {
         <>
           <div
             className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300"
-            onClick={() => { setPromoteItem(null); setPromoteAccountId(""); }}
+            onClick={() => setPromoteItem(null)}
           />
           <div
             className="fixed bottom-0 left-1/2 w-full max-w-md bg-white rounded-t-3xl z-50 shadow-2xl transition-transform duration-300"
@@ -259,17 +240,6 @@ export default function WishlistPage() {
                 <span className="font-bold">{hideBalances ? MASK : formatCurrency(promoteItem.estimated_price)}</span>
               </p>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Savings Account (Optional)</label>
-                <SingleSelect
-                  options={(accountsQuery.data ?? []).map((a) => ({ value: a.id, label: a.name }))}
-                  value={promoteAccountId}
-                  onChange={setPromoteAccountId}
-                  placeholder="Select account..."
-                  direction="up"
-                />
-              </div>
-
               {promoteMutation.error && (
                 <div className="mb-3 p-3 bg-red-50 text-red-600 rounded-xl text-sm font-medium">
                   {promoteMutation.error.message}
@@ -278,7 +248,7 @@ export default function WishlistPage() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setPromoteItem(null); setPromoteAccountId(""); }}
+                  onClick={() => setPromoteItem(null)}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
                 >
                   Cancel

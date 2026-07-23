@@ -63,8 +63,8 @@ export function useWishlist(status: "active" | "purchased" | "cancelled" = "acti
   });
 
   const promoteMutation = useMutation({
-    mutationFn: async ({ wishlistId, linkedAccountId }: { wishlistId: string; linkedAccountId: string | null }) => {
-      const res = await promoteWishlistToGoalAction(wishlistId, linkedAccountId);
+    mutationFn: async ({ wishlistId }: { wishlistId: string }) => {
+      const res = await promoteWishlistToGoalAction(wishlistId);
       if (!res.success) throw new Error(res.message);
       return res.data!;
     },
