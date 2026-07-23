@@ -30,8 +30,8 @@ interface TransactionFormProps {
 type TxType = "spending" | "earning" | "transfer";
 
 const TYPE_LABELS: Record<TxType, string> = {
-  spending: "Pengeluaran",
-  earning: "Pemasukan",
+  spending: "Spending",
+  earning: "Earning",
   transfer: "Transfer",
 };
 
