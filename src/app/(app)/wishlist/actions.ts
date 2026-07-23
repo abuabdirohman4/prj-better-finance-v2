@@ -11,7 +11,7 @@ import {
   type WishlistRow,
 } from "@/db/queries/wishlist";
 import { getAccountsWithType, getAccountById } from "@/db/queries/accounts";
-import { getGoals } from "@/db/queries/goals";
+import { getLiquidGoalAllocated } from "@/db/queries/goals";
 import { createWishlistSchema, updateWishlistSchema } from "@/lib/schemas/wishlist";
 import type { CreateWishlistInput, UpdateWishlistInput } from "@/lib/schemas/wishlist";
 
@@ -41,18 +41,13 @@ export async function getAffordabilityAction(): Promise<ServerActionResult<Affor
       .filter((a) => a.asset_category === "liquid")
       .reduce((sum, a) => sum + a.current_balance, 0);
 
-    // Allocated = money already PARKED in goals (collected), not the remaining target (that's future savings, not a claim on current liquid).
-    // Only count goals whose savings still sit in the LIQUID pool: goals linked to a non-liquid account
-    // (e.g. mutual fund, gold) have already left liquid — subtracting them would double-count.
-    // Goals with no linked account default to liquid (money assumed parked in a liquid account).
-    const goals = await getGoals(user.id);
-    const liquidAccountIds = new Set(
-      accounts.filter((a) => a.asset_category === "liquid").map((a) => a.id),
-    );
-    const allocated = goals.reduce((sum, g) => {
-      const parkedInLiquid = !g.linked_account_id || liquidAccountIds.has(g.linked_account_id);
-      return parkedInLiquid ? sum + Math.max(0, g.collected_amount) : sum;
-    }, 0);
+    // Allocated = goal savings still parked in the LIQUID pool, derived from transactions:
+    // transfer rows tagged with a goal_id whose destination is a liquid account. Savings that landed
+    // in a non-liquid account (mutual fund, gold) already left liquid and are excluded automatically.
+    const liquidAccountIds = accounts
+      .filter((a) => a.asset_category === "liquid")
+      .map((a) => a.id);
+    const allocated = await getLiquidGoalAllocated(user.id, liquidAccountIds);
     const freeCash = Math.max(0, liquidBalance - allocated);
 
     return { success: true, data: { liquidBalance, allocated, freeCash } };
