@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-22 · Fase: **Phase 4 aktif** — semua P1 bugs closed ✅; lanjut fitur sekunder (budgets, goals, assets).
+> Diperbarui: 2026-07-22 · Fase: **Phase 4 aktif** — Budgets (monthly + weekly) ✅; lanjut Goals, Assets, Wishlist, Settings.
 
 ---
 
@@ -49,7 +49,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Transactions — transfer | ✅ | `/transactions` | From/to account, balance delta pada kedua akun |
 | UI kit — minimal | ✅ | `src/components/ui/` | Button, Input, Select, MultiSelect (portal, searchable, groups) + SingleSelect (dari MultiSelect.tsx). Issue bf-bq8 |
 | UI kit — lengkap | ⏳ | `src/components/ui/` | Checkbox, Modal reusable, Toast/Sonner, DatePicker, Badge, Skeleton, Textarea, Switch. Issue **bf-qxb** (P3, open) |
-| Budgets | ⏳ | `/budgets` | Monthly + weekly pool, progress bar |
+| Budgets | ✅ | `/budgets`, `/budgets/weekly` | Monthly CRUD + progress bar (bf-n43 ✅); weekly cascade algorithm (bf-9qc ✅) |
 | Goals | ⏳ | `/goals` | Progress, grouped by type, CRUD |
 | Assets | ⏳ | `/assets` | Net worth toggle, non-liquid accounts |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
@@ -89,7 +89,7 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Accounts — list, CRUD, balancing ✅
 - [x] Transactions — list per bulan + filter, CRUD, transfer, soft-delete ✅
 - [x] Wallet denominations — section di `/accounts/[id]`, grid pecahan fisik, live total, auto reality check. Issue bf-p8w ✅
-- [ ] Budgets — monthly + weekly pool distribution
+- [x] Budgets — monthly CRUD + progress bar (bf-n43 ✅) + weekly cascade (bf-9qc ✅)
 - [ ] Goals — progress, grouped by type, CRUD
 - [ ] Assets — net worth toggle, filter non-liquid accounts
 - [ ] Wishlist — affordability check
@@ -103,10 +103,10 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 5. ✅ **bf-13q** — `calcUpdateDeltas` pure function + 5 Vitest cases
 
 **Lanjut fitur Phase 4:**
-1. **Budgets** — monthly + weekly pool (paling sering dibuka di v1)
-2. **Goals** — progress, grouped by type, CRUD
-3. **Assets** — net worth toggle, non-liquid accounts
-4. **Wishlist** → **Settings**
+1. ✅ **Budgets** — monthly CRUD (bf-n43) + weekly cascade (bf-9qc)
+2. **Goals** — progress, grouped by type, CRUD (bf-73n)
+3. **Assets** — net worth toggle, non-liquid accounts (bf-9v5)
+4. **Wishlist** (bf-ez2) → **Settings** (bf-9vf)
 
 ### Phase 5 — Polish + PWA + Tests
 
