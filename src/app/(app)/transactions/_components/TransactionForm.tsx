@@ -62,9 +62,8 @@ export function TransactionForm({
   const [txType, setTxType] = useState<TxType>((init?.transaction_type as TxType) ?? "spending");
   const [date, setDate] = useState(init?.transaction_date ?? todayStr());
   const [accountId, setAccountId] = useState(init?.account_id ?? accounts[0]?.id ?? "");
-  const [toAccountId, setToAccountId] = useState(
-    init?.goal_id ? `goal:${init.goal_id}` : init?.to_account_id ? `acc:${init.to_account_id}` : ""
-  );
+  const [toAccountId, setToAccountId] = useState(init?.to_account_id ?? "");
+  const [goalId, setGoalId] = useState(init?.goal_id ?? "");
   const [categoryId, setCategoryId] = useState(init?.category_id ?? "");
   const [rawAmount, setRawAmount] = useState(initAmount);
   const [displayAmount, setDisplayAmount] = useState(
@@ -81,17 +80,11 @@ export function TransactionForm({
 
   const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }));
   
-  const toAccountOptions = [
-    ...accounts
-      .filter((a) => a.id !== accountId)
-      .map((a) => ({ value: `acc:${a.id}`, label: a.name, group: "AKUN" })),
-    ...goalsForTransfer
-      .map((g) => ({ 
-        value: `goal:${g.id}`, 
-        label: `${g.name} → ${g.linked_account_name}`, 
-        group: "GOALS" 
-      })),
-  ];
+  const toAccountOptions = accounts
+    .filter((a) => a.id !== accountId)
+    .map((a) => ({ value: a.id, label: a.name }));
+
+  const goalOptions = goalsForTransfer.map((g) => ({ value: g.id, label: g.name }));
 
   // Earning → only income categories (group 'earning'); spending → everything else.
   const categoryOptions = categories
@@ -118,27 +111,12 @@ export function TransactionForm({
 
     if (!note.trim()) return;
 
-    let finalToAccount: string | undefined;
-    let finalGoalId: string | undefined;
-
-    if (txType === "transfer" && toAccountId) {
-      if (toAccountId.startsWith("acc:")) {
-        finalToAccount = toAccountId.replace("acc:", "");
-      } else if (toAccountId.startsWith("goal:")) {
-        const gId = toAccountId.replace("goal:", "");
-        finalGoalId = gId;
-        const goal = goalsForTransfer.find((g) => g.id === gId);
-        if (!goal || !goal.linked_account_id) return; // goal tak punya akun tujuan, batalkan
-        finalToAccount = goal.linked_account_id;
-      }
-    }
-
     const submitData: UpdateTransactionInput = {
       transaction_date: date,
       transaction_type: txType,
       account_id: accountId,
-      to_account_id: finalToAccount,
-      goal_id: finalGoalId,
+      to_account_id: txType === "transfer" ? toAccountId || undefined : undefined,
+      goal_id: txType === "transfer" ? goalId || undefined : undefined,
       category_id: txType !== "transfer" ? categoryId || undefined : undefined,
       amount,
       note: note.trim(),
@@ -215,6 +193,23 @@ export function TransactionForm({
           </div>
         )}
       </div>
+
+      {/* Untuk Goal — opsional, hanya transfer */}
+      {txType === "transfer" && (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Untuk Goal <span className="text-gray-400 text-xs">(opsional)</span>
+          </label>
+          <SingleSelect
+            options={goalOptions}
+            value={goalId}
+            onChange={setGoalId}
+            placeholder="Tanpa goal"
+            searchable
+            direction="up"
+          />
+        </div>
+      )}
 
       {/* Row 2: Catatan + Jumlah */}
       <div className="grid grid-cols-2 gap-3">
