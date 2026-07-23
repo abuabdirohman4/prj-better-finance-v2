@@ -93,11 +93,14 @@ export function TransactionForm({
       })),
   ];
 
-  const categoryOptions = categories.map((c) => ({
-    value: c.id,
-    label: c.name,
-    group: c.group_name,
-  }));
+  // Earning → only income categories (group 'earning'); spending → everything else.
+  const categoryOptions = categories
+    .filter((c) => (txType === "earning" ? c.group_name === "earning" : c.group_name !== "earning"))
+    .map((c) => ({
+      value: c.id,
+      label: c.name,
+      group: c.group_name,
+    }));
 
   function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value.replace(/\D/g, "");
@@ -151,7 +154,10 @@ export function TransactionForm({
           <button
             key={t}
             type="button"
-            onClick={() => setTxType(t)}
+            onClick={() => {
+              setTxType(t);
+              setCategoryId("");
+            }}
             className={cn(
               "flex-1 py-2 rounded-xl text-sm font-semibold transition-colors",
               txType === t ? TYPE_ACTIVE[t] : "bg-gray-100 text-gray-500 hover:bg-gray-200"

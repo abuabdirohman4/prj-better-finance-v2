@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif** — Goals integrasi (bf-4ln) ✅ + Net Worth (bf-9v5) ✅ + account types Cash/Bank/E-wallet. **Next: Wishlist (bf-ez2)**. Lihat **§Urutan Kerja**.
+> Diperbarui: 2026-07-23 · Fase: **Phase 4 aktif** — Goals integrasi (bf-4ln) ✅ + Net Worth (bf-9v5) ✅ + Wishlist (bf-ez2) ✅. **Next: fix kategori transaksi (bf baru) → brainstorm akun non-liquid + kategori management → bf-13t AP/AR / bf-9vf Settings**. Lihat **§Urutan Kerja**.
 
 ---
 
@@ -55,8 +55,10 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Goals — integrasi | ✅ | `/goals` | goal_id di transaksi, collected derived, transfer grup Akun/Goals (**bf-4ln** ✅) |
 | Net Worth | ✅ | `/assets` | Layout v1 — kartu "Accounts" agregat liquid (klik→/accounts) + non-liquid per akun, dibedakan warna. AP/AR ikut nanti (bf-13t). Issue **bf-9v5** ✅ |
 | Wallet denominations | ✅ | `/accounts/[id]` | Section di halaman balancing, hanya akun `is_wallet`. Grid pecahan + live total + auto-save reality check. Issue bf-p8w |
-| Wishlist | ⏳ | `/wishlist` | Affordability check |
+| Wishlist | ✅ | `/wishlist` | CRUD + status tabs + promote→goal + affordability (free cash = liquid − goals di akun liquid) + breakdown tooltip. UI English. Issue **bf-ez2** ✅ |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy |
+| Kategori — management | ⏳ | TBD | **Gap: user TIDAK bisa tambah/edit/hapus kategori** — cuma seed default. Brainstorm dulu (di mana kelola, custom group?). Issue **bf baru** |
+| Akun — non-liquid | ⏳ | `/accounts` | **Gap: cuma bisa bikin akun liquid** (Bank/Cash/E-wallet). Investment/property/other + akun goals belum bisa dibuat. Net Worth non-liquid & goal account belum ada sumber data. Brainstorm dulu. Issue **bf baru** |
 | PWA | 🔄 | — | Manifest + globals ada; service worker & install UI belum |
 | Tests | 🔄 | — | Vitest unit: calcUpdateDeltas 5 cases ✅ (bf-13q). Playwright E2E belum |
 
@@ -95,8 +97,11 @@ Per fitur: Drizzle query → Server Action → TanStack hook → page + `_compon
 - [x] Goals — progress, grouped by type, CRUD (bf-73n ✅)
 - [x] Goals integrasi — goal_id + collected derived + transfer UI + akun wajib + ConfirmDialog (bf-4ln ✅)
 - [x] Net Worth — layout v1 (kartu Accounts agregat + non-liquid per akun), nama "Net Worth" (bf-9v5 ✅) + rename account types Cash/Bank/E-wallet
-- [ ] Wishlist — affordability check
+- [x] Wishlist — CRUD + promote→goal + affordability free-cash (bf-ez2 ✅)
 - [ ] Settings — profil user + privacy preference persistence
+- [ ] Fix kategori transaksi — filter by txType (earning vs spending terpisah di form)
+- [ ] Brainstorm: akun non-liquid + akun goals (fondasi Net Worth non-liquid)
+- [ ] Brainstorm: kategori management (user tambah/edit kategori)
 
 ✅ **Semua P1 bugs closed:**
 1. ✅ **bf-2v2** — auth callback `/auth/callback`
@@ -135,18 +140,22 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 |---|---|---|---|---|---|
 | ✅ | ~~bf-4ln~~ | Goals-transactions integration | P2 | **DONE** (commit c259410) — goal_id + collected derived + transfer grup Akun/Goals + akun wajib + ConfirmDialog. Reality check → follow-up bf-kvk. | closed |
 | ✅ | ~~bf-9v5~~ | Net Worth | P2 | **DONE** — layout v1 (kartu Accounts agregat + non-liquid per akun), nama Net Worth, rename account types Cash/Bank/E-wallet. | closed |
-| **1** | **bf-ez2** | Wishlist + promote→goal | P2 | **NEXT.** Butuh goals ada (Task 8 promote pakai savings_goals). | ✅ `2026-07-22-bf-ez2-*` (+Task 8) |
-| **2** | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
-| **3** | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
-| **4** | **bf-gv5** | CFP analysis + insights | P3 | Butuh data (bisa dari sheet/DB). Mode 1 (chat) bisa sekarang tanpa coding. | ✅ `2026-07-23-bf-gv5-*` |
-| 7 | **bf-qxb** | UI kit lengkap | P3 | On-demand — kerjakan saat fitur butuh komponen baru (mis. DatePicker). Tidak berurutan. | ✅ `2026-07-22-bf-qxb-*` |
+| ✅ | ~~bf-ez2~~ | Wishlist + promote→goal | P2 | **DONE** — CRUD + affordability free-cash + promote→goal + tooltip. UI English. | closed |
+| **1** | **bf-kt2** | Fix kategori transaksi | P2 | **NEXT — quick win.** Bug UX: form tampil semua kategori (spending+earning campur). Filter by txType. ~1 file. | ⏳ direct |
+| **2** | **bf-yts** | Akun non-liquid + akun goals | P2 | **BRAINSTORM dulu.** Fondasi Net Worth non-liquid + goal account. Cuma bisa bikin akun liquid sekarang. Model goal-account: cenderung opsi "boleh gabung liquid + bf-kvk pengaman". | ⏳ brainstorm |
+| **3** | **bf-wrp** | Kategori management | P2 | **BRAINSTORM dulu.** User belum bisa tambah/edit/hapus kategori (cuma seed default). Di mana kelola + custom group? | ⏳ brainstorm |
+| **4** | **bf-13t** | AP/AR utang/piutang | P2 | Fitur unggulan + fondasi bisnis. **BRAINSTORM desain dulu** (schema, field, integrasi). Tabel terpisah, ikut Net Worth. | ⏳ brainstorm |
+| **5** | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
+| **6** | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
+| **7** | **bf-gv5** | CFP analysis + insights | P3 | Butuh data (bisa dari sheet/DB). Mode 1 (chat) bisa sekarang tanpa coding. | ✅ `2026-07-23-bf-gv5-*` |
+| — | **bf-bp5** | Global i18n pass | P2 | English-first + siapkan multi-bahasa. Shared `ErrorContext` + sisa Indonesian strings. Tidak berurutan. | ✅ `2026-07-23-bf-bp5-*` |
+| — | **bf-qxb** | UI kit lengkap | P3 | On-demand — kerjakan saat fitur butuh komponen baru (mis. DatePicker). Tidak berurutan. | ✅ `2026-07-22-bf-qxb-*` |
 | — | **bf-lp4** | UI polish cursor-pointer | P3 | Polish global, bukan blocker. Batch di Phase 5, atau sekalian saat sentuh UI fitur. Tidak berurutan. | ✅ `2026-07-23-bf-lp4-*` |
-| — | **bf-13t** | AP/AR utang/piutang | P2 | Fitur unggulan + fondasi bisnis. **Butuh BRAINSTORM desain dulu** (schema, field, integrasi). Tabel terpisah, ikut Net Worth. | ⏳ brainstorm dulu |
-| — | **bf-kvk** | Goal reality check | P3 | Follow-up bf-4ln scope(5): SUM(collected per akun) ≈ current_balance → warning. | ⏳ belum |
+| — | **bf-kvk** | Goal reality check | P3 | Follow-up bf-4ln scope(5): SUM(collected per akun) ≈ current_balance → warning. Pengaman kalau akun goal gabung liquid biasa. | ⏳ belum |
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → commit → **sesi Claude BARU** untuk review (`/rename bf-xxx review`). 1 issue = 1 sesi review.
 
-**Prioritas sekarang:** mulai **bf-ez2** (Wishlist).
+**Prioritas sekarang:** **fix kategori transaksi** (quick win) → lalu brainstorm akun non-liquid + kategori management.
 
 ## Ditunda
 
