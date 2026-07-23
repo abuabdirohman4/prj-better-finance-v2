@@ -194,7 +194,6 @@ export const savingsGoals = pgTable("savings_goals", {
   description: text("description"),
   icon_name: text("icon_name"),
   goal_type: text("goal_type").notNull(),
-  linked_account_id: uuid("linked_account_id").references(() => accounts.id),
   target_amount: numeric("target_amount", { precision: 18, scale: 2 }).notNull(),
   monthly_contribution: numeric("monthly_contribution", { precision: 18, scale: 2 }),
   deadline_date: date("deadline_date"),
