@@ -56,6 +56,7 @@ export const assetKeys = {
 export const categoryKeys = {
   all: ["categories"] as const,
   list: () => [...categoryKeys.all, "list"] as const,
+  manage: () => [...categoryKeys.all, "manage"] as const,
   byGroup: (group: string) => [...categoryKeys.all, "group", group] as const,
 };
 

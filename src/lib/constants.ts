@@ -27,12 +27,12 @@ export type CategoryGroup =
   | "earning";
 
 export const CATEGORY_GROUP_LABELS: Record<CategoryGroup, string> = {
-  eating: "Makan",
-  living: "Hidup",
-  saving: "Tabungan",
-  investing: "Investasi",
-  giving: "Beri",
-  earning: "Pendapatan",
+  eating: "Eating",
+  living: "Living",
+  saving: "Saving",
+  investing: "Investing",
+  giving: "Giving",
+  earning: "Earning",
 };
 
 export const DEFAULT_CATEGORIES: Array<{ name: string; slug: string; group: CategoryGroup }> = [

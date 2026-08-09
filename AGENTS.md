@@ -155,3 +155,11 @@ Enum: `"liquid" | "investment"` (lihat `src/lib/constants.ts`; DB CHECK constrai
 ## Feature Pages (`src/app/(app)/`)
 
 `accounts` · `assets` (Net Worth) · `budgets` · `goals` · `settings` · `transactions` · `wishlist`. Semua ikut Page Pattern di atas.
+
+### `/budgets/categories` — Manage Categories (bf-wrp)
+Full CRUD halaman kelola kategori. Entry point: link "Manage Categories" di `/budgets`.
+
+- **Soft delete**: `is_active=false` — transaksi/budget lama tetap utuh; kategori hilang dari picker.
+- **Query distinction**: `getManageCategories` (grouped, buat halaman manage) vs `getCategories` (flat, buat picker transaksi/budget).
+- **Grup free-text**: user pilih 6 existing groups (eating/living/saving/investing/giving/earning) atau ketik grup baru.
+- **Slug**: auto-generated via `toSlug(name)` (`src/lib/slug.ts`). Unique constraint `(user_id, slug, group_name)`.

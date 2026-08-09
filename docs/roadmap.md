@@ -1,7 +1,7 @@
 # Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-07-24 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: ~~bf-yts~~ ✅ → **bf-wrp (kategori management)** → **bf-bwh (migrasi data)**. Sisanya Post-MVP. Lihat **§MVP & Post-MVP**.
+> Diperbarui: 2026-07-25 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: ~~bf-yts~~ ✅ → ~~bf-wrp~~ ✅ → **bf-bwh (migrasi data)**. Sisanya Post-MVP. Lihat **§MVP & Post-MVP**.
 
 ---
 
@@ -19,7 +19,7 @@ Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus (tanpa data ka
 |---|---|---|---|
 | ✅ | ~~bf-kt2~~ | Fix form kategori campur — **DONE** (closed). | ✅ closed |
 | ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field + drop linked_account_id + goal collected derived (LEFT JOIN fix) + Net Worth non-liquid render + /accounts liquid-only + redirect. **DONE** (closed). Follow-up: bf-alx, bf-7m3. | ✅ closed |
-| 2 | **bf-wrp** | 🎯 **NEXT.** Migrasi butuh ini: kategori custom sheet gak ada di app → transaksi gagal/masuk Others. | ✅ design (`2026-07-23-bf-wrp-*`) |
+| ✅ | ~~bf-wrp~~ | Kategori management (add/edit/soft-delete dari `/budgets/categories`). **DONE.** | ✅ closed |
 | 3 | **bf-bwh** | 🎯 **Tujuan MVP.** Import data sheet 2025-2026. Aman setelah kategori siap. | ✅ prompt (`2026-07-23-bf-bwh-*`) |
 
 ### Post-MVP — NANTI (fitur, bukan blocker migrasi)
@@ -179,7 +179,7 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 | ✅ | ~~bf-ez2~~ | Wishlist + promote→goal | P2 | **DONE** — CRUD + affordability free-cash + promote→goal + tooltip. UI English. | closed |
 | ✅ | ~~bf-kt2~~ | Fix kategori transaksi | P2 | **DONE** (closed) — form filter kategori by txType. | closed |
 | ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field | P2 | **DONE** (closed). + goal collected LEFT JOIN fix, Net Worth non-liquid render, /accounts liquid-only, SingleSelect, enum 4→2. Follow-up bf-alx/bf-7m3. Design: `2026-07-23-bf-yts-*`. | closed |
-| **2** | **bf-wrp** | Kategori management | P2 | 🎯 **NEXT — BRAINSTORM dulu.** User belum bisa tambah/edit/hapus kategori (cuma seed default). Di mana kelola + custom group? Blocker migrasi bf-bwh. | ⏳ brainstorm |
+| ✅ | ~~bf-wrp~~ | Kategori management | P2 | **DONE.** Add/edit/soft-delete dari `/budgets/categories`. Design: `2026-07-24-bf-wrp-*`. | ✅ closed |
 | **4** | **bf-13t** | AP/AR utang/piutang | P2 | Fitur unggulan + fondasi bisnis. **BRAINSTORM desain dulu** (schema, field, integrasi). Tabel terpisah, ikut Net Worth. | ⏳ brainstorm |
 | **5** | **bf-9vf** | Settings + privacy | P3 | Melengkapi shell. Ada menu di BottomNav yang di-hide sampai ini jadi. | ✅ `2026-07-22-bf-9vf-*` |
 | **6** | **bf-bwh** | Migrasi data 2025-2026 | P3 | Butuh bf-4ln (goal_id) supaya transaksi ter-tag saat import. Setelah app siap. | ✅ `2026-07-23-bf-bwh-*` |
@@ -191,7 +191,7 @@ Semua issue di bawah plan + prompt Antigravity SUDAH SIAP (kecuali dicatat belum
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → commit → **sesi Claude BARU** untuk review (`/rename bf-xxx review`). 1 issue = 1 sesi review.
 
-**Prioritas sekarang:** **bf-wrp kategori management** (brainstorm dulu — blocker migrasi) → **bf-bwh migrasi data sheet** (tujuan MVP).
+**Prioritas sekarang:** **bf-bwh migrasi data sheet** (tujuan MVP). bf-wrp ✅ done.
 
 ## Ditunda
 

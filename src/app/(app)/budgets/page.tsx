@@ -153,9 +153,14 @@ export default function BudgetsPage() {
           </div>
         )}
 
-        {/* Budget Spending Title */}
-        {!query.isLoading && budgets.length > 0 && (
-          <h2 className="font-bold text-gray-900 text-lg">Budget Spending</h2>
+        {/* Budget Spending Title + Manage Categories link */}
+        {!query.isLoading && (
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-gray-900 text-lg">Budget Spending</h2>
+            <Link href="/budgets/categories" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+              Manage Categories
+            </Link>
+          </div>
         )}
 
         {/* Groups */}

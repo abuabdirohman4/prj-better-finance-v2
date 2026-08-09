@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Receipt, Pizza, Home, Wallet, Gift, BarChart3 } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
+import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
 import { BudgetCard } from "./BudgetCard";
 import type { BudgetWithSpending } from "@/db/queries/budgets";
 
@@ -43,7 +44,9 @@ export function BudgetGroup({ group, items, hideBalances, onEdit }: Props) {
         </div>
         <div className="flex-1">
           <div className="flex justify-between items-center mb-0.5">
-            <h3 className="font-bold text-gray-900 capitalize text-base">{group}</h3>
+            <h3 className="font-bold text-gray-900 capitalize text-base">
+              {CATEGORY_GROUP_LABELS[group as keyof typeof CATEGORY_GROUP_LABELS] ?? group}
+            </h3>
             <div className="flex items-center gap-2">
               <span className="font-bold text-gray-900 text-[15px]">
                 {hideBalances ? MASK : formatCurrency(remaining, "short")}

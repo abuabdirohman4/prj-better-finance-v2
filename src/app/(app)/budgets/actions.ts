@@ -12,6 +12,15 @@ import {
 import { getCategories, type CategoryRow } from "@/db/queries/accounts";
 import { upsertBudgetSchema, type UpsertBudgetInput } from "@/lib/schemas/budget";
 import { z } from "zod";
+import {
+  getManageCategories,
+  createCategory,
+  updateCategory,
+  softDeleteCategory,
+  renameCategoryGroup,
+  type ManageCategoryRow,
+} from "@/db/queries/categories";
+import { upsertCategorySchema, type UpsertCategoryInput } from "@/lib/schemas/category";
 
 export async function getBudgetsAction(
   year: number,
@@ -48,7 +57,7 @@ export async function upsertBudgetAction(
     // Ownership guard: category_id harus milik user (getCategories sudah filter user_id)
     const cats = await getCategories(user.id);
     if (!cats.some((c) => c.id === parsed.data.category_id)) {
-      return { success: false, message: "Kategori tidak valid." };
+      return { success: false, message: "Invalid category." };
     }
     const id = await upsertBudget(user.id, parsed.data);
     return { success: true, data: { id } };
@@ -63,7 +72,7 @@ export async function deleteBudgetAction(
   try {
     const user = await requireUser();
     const parsed = z.string().uuid().safeParse(budgetId);
-    if (!parsed.success) return { success: false, message: "ID budget tidak valid." };
+    if (!parsed.success) return { success: false, message: "Invalid budget ID." };
     await deleteBudget(user.id, budgetId);
     return { success: true };
   } catch (error) {
@@ -88,5 +97,68 @@ export async function getWeeklySpendingAction(
     return { success: true, data };
   } catch (error) {
     return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
+// ── Category Management Actions ─────────────────────────────────────────────
+
+export async function getManageCategoriesAction(): Promise<ServerActionResult<ManageCategoryRow[]>> {
+  try {
+    const user = await requireUser();
+    const data = await getManageCategories(user.id);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
+export async function upsertCategoryAction(
+  input: UpsertCategoryInput
+): Promise<ServerActionResult<{ id: string }>> {
+  try {
+    const user = await requireUser();
+    const parsed = upsertCategorySchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0]?.message ?? "Invalid input" };
+    }
+    const { id, name, group_name } = parsed.data;
+    if (id) {
+      await updateCategory(user.id, id, { name, group_name });
+      return { success: true, data: { id } };
+    }
+    const created = await createCategory(user.id, { name, group_name });
+    return { success: true, data: created };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "menyimpan data").message };
+  }
+}
+
+export async function deleteCategoryAction(id: string): Promise<ServerActionResult<void>> {
+  try {
+    const user = await requireUser();
+    await softDeleteCategory(user.id, id);
+    return { success: true, data: undefined };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "menghapus data").message };
+  }
+}
+
+export async function renameCategoryGroupAction(
+  oldGroupName: string,
+  newGroupName: string
+): Promise<ServerActionResult<void>> {
+  try {
+    const user = await requireUser();
+    const oldName = oldGroupName.trim();
+    const newName = newGroupName.trim();
+    
+    if (!oldName || !newName) {
+      return { success: false, message: "Invalid group name." };
+    }
+    
+    await renameCategoryGroup(user.id, oldName, newName);
+    return { success: true, data: undefined };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "mengupdate data").message };
   }
 }
