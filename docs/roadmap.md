@@ -101,6 +101,7 @@ Plan + prompt tersedia di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan (b
 - [ ] `bf-3ai` — Investment Tracker: current value, P&L, modal vs nilai pasar per produk
 - [ ] `bf-noo` — Import budget historis dari sheet (Spending/Earning/Transfer/SpendingTF)
 - [ ] `bf-uaw` — Sort order akun: drag-and-drop reorder di /accounts dan /assets
+- [ ] `bf-6rl` — Goal account linkage: account_id di goal, pre-fill akun saat transfer, tampil "disimpan di X" di goal card
 - [ ] Import 2025 — SHEET_ID `18iigYTz2ked8bobH1CWGY2sDC-efuNsHjBhEYzdGZqM`, format beda (extra header AKTIVA/PASIVA)
 
 **Parkiran:**
