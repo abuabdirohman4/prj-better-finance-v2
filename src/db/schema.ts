@@ -74,6 +74,7 @@ export const accounts = pgTable(
     is_active: boolean("is_active").notNull().default(true),
     include_in_net_worth: boolean("include_in_net_worth").notNull().default(true),
     is_wallet: boolean("is_wallet").notNull().default(false),
+    is_liability: boolean("is_liability").notNull().default(false),
     sort_order: integer("sort_order").notNull().default(0),
     created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updated_at: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

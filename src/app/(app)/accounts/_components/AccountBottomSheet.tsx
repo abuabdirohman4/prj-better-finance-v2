@@ -39,6 +39,8 @@ export function AccountBottomSheet({
   const [includeInNetWorth, setIncludeInNetWorth] = useState(
     account?.include_in_net_worth ?? true
   );
+  const [isWallet, setIsWallet] = useState(account?.is_wallet ?? false);
+  const [isLiability, setIsLiability] = useState(account?.is_liability ?? false);
   const [sortOrder, setSortOrder] = useState(
     account ? String(account.sort_order) : ""
   );
@@ -97,6 +99,8 @@ export function AccountBottomSheet({
           current_balance: parsedBalance,
           asset_category: assetCategory,
           include_in_net_worth: includeInNetWorth,
+          is_wallet: isWallet,
+          is_liability: assetCategory === "liquid" ? isLiability : false,
           sort_order: parsedOrder ?? 999,
         });
         if (!res.success) {
@@ -111,6 +115,8 @@ export function AccountBottomSheet({
             assetCategory !== account!.asset_category ? assetCategory : undefined,
           include_in_net_worth:
             includeInNetWorth !== account!.include_in_net_worth ? includeInNetWorth : undefined,
+          is_wallet: isWallet !== account!.is_wallet ? isWallet : undefined,
+          is_liability: isLiability !== account!.is_liability ? isLiability : undefined,
           sort_order:
             parsedOrder !== undefined && parsedOrder !== account!.sort_order
               ? parsedOrder
@@ -207,7 +213,10 @@ export function AccountBottomSheet({
             </label>
             <SingleSelect
               value={assetCategory}
-              onChange={(v) => setAssetCategory(v as "liquid" | "investment")}
+              onChange={(v) => {
+                setAssetCategory(v as "liquid" | "investment");
+                if (v !== "liquid") setIsLiability(false);
+              }}
               searchable={false}
               options={[
                 { value: "liquid", label: "🟢 Liquid — uang cair (Bank/Cash/E-wallet)" },

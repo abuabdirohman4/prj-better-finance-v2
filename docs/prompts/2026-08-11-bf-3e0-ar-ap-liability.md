@@ -9,8 +9,10 @@ Eksekusi implementation plan di @docs/plans/2026-08-11-bf-3e0-ar-ap-liability.md
 ISSUE: bf-3e0 / AR/AP Liability Proper
 BRANCH: feat/bf-3e0-ar-ap-liability
 
+CATATAN: Task 1 (DB migration `is_liability boolean NOT NULL DEFAULT false`) sudah dieksekusi Claude via MCP pada 2026-08-11. Kolom sudah ada di DB dan `src/db/schema.ts` sudah ter-update.
+
 REQUIREMENTS:
-1. Ikuti plan task-by-task secara berurutan (Task 1 → 8)
+1. Ikuti plan task-by-task secara berurutan. MULAI DARI TASK 2 (Task 1 sudah selesai)
 2. Task 1: apply Supabase migration via MCP tool `mcp__better-finance__apply_migration`
 3. Setelah Task 1, update `src/db/schema.ts` tambah `is_liability` field
 4. Jalankan `npm run build` setelah semua task untuk verifikasi TypeScript

@@ -48,8 +48,9 @@ export default function AccountsPage() {
 
   // /accounts shows liquid accounts only; non-liquid (investment) lives on /assets.
   const liquidAccounts = accounts?.filter((a) => a.asset_category === "liquid") ?? [];
+  // Liabilities shown in grid but excluded from total (they reduce net worth, shown on /assets)
   const total = liquidAccounts
-    .filter((a) => a.include_in_net_worth)
+    .filter((a) => a.include_in_net_worth && !a.is_liability)
     .reduce((sum, a) => sum + a.current_balance, 0);
   const count = liquidAccounts.length;
 

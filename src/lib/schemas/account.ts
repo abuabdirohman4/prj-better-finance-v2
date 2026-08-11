@@ -5,8 +5,10 @@ export const createAccountSchema = z.object({
   account_type_id: z.string().uuid("Tipe akun tidak valid"),
   current_balance: z.number(),
   asset_category: z.enum(["liquid", "investment"]).default("liquid"),
-  include_in_net_worth: z.boolean(),
-  sort_order: z.number(),
+  include_in_net_worth: z.boolean().default(true),
+  is_wallet: z.boolean().default(false),
+  is_liability: z.boolean().default(false),
+  sort_order: z.number().int().default(0),
 });
 
 export const updateAccountSchema = createAccountSchema.partial();

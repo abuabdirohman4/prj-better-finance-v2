@@ -35,7 +35,11 @@ Minimal viable changes — **no schema migration** jika bisa dihindari:
 
 ## Tasks
 
-### Task 1 — DB Migration: tambah kolom `is_liability`
+### Task 1 — DB Migration ✅ SELESAI (dieksekusi Claude via MCP 2026-08-11)
+
+> Migration sudah applied. `is_liability boolean NOT NULL DEFAULT false` sudah ada di DB + `src/db/schema.ts`. Antigravity mulai dari Task 2.
+
+### Task 1 — DB Migration: tambah kolom `is_liability` (REFERENCE ONLY)
 
 **File:** Supabase migration (via MCP `apply_migration`)
 

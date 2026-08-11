@@ -15,12 +15,10 @@ export default function AssetsPage() {
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
 
-  const netWorth = data?.netWorth ?? 0;
-  const liquid = data?.totalLiquid ?? 0;
-  const nonLiquid = data?.totalNonLiquid ?? 0;
+  const { assets = [], liabilities = [], totalLiquid = 0, totalNonLiquid = 0, totalLiabilities = 0, netWorth = 0 } = data ?? {};
   
-  const liquidPercent = netWorth > 0 ? (liquid / netWorth) * 100 : 0;
-  const nonLiquidPercent = netWorth > 0 ? (nonLiquid / netWorth) * 100 : 0;
+  const liquidPercent = netWorth > 0 ? (totalLiquid / netWorth) * 100 : 0;
+  const nonLiquidPercent = netWorth > 0 ? (totalNonLiquid / netWorth) * 100 : 0;
 
   return (
     <div className="bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen pb-24">
@@ -80,8 +78,8 @@ export default function AssetsPage() {
           </div>
           
           <div className="flex justify-between items-center text-sm font-bold text-gray-900">
-            <span>{hideBalances ? MASK : formatCurrency(liquid, "short")}</span>
-            <span>{hideBalances ? MASK : formatCurrency(nonLiquid, "short")}</span>
+            <span>{hideBalances ? MASK : formatCurrency(totalLiquid, "short")}</span>
+            <span>{hideBalances ? MASK : formatCurrency(totalNonLiquid, "short")}</span>
           </div>
         </div>
 
@@ -91,26 +89,43 @@ export default function AssetsPage() {
         ) : isError ? (
           <p className="text-red-500 text-sm px-1">Gagal memuat data.</p>
         ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {/* Kartu Accounts = agregat semua akun liquid, klik -> /accounts */}
-            <Link href="/accounts" className="block bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden active:scale-95 transition-transform hover:shadow-xl group">
-              <div className="flex flex-col items-center p-3 pb-3">
-                <div className="mb-1.5 w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                  <Wallet className="w-5 h-5" strokeWidth={1.8} />
+          <div className="space-y-6">
+            <div className="grid grid-cols-3 gap-3">
+              {/* Kartu Accounts = agregat semua akun liquid, klik -> /accounts */}
+              <Link href="/accounts" className="block bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden active:scale-95 transition-transform hover:shadow-xl group">
+                <div className="flex flex-col items-center p-3 pb-3">
+                  <div className="mb-1.5 w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                    <Wallet className="w-5 h-5" strokeWidth={1.8} />
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-xs text-center group-hover:text-blue-600 transition-colors">Accounts</h3>
                 </div>
-                <h3 className="font-bold text-gray-900 text-xs text-center group-hover:text-blue-600 transition-colors">Accounts</h3>
-              </div>
-              <div className="text-center py-1.5 px-1 mt-auto bg-blue-100/50 text-blue-600">
-                <p className="font-bold text-[9px] truncate">
-                  {hideBalances ? MASK : formatCurrency(liquid)}
-                </p>
-              </div>
-            </Link>
+                <div className="text-center py-1.5 px-1 mt-auto bg-blue-100/50 text-blue-600">
+                  <p className="font-bold text-[9px] truncate">
+                    {hideBalances ? MASK : formatCurrency(totalLiquid)}
+                  </p>
+                </div>
+              </Link>
 
-            {/* Non-liquid per akun */}
-            {data?.assets.filter(a => a.asset_category !== "liquid").map(a => (
-              <AssetCard key={a.id} asset={a} hideBalances={hideBalances} />
-            ))}
+              {/* Non-liquid per akun */}
+              {assets.filter(a => a.asset_category !== "liquid").map(a => (
+                <AssetCard key={a.id} asset={a} hideBalances={hideBalances} />
+              ))}
+            </div>
+
+            {/* Liabilities section — hanya tampil jika ada */}
+            {(liabilities?.length ?? 0) > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 mb-2">Liabilities</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {liabilities.map((a) => (
+                    <LiabilityCard key={a.id} asset={a} hideBalances={hideBalances} />
+                  ))}
+                </div>
+                <div className="mt-2 text-right text-sm text-red-600 font-semibold">
+                  -{hideBalances ? MASK : formatCurrency(totalLiabilities)}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -160,4 +175,22 @@ function SkeletonCard() {
   );
 }
 
-
+function LiabilityCard({ asset, hideBalances }: { asset: AssetRow; hideBalances: boolean }) {
+  const visual = getAccountVisual(asset.name);
+  const initials = visual.initials || asset.name.substring(0, 2).toUpperCase();
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-red-100 overflow-hidden flex flex-col">
+      <div className="flex flex-col items-center p-3 pb-3">
+        <div className="mb-1.5 w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-[10px] font-bold text-white">
+          {initials}
+        </div>
+        <h3 className="font-bold text-gray-900 text-xs text-center truncate w-full">{asset.name}</h3>
+      </div>
+      <div className="text-center py-1.5 px-1 mt-auto bg-red-100/50 text-red-600">
+        <p className="font-bold text-[9px] truncate">
+          -{hideBalances ? MASK : formatCurrency(asset.current_balance)}
+        </p>
+      </div>
+    </div>
+  );
+}

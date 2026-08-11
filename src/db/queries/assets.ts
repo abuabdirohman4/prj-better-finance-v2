@@ -7,14 +7,17 @@ export interface AssetRow {
   name: string;
   current_balance: number;
   asset_category: string; // "liquid" | "investment"
+  is_liability: boolean;
   icon_name: string | null;
   color_hex: string | null;
 }
 
 export interface AssetsSummary {
   assets: AssetRow[];
+  liabilities: AssetRow[];
   totalLiquid: number;
   totalNonLiquid: number;
+  totalLiabilities: number;
   netWorth: number;
 }
 
@@ -25,6 +28,7 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
       name: accounts.name,
       current_balance: sql<number>`${accounts.current_balance}::numeric`,
       asset_category: accounts.asset_category,
+      is_liability: accounts.is_liability,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
     })
@@ -36,14 +40,29 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
     ))
     .orderBy(accounts.asset_category, accounts.sort_order);
 
-  const totalLiquid = rows.filter(r => r.asset_category === "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
-  // Non-liquid = anything not liquid (investment). DB never stores "non-liquid".
-  const totalNonLiquid = rows.filter(r => r.asset_category !== "liquid").reduce((s, r) => s + Number(r.current_balance), 0);
+  const nonLiabilityRows = rows.filter((r) => !r.is_liability);
+  const liabilityRows = rows.filter((r) => r.is_liability);
 
-  return { 
-    assets: rows.map(r => ({ ...r, current_balance: Number(r.current_balance) })), 
-    totalLiquid, 
-    totalNonLiquid, 
-    netWorth: totalLiquid + totalNonLiquid 
+  const totalLiquid = nonLiabilityRows
+    .filter((r) => r.asset_category === "liquid")
+    .reduce((s, r) => s + Number(r.current_balance), 0);
+  const totalNonLiquid = nonLiabilityRows
+    .filter((r) => r.asset_category !== "liquid")
+    .reduce((s, r) => s + Number(r.current_balance), 0);
+  const totalLiabilities = liabilityRows.reduce((s, r) => s + Number(r.current_balance), 0);
+
+  return {
+    assets: nonLiabilityRows.map((r) => ({
+      ...r,
+      current_balance: Number(r.current_balance),
+    })),
+    liabilities: liabilityRows.map((r) => ({
+      ...r,
+      current_balance: Number(r.current_balance),
+    })),
+    totalLiquid,
+    totalNonLiquid,
+    totalLiabilities,
+    netWorth: totalLiquid + totalNonLiquid - totalLiabilities,
   };
 }

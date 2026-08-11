@@ -14,8 +14,10 @@ export interface AccountRow {
   asset_category: string;
   icon_name: string | null;
   color_hex: string | null;
+  is_active: boolean;
   is_wallet: boolean;
   include_in_net_worth: boolean;
+  is_liability: boolean;
   sort_order: number;
   account_type_slug: string;
   account_type_name: string;
@@ -51,8 +53,10 @@ export async function getAccountsWithType(userId: string): Promise<AccountRow[]>
       asset_category: accounts.asset_category,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
+      is_active: accounts.is_active,
       is_wallet: accounts.is_wallet,
       include_in_net_worth: accounts.include_in_net_worth,
+      is_liability: accounts.is_liability,
       sort_order: accounts.sort_order,
       account_type_slug: accountTypes.slug,
       account_type_name: accountTypes.name,
@@ -87,7 +91,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
 
   const totalAssets = accountRows
     .filter((a) => a.include_in_net_worth)
-    .reduce((sum, a) => sum + a.current_balance, 0);
+    .reduce((sum, a) => sum + (a.is_liability ? -a.current_balance : a.current_balance), 0);
 
   const recentTransactions: RecentTransactionRow[] = txRows.map((t) => ({
     id: t.id,
@@ -127,7 +131,9 @@ export async function createAccount(userId: string, input: CreateAccountInput): 
       slug,
       current_balance: String(input.current_balance),
       asset_category: input.asset_category,
-      include_in_net_worth: input.include_in_net_worth,
+      include_in_net_worth: input.include_in_net_worth ?? true,
+      is_wallet: input.is_wallet ?? false,
+      is_liability: input.is_liability ?? false,
       sort_order: input.sort_order,
     })
     .returning({ id: accounts.id });
@@ -151,6 +157,8 @@ export async function updateAccount(
   if (input.current_balance !== undefined) values.current_balance = String(input.current_balance);
   if (input.asset_category !== undefined) values.asset_category = input.asset_category;
   if (input.include_in_net_worth !== undefined) values.include_in_net_worth = input.include_in_net_worth;
+  if (input.is_wallet !== undefined) values.is_wallet = input.is_wallet;
+  if (input.is_liability !== undefined) values.is_liability = input.is_liability;
   if (input.sort_order !== undefined) values.sort_order = input.sort_order;
 
   await db
@@ -182,8 +190,10 @@ export async function getAccountById(
       asset_category: accounts.asset_category,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
+      is_active: accounts.is_active,
       is_wallet: accounts.is_wallet,
       include_in_net_worth: accounts.include_in_net_worth,
+      is_liability: accounts.is_liability,
       sort_order: accounts.sort_order,
       account_type_slug: accountTypes.slug,
       account_type_name: accountTypes.name,
@@ -250,8 +260,10 @@ function mapAccountRow(r: {
   asset_category: string;
   icon_name: string | null;
   color_hex: string | null;
+  is_active: boolean;
   is_wallet: boolean;
   include_in_net_worth: boolean;
+  is_liability: boolean;
   sort_order: number;
   account_type_slug: string;
   account_type_name: string;
@@ -266,8 +278,10 @@ function mapAccountRow(r: {
     asset_category: r.asset_category,
     icon_name: r.icon_name,
     color_hex: r.color_hex,
-    is_wallet: r.is_wallet,
+    is_active: r.is_active,
     include_in_net_worth: r.include_in_net_worth,
+    is_wallet: r.is_wallet,
+    is_liability: r.is_liability,
     sort_order: r.sort_order,
     account_type_slug: r.account_type_slug,
     account_type_name: r.account_type_name,

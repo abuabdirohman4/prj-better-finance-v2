@@ -31,3 +31,4 @@
 {"id":"int-074c210dc0cd6248524e3a56b5de28d2","kind":"field_change","created_at":"2026-08-09T21:48:04.940574Z","actor":"Abu Abdirohman","issue_id":"bf-bwh","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-27a99511b6800320a13cfb228daa3777","kind":"field_change","created_at":"2026-08-11T09:58:46.554686Z","actor":"Abu Abdirohman","issue_id":"bf-bwh","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
 {"id":"int-c5f84c88c0be25bc9f2ff9eb6ee56178","kind":"field_change","created_at":"2026-08-11T09:59:02.083424Z","actor":"Abu Abdirohman","issue_id":"bf-13t","extra":{"field":"status","new_value":"deferred","old_value":"open"}}
+{"id":"int-c811ee5f03eaefdad26b8e3254f2ad2b","kind":"field_change","created_at":"2026-08-11T10:54:48.264193Z","actor":"Abu Abdirohman","issue_id":"bf-3e0","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
