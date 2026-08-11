@@ -123,6 +123,77 @@ export async function getGoalLedger(
   }));
 }
 
+export interface SavingBudgetRow {
+  goal_id: string;
+  goal_name: string;
+  goal_type: string;
+  monthly_target: number;
+  actual_saved: number;
+  percent: number;
+}
+
+export async function getSavingBudgets(
+  userId: string,
+  year: number,
+  month: number
+): Promise<SavingBudgetRow[]> {
+  const goals = await db
+    .select({
+      id: savingsGoals.id,
+      name: savingsGoals.name,
+      goal_type: savingsGoals.goal_type,
+      monthly_contribution: sql<number>`${savingsGoals.monthly_contribution}::numeric`,
+    })
+    .from(savingsGoals)
+    .where(
+      and(
+        eq(savingsGoals.user_id, userId),
+        eq(savingsGoals.is_active, true),
+        sql`${savingsGoals.monthly_contribution} > 0`,
+      )
+    )
+    .orderBy(savingsGoals.goal_type, savingsGoals.name);
+
+  if (goals.length === 0) return [];
+
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-${new Date(year, month, 0).getDate()}`;
+
+  const transfers = await db
+    .select({
+      goal_id: transactions.goal_id,
+      total: sql<number>`SUM(${transactions.amount}::numeric)`,
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.transaction_type, "transfer"),
+        isNotNull(transactions.goal_id),
+        isNull(transactions.deleted_at),
+        sql`${transactions.transaction_date} >= ${startDate}`,
+        sql`${transactions.transaction_date} <= ${endDate}`,
+        inArray(transactions.goal_id, goals.map(g => g.id)),
+      )
+    )
+    .groupBy(transactions.goal_id);
+
+  const transferMap = new Map(transfers.map(t => [t.goal_id, Number(t.total)]));
+
+  return goals.map(g => {
+    const actual = transferMap.get(g.id) ?? 0;
+    const target = Number(g.monthly_contribution);
+    return {
+      goal_id: g.id,
+      goal_name: g.name,
+      goal_type: g.goal_type,
+      monthly_target: target,
+      actual_saved: actual,
+      percent: target > 0 ? (actual / target) * 100 : 0,
+    };
+  });
+}
+
 export async function createGoal(
   userId: string,
   input: {

@@ -40,6 +40,8 @@ export const budgetKeys = {
     [...budgetKeys.all, "with-spending", year, month] as const,
   income: (year: number, month: number) =>
     [...budgetKeys.all, "income", year, month] as const,
+  saving: (year: number, month: number) => 
+    [...budgetKeys.all, "saving", year, month] as const,
 };
 
 export const goalKeys = {

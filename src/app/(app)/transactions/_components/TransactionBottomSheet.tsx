@@ -36,6 +36,8 @@ export function TransactionBottomSheet({
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
     }
   }, [open]);
 

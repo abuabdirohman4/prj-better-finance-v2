@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan + P3 di-plan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅ ~~bf-btz~~ ✅. Next: bf-yz4, lalu P3 (8 issue plan+prompt siap, 4 migration sudah apply).
+> Diperbarui: 2026-08-11 · Fase: **P2 + P3 berjalan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅ ~~bf-btz~~ ✅ ~~bf-yz4/i6e/z8z~~ ✅. Next: P3 (bf-z6w, bf-3ai, bf-6rl, bf-ayj, bf-dac, bf-uaw).
 
 ---
 
@@ -12,18 +12,17 @@
 
 | # | Issue | Fitur | Files | Catatan |
 |---|---|---|---|---|
-| 1 | `bf-yz4` | Budget saving: target nabung per goal | 6 | P2 sisa, pakai monthly_contribution |
-| 2 | `bf-z6w` | Investment grouping 2-level (Reksadana/Saham/USD) | 7 | migration ✅ · **sebelum bf-3ai** |
-| 3 | `bf-3ai` | Investment Tracker: current value + P&L | 7 | migration ✅ · depends bf-z6w |
-| 4 | `bf-6rl` | Goal account linkage: "disimpan di X" + pre-fill transfer | 7 | migration ✅ |
-| 5 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
-| 6 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
-| 7 | `bf-uaw` | Sort order akun: ▲▼ reorder di /accounts | 3 | — |
-| 8 | `bf-noo` | Import budget historis dari sheet (script) | 1 | — |
-| 9 | `bf-4m1` | Import 2025 (AKTIVA/PASIVA format) | 1 | interaktif dgn user, bukan Antigravity blind |
+| 1 | ~~`bf-z8z`~~ | Budget drill-down: tap kategori → list transaksi | 6 | ✅ |
+| 2 | ~~`bf-i6e`~~ | Budget Transfers: 2 aggregate bucket Saving/Investing | 6 | ✅ |
+| 3 | `bf-z6w` | Investment grouping 2-level (Reksadana/Saham/USD) | 7 | migration ✅ · **sebelum bf-3ai** |
+| 4 | `bf-3ai` | Investment Tracker: current value + P&L | 7 | migration ✅ · depends bf-z6w |
+| 5 | `bf-6rl` | Goal account linkage: "disimpan di X" + pre-fill transfer | 7 | migration ✅ |
+| 6 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
+| 7 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
+| 8 | `bf-uaw` | Sort order akun: ▲▼ reorder di /accounts | 3 | — |
 
 **Parkiran** (ter-capture, belum di-plan, tanpa komitmen waktu):
-`bf-aq8` breakdown produk investasi · `bf-kvk` goal reality check · `bf-9vf` settings+privacy · `bf-gv5` CFP insights (butuh data) · `bf-bp5` i18n pass · `bf-alx` rename /assets→/net-worth · `bf-qxb` UI kit lengkap · `bf-lp4` cursor polish
+`bf-noo` import budget historis · `bf-4m1` import 2025 (AKTIVA/PASIVA, interaktif) · `bf-aq8` breakdown produk investasi · `bf-kvk` goal reality check · `bf-9vf` settings+privacy · `bf-gv5` CFP insights (butuh data) · `bf-bp5` i18n pass · `bf-alx` rename /assets→/net-worth · `bf-qxb` UI kit lengkap · `bf-lp4` cursor polish
 
 ---
 
@@ -145,7 +144,9 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — bf-yz4 di-redesign jadi 2 issue terpisah: bf-i6e (Budget Transfers aggregate Saving/Investing, bukan per-goal) + bf-z8z (budget category drill-down: tap kartu → list transaksi). Plan+prompt siap keduanya. bf-noo + bf-4m1 turun ke Parkiran.
 - **2026-08-11** — Planning P3 batch: 8 issue di-plan+beads+prompt (bf-dac, bf-uaw, bf-6rl, bf-ayj, bf-z6w, bf-3ai, bf-noo, bf-4m1). bf-4m1 (Import 2025) bead baru. 4 migration di-apply Claude via MCP (savings_goals.account_id, transactions.budget_period, accounts.investment_group, accounts.current_value+last_valued_at) + schema.ts sinkron. Dependency: bf-z6w → bf-3ai. Siap Antigravity (bf-4m1 interaktif).
+- **2026-08-11** — bf-yz4/i6e/z8z closed. Saving budget section per-goal, budget drill-down (tap kartu → transaksi list + edit), BudgetCard onTap redesign.
 - **2026-08-11** — bf-btz closed. Goal usage ledger: spending ber-goal_id kurangi collected, GoalLedger component, goal picker di TransactionForm spending.
 - **2026-08-11** — bf-4z1 closed. Income budget: section Budget Earning di halaman budget, color scheme hijau, filter per group.
 - **2026-08-11** — bf-3e0 closed. AR/AP liability: is_liability flag, AP kurangi net worth, section Liabilities di /assets, accounts total exclude liability.

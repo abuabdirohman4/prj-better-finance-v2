@@ -60,6 +60,8 @@ export function BudgetBottomSheet({
         setNote("");
       }
       requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
     }
   }, [open, editBudget]);
 

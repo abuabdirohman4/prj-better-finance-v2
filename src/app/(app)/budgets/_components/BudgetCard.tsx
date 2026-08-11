@@ -5,7 +5,7 @@ import type { BudgetWithSpending } from "@/db/queries/budgets";
 
 interface Props {
   budget: BudgetWithSpending;
-  onEdit: (budget: BudgetWithSpending) => void;
+  onTap: (budget: BudgetWithSpending) => void;
   hideBalances: boolean;
   isEarning?: boolean;
 }
@@ -30,14 +30,14 @@ const ITEM_ICONS: Record<string, string> = {
 
 const MASK = "Rp •••";
 
-export function BudgetCard({ budget, onEdit, hideBalances, isEarning }: Props) {
+export function BudgetCard({ budget, onTap, hideBalances, isEarning }: Props) {
   const colors = getBudgetColors(budget.percent, isEarning);
   const barWidth = Math.min(budget.percent, 100);
   const remaining = budget.budgeted_amount - budget.actual_spending;
 
   return (
     <button
-      onClick={() => onEdit(budget)}
+      onClick={() => onTap(budget)}
       className="w-full text-left bg-white rounded-2xl p-3.5 shadow-sm border border-gray-100 hover:border-blue-100 active:scale-[0.98] transition-all shrink-0"
     >
       <div className="flex items-center justify-between mb-3">

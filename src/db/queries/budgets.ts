@@ -1,6 +1,6 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { budgets, categories, transactions } from "@/db/schema";
+import { budgets, categories, transactions, accounts } from "@/db/schema";
 
 export interface BudgetRow {
   id: string;
@@ -166,4 +166,45 @@ export async function getTransactionsForWeeklyBudget(
       )
     );
   return rows;
+}
+
+export interface BudgetTxRow {
+  id: string;
+  transaction_date: string;
+  note: string | null;
+  amount: number;
+  account_name: string;
+}
+
+export async function getTransactionsForBudget(
+  userId: string,
+  categoryId: string,
+  year: number,
+  month: number,
+  type: "spending" | "earning" = "spending"
+): Promise<BudgetTxRow[]> {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-${new Date(year, month, 0).getDate()}`;
+
+  return db
+    .select({
+      id: transactions.id,
+      transaction_date: sql<string>`${transactions.transaction_date}::text`,
+      note: transactions.note,
+      amount: sql<number>`${transactions.amount}::numeric`,
+      account_name: sql<string>`COALESCE(${accounts.name}, '')`,
+    })
+    .from(transactions)
+    .leftJoin(accounts, eq(transactions.account_id, accounts.id))
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.category_id, categoryId),
+        eq(transactions.transaction_type, type),
+        isNull(transactions.deleted_at),
+        sql`${transactions.transaction_date} >= ${startDate}`,
+        sql`${transactions.transaction_date} <= ${endDate}`,
+      )
+    )
+    .orderBy(sql`${transactions.transaction_date} DESC`);
 }

@@ -7,10 +7,13 @@ import {
   upsertBudget,
   deleteBudget,
   getTransactionsForWeeklyBudget,
+  getTransactionsForBudget,
   type BudgetWithSpending,
+  type BudgetTxRow,
 } from "@/db/queries/budgets";
 import { getCategories, type CategoryRow } from "@/db/queries/accounts";
 import { upsertBudgetSchema, type UpsertBudgetInput } from "@/lib/schemas/budget";
+import { getSavingBudgets, type SavingBudgetRow } from "@/db/queries/goals";
 import { z } from "zod";
 import {
   getManageCategories,
@@ -42,6 +45,19 @@ export async function getIncomeBudgetsAction(
   try {
     const user = await requireUser();
     const data = await getBudgetsWithSpending(user.id, year, month, "earning");
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
+export async function getSavingBudgetsAction(
+  year: number,
+  month: number
+): Promise<ServerActionResult<SavingBudgetRow[]>> {
+  try {
+    const user = await requireUser();
+    const data = await getSavingBudgets(user.id, year, month);
     return { success: true, data };
   } catch (error) {
     return { success: false, message: handleApiError(error, "memuat data").message };
@@ -90,6 +106,23 @@ export async function deleteBudgetAction(
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "menghapus data").message };
+  }
+}
+
+export async function getBudgetTransactionsAction(
+  categoryId: string,
+  year: number,
+  month: number,
+  type: "spending" | "earning" = "spending"
+): Promise<ServerActionResult<BudgetTxRow[]>> {
+  try {
+    const user = await requireUser();
+    const parsed = z.string().uuid().safeParse(categoryId);
+    if (!parsed.success) return { success: false, message: "Invalid category." };
+    const data = await getTransactionsForBudget(user.id, categoryId, year, month, type);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
   }
 }
 

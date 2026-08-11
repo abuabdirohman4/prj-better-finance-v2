@@ -21,12 +21,12 @@ interface Props {
   group: string;
   items: BudgetWithSpending[];
   hideBalances: boolean;
-  onEdit: (b: BudgetWithSpending) => void;
+  onTap: (b: BudgetWithSpending) => void;
 }
 
 const MASK = "Rp •••";
 
-export function BudgetGroup({ group, items, hideBalances, onEdit }: Props) {
+export function BudgetGroup({ group, items, hideBalances, onTap }: Props) {
   const [collapsed, setCollapsed] = useState(false);
 
   const groupBudget = items.reduce((s, b) => s + Number(b.budgeted_amount), 0);
@@ -78,7 +78,7 @@ export function BudgetGroup({ group, items, hideBalances, onEdit }: Props) {
       {!collapsed && (
         <div className="space-y-2 px-1 pb-1">
           {items.map((b) => (
-            <BudgetCard key={b.id} budget={b} onEdit={onEdit} hideBalances={hideBalances} isEarning={group === "earning"} />
+            <BudgetCard key={b.id} budget={b} onTap={onTap} hideBalances={hideBalances} isEarning={group === "earning"} />
           ))}
         </div>
       )}

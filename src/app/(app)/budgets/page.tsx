@@ -5,7 +5,9 @@ import Link from "next/link";
 import { ChevronLeft, ChevronDown, BarChart3, Calendar, Settings } from "lucide-react";
 import { useBudgets } from "./_hooks/useBudgets";
 import { BudgetGroup } from "./_components/BudgetGroup";
+import { SavingBudgetSection } from "./_components/SavingBudgetSection";
 import { BudgetBottomSheet } from "./_components/BudgetBottomSheet";
+import { BudgetDrillSheet } from "./_components/BudgetDrillSheet";
 
 import { Fab } from "@/components/layouts/Fab";
 import { usePrivacyStore } from "@/stores/privacyStore";
@@ -22,10 +24,11 @@ export default function BudgetsPage() {
   const [editBudget, setEditBudget] = useState<BudgetWithSpending | null>(null);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
 
-  const { query, incomeQuery, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
+  const { query, incomeQuery, savingQuery, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
 
   const budgets = query.data ?? [];
   const incomeBudgets = incomeQuery.data ?? [];
+  const savingBudgets = savingQuery.data ?? [];
 
   // Group by group_name
   const groups = budgets.reduce<Record<string, BudgetWithSpending[]>>((acc, b) => {
@@ -43,6 +46,22 @@ export default function BudgetsPage() {
 
   function openCreate() { setEditBudget(null); setSheetOpen(true); }
   function openEdit(b: BudgetWithSpending) { setEditBudget(b); setSheetOpen(true); }
+
+  const [drillBudget, setDrillBudget] = useState<BudgetWithSpending | null>(null);
+  const [drillOpen, setDrillOpen] = useState(false);
+
+  function openDrill(b: BudgetWithSpending) {
+    setDrillBudget(b);
+    setDrillOpen(true);
+  }
+
+  function openEditFromDrill(b: BudgetWithSpending) {
+    setDrillOpen(false);
+    setTimeout(() => {
+      setEditBudget(b);
+      setSheetOpen(true);
+    }, 320); // Wait for drill sheet to close
+  }
 
   const MASK = "Rp •••";
 
@@ -168,9 +187,10 @@ export default function BudgetsPage() {
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-gray-900 text-lg">Budget Earning</h2>
             </div>
-            <BudgetGroup group="earning" items={incomeBudgets} hideBalances={hideBalances} onEdit={openEdit} />
+            <BudgetGroup group="earning" items={incomeBudgets} hideBalances={hideBalances} onTap={openDrill} />
           </div>
         )}
+
 
         {/* Budget Spending Title */}
         {!query.isLoading && (
@@ -181,8 +201,15 @@ export default function BudgetsPage() {
 
         {/* Groups */}
         {Object.entries(groups).map(([group, items]) => (
-          <BudgetGroup key={group} group={group} items={items} hideBalances={hideBalances} onEdit={openEdit} />
+          <BudgetGroup key={group} group={group} items={items} hideBalances={hideBalances} onTap={openDrill} />
         ))}
+
+        {/* Saving Budget Section */}
+        {!query.isLoading && savingBudgets.length > 0 && (
+          <div className="space-y-4 mb-6 mt-4">
+            <SavingBudgetSection items={savingBudgets} hideBalances={hideBalances} />
+          </div>
+        )}
       </div>
 
       <Fab onClick={openCreate} label="Add budget" />
@@ -197,6 +224,16 @@ export default function BudgetsPage() {
         onSuccess={() => setSheetOpen(false)}
         upsertMutation={upsertMutation}
         deleteMutation={deleteMutation}
+      />
+
+      <BudgetDrillSheet
+        open={drillOpen}
+        onClose={() => setDrillOpen(false)}
+        budget={drillBudget}
+        year={year}
+        month={month}
+        onEdit={openEditFromDrill}
+        hideBalances={hideBalances}
       />
     </div>
   );
