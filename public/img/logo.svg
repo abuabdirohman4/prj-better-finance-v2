@@ -1,0 +1,63 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definitions -->
+  <defs>
+    <!-- Soft background gradient: light blue to soft green -->
+    <linearGradient id="bg" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#E3F2FD"/>
+      <stop offset="1" stop-color="#E8F5E8"/>
+    </linearGradient>
+    
+    <!-- Soft accent gradient: blue to green -->
+    <linearGradient id="accent" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#2196F3"/>
+      <stop offset="1" stop-color="#4CAF50"/>
+    </linearGradient>
+    
+    <!-- Soft shadow filter -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Rounded square background with soft colors -->
+  <rect x="40" y="40" width="432" height="432" rx="80" fill="url(#bg)" filter="url(#softShadow)"/>
+  
+  <!-- Financial chart bars with soft colors -->
+  <g filter="url(#softShadow)">
+    <!-- Left bar (smallest) - soft blue -->
+    <rect x="140" y="340" width="56" height="100" fill="#2196F3" rx="8" opacity="0.8"/>
+    
+    <!-- Middle bar (medium) - soft green -->
+    <rect x="228" y="300" width="56" height="140" fill="#4CAF50" rx="8" opacity="0.8"/>
+    
+    <!-- Right bar (largest) - soft purple -->
+    <rect x="316" y="260" width="56" height="180" fill="#9C27B0" rx="8" opacity="0.8"/>
+  </g>
+  
+  <!-- Growth trend line with soft gradient -->
+  <g filter="url(#softShadow)">
+    <!-- Trend line path -->
+    <path d="M 120 380 Q 256 200 392 140" stroke="url(#accent)" stroke-width="20" stroke-linecap="round" fill="none" opacity="0.9"/>
+    
+    <!-- Trend line dots -->
+    <circle cx="140" cy="340" r="8" fill="#2196F3" opacity="0.9"/>
+    <circle cx="228" cy="300" r="8" fill="#4CAF50" opacity="0.9"/>
+    <circle cx="316" cy="260" r="8" fill="#9C27B0" opacity="0.9"/>
+  </g>
+  
+  <!-- Subtle grid lines for financial chart feel -->
+  <g opacity="0.08">
+    <line x1="80" y1="120" x2="432" y2="120" stroke="#666" stroke-width="1"/>
+    <line x1="80" y1="200" x2="432" y2="200" stroke="#666" stroke-width="1"/>
+    <line x1="80" y1="280" x2="432" y2="280" stroke="#666" stroke-width="1"/>
+    <line x1="80" y1="360" x2="432" y2="360" stroke="#666" stroke-width="1"/>
+  </g>
+  
+  <!-- Money icon in center -->
+  <g filter="url(#softShadow)">
+    <circle cx="256" cy="200" r="40" fill="url(#accent)" opacity="0.9"/>
+    <text x="256" y="210" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="white">
+      $
+    </text>
+  </g>
+</svg>
