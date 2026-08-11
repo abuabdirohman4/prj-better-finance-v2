@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-10 · Fase: **Phase 4 aktif**. **🎯 MVP = dogfood: pindah dari Google Sheet.** Jalur: ~~bf-yts~~ ✅ → ~~bf-wrp~~ ✅ → **bf-bwh (migrasi data)**. Sisanya Post-MVP.
+> Diperbarui: 2026-08-11 · Fase: **MVP selesai — dogfood aktif.** 🎯 ~~bf-yts~~ ✅ → ~~bf-wrp~~ ✅ → ~~bf-bwh~~ ✅. Data 2026 masuk (2504 tx, 11/11 saldo ✅). Next: polish + post-MVP.
 
 ---
 
@@ -18,18 +18,24 @@ Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus.
 |---|---|---|---|
 | ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field + goal collected derived + Net Worth non-liquid. **DONE.** | ✅ closed |
 | ✅ | ~~bf-wrp~~ | Kategori management (add/edit/soft-delete dari `/budgets/categories`). **DONE.** | ✅ closed |
-| 3 | **bf-bwh** | 🎯 **Tujuan MVP.** Import data sheet 2025-2026. Aman setelah kategori siap. | ✅ prompt siap |
+| ✅ | ~~bf-bwh~~ | 🎯 **MVP selesai.** Import 2026: 2504 tx, 11/11 saldo match. Script . Import 2025 deferred. | ✅ closed |
 
 ### Post-MVP — NANTI (fitur, bukan blocker migrasi)
 
 | Issue | Fitur | Catatan |
 |---|---|---|
-| bf-13t | AP/AR utang/piutang | fitur unggulan, brainstorm dulu |
+| bf-3e0 | AR/AP liability proper (gantikan bf-13t) | is_liability flag, AP kurangi net worth |
 | bf-4z1 | income budget | planning pemasukan |
 | bf-btz | goal usage ledger | spend-down + history per goal |
 | bf-yz4 | budget saving/transfer | target nabung per goal |
 | bf-aq8 | breakdown produk investasi | sub-produk per akun non-liquid |
 | bf-kvk | goal reality check | SUM(collected) ≈ saldo |
+| bf-dac | account detail page | klik akun → transaksi |
+| bf-ayj | budget_period | alokasi gaji ke bulan tujuan |
+| bf-z6w | investment grouping 2-level | Reksadana/Saham/USD |
+| bf-3ai | investment tracker | current value + P&L |
+| bf-noo | import budget historis | dari sheet tab Spending/Earning |
+| bf-uaw | sort order akun | drag-and-drop reorder |
 | bf-9vf | settings + privacy | shell |
 | bf-gv5 | CFP analysis + insights | butuh data dulu |
 | bf-bp5 | global i18n pass | English-first + multi-bahasa |
@@ -69,18 +75,34 @@ Plan + prompt siap di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan.
 - [x] Akun non-liquid + transfer 2-field + enum shrink (bf-yts)
 - [x] **Kategori management** — add/edit/soft-delete, `/budgets/categories` (bf-wrp) ✅
 
-### 🔜 BERIKUTNYA — Migrasi Data (MVP final)
+### ✅ BERIKUTNYA — Migrasi Data (MVP final) — SELESAI
 
-- [ ] `bf-bwh` — **Import data sheet 2025-2026** (prompt siap di `docs/prompts/2026-07-23-bf-bwh-*`)
+- [x] `bf-bwh` — **Import 2026 done.** 2504 tx, 11/11 saldo ✅. Script `scripts/migrate-sheet.ts`. Import 2025 deferred (format beda).
 
 ### 📦 Post-MVP — Fitur Lanjutan
 
-- [ ] `bf-13t` — AP/AR utang/piutang (brainstorm dulu — schema + integrasi Net Worth)
-- [ ] `bf-9vf` — Settings profil + privacy persistence (prompt: `2026-07-22-bf-9vf-*`)
-- [ ] `bf-gv5` — CFP analysis + insights (prompt: `2026-07-23-bf-gv5-*`)
-- [ ] `bf-bp5` — Global i18n pass (prompt: `2026-07-23-bf-bp5-*`)
-- [ ] `bf-qxb` — UI kit lengkap on-demand (prompt: `2026-07-22-bf-qxb-*`)
-- [ ] `bf-lp4` — UI polish cursor-pointer batch (prompt: `2026-07-23-bf-lp4-*`)
+**P2 (prioritas tinggi):**
+- [ ] `bf-3e0` — AR/AP liability proper: `is_liability` flag, AP kurangi net worth, AR/AP keluar dari /accounts
+- [ ] `bf-4z1` — Income budget: sisi pemasukan di halaman budget
+- [ ] `bf-btz` — Goal usage ledger: spend-down + history per goal
+- [ ] `bf-yz4` — Budget saving/transfer: target nabung per goal
+
+**P3 (fitur lanjutan dari import):**
+- [ ] `bf-dac` — Account detail page: klik akun → list transaksi (filter by account_id OR to_account_id)
+- [ ] `bf-ayj` — budget_period: pisah transaction_date dari alokasi bulan (source_month sudah ada)
+- [ ] `bf-z6w` — Investment grouping 2-level: Reksadana/Saham/USD sebagai grup → produk
+- [ ] `bf-3ai` — Investment Tracker: current value, P&L, modal vs nilai pasar per produk
+- [ ] `bf-noo` — Import budget historis dari sheet (Spending/Earning/Transfer/SpendingTF)
+- [ ] `bf-uaw` — Sort order akun: drag-and-drop reorder di /accounts dan /assets
+- [ ] Import 2025 — SHEET_ID `18iigYTz2ked8bobH1CWGY2sDC-efuNsHjBhEYzdGZqM`, format beda (extra header AKTIVA/PASIVA)
+
+**Parkiran:**
+- [ ] `bf-9vf` — Settings profil + privacy persistence
+- [ ] `bf-gv5` — CFP analysis + insights (butuh data historis dulu)
+- [ ] `bf-bp5` — Global i18n pass
+- [ ] `bf-qxb` — UI kit lengkap on-demand
+- [ ] `bf-lp4` — UI polish cursor-pointer batch
+- [ ] `bf-alx` — Rename /assets → /net-worth
 
 ---
 
@@ -139,6 +161,8 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — bf-bwh closed (MVP selesai). Data 2026: 2504 tx, 11/11 saldo match, AR/AP jadi akun transfer. Issue baru: bf-3e0 (liability), bf-dac (account detail), bf-ayj (budget_period), bf-z6w (investment grouping), bf-3ai (tracker), bf-noo (budget import), bf-uaw (sort order). bf-13t deferred (digantikan bf-3e0).
+- **2026-08-11** — bf-bwh closed (MVP selesai). Data 2026: 2504 tx, 11/11 saldo ✅, AR/AP jadi akun transfer proper. Issue baru dari sesi: bf-3e0 (liability), bf-dac (account detail), bf-ayj (budget_period), bf-z6w (investment grouping), bf-3ai (tracker), bf-noo (budget import), bf-uaw (sort order). bf-13t deferred → digantikan bf-3e0.
 - **2026-08-10** — Restruktur roadmap mengikuti format oims (changelog, timeline, gelombang). Hook git-reminder dimatikan (looping token). bf-wrp closed di beads.
 - **2026-07-25** — bf-wrp done. Kategori management `/budgets/categories` (add/edit/soft-delete, custom group, slug unique). roadmap: promote bf-bwh ke next MVP step.
 - **2026-07-24** — bf-yts done. Akun non-liquid (enum liquid/investment), transfer 2-field, goal collected LEFT JOIN fix, Net Worth non-liquid render, /accounts liquid-only, SingleSelect, enum 4→2. Follow-up: bf-alx, bf-7m3.
