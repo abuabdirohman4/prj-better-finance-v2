@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-11 · Fase: **MVP selesai — dogfood aktif.** 🎯 ~~bf-yts~~ ✅ → ~~bf-wrp~~ ✅ → ~~bf-bwh~~ ✅. Data 2026 masuk (2504 tx, 11/11 saldo ✅). Next: polish + post-MVP.
+> Diperbarui: 2026-08-11 · Fase: **MVP selesai — dogfood aktif.** 🎯 ~~bf-yts~~ ✅ → ~~bf-wrp~~ ✅ → ~~bf-bwh~~ ✅. Data 2026 masuk (2504 tx, 11/11 saldo ✅). Next: P2 batch (bf-3e0, bf-4z1, bf-btz, bf-yz4) — semua siap Antigravity.
 
 ---
 
@@ -79,13 +79,20 @@ Plan + prompt siap di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan.
 
 - [x] `bf-bwh` — **Import 2026 done.** 2504 tx, 11/11 saldo ✅. Script `scripts/migrate-sheet.ts`. Import 2025 deferred (format beda).
 
+### 🔜 P2 — Siap Eksekusi Antigravity
+
+Plan + prompt tersedia di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan (bf-3e0 dulu, bf-4z1 + bf-yz4 bisa paralel setelah itu, bf-btz terakhir atau paralel dengan bf-4z1).
+
+| Issue | Fitur | Files | Status |
+|---|---|---|---|
+| `bf-3e0` | AR/AP liability: `is_liability` flag, AP kurangi net worth, keluar dari /accounts | 8 | ⏳ |
+| `bf-4z1` | Income budget: sisi pemasukan di halaman budget | 6 | ⏳ |
+| `bf-btz` | Goal usage ledger: spend-down + history per goal, spending ber-goal_id | 5 | ⏳ |
+| `bf-yz4` | Budget saving: target nabung per goal (pakai monthly_contribution) | 6 | ⏳ |
+
 ### 📦 Post-MVP — Fitur Lanjutan
 
-**P2 (prioritas tinggi):**
-- [ ] `bf-3e0` — AR/AP liability proper: `is_liability` flag, AP kurangi net worth, AR/AP keluar dari /accounts
-- [ ] `bf-4z1` — Income budget: sisi pemasukan di halaman budget
-- [ ] `bf-btz` — Goal usage ledger: spend-down + history per goal
-- [ ] `bf-yz4` — Budget saving/transfer: target nabung per goal
+**P2 (prioritas tinggi) — sudah di-plan di atas ↑**
 
 **P3 (fitur lanjutan dari import):**
 - [ ] `bf-dac` — Account detail page: klik akun → list transaksi (filter by account_id OR to_account_id)
@@ -161,6 +168,7 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — Planning P2 batch: 4 issue di-plan+beads+prompt (bf-3e0, bf-4z1, bf-btz, bf-yz4). bf-3e0: AR/AP liability (8 files), bf-4z1: income budget (6 files), bf-btz: goal usage ledger (5 files), bf-yz4: budget saving (6 files). Semua siap eksekusi Antigravity.
 - **2026-08-11** — bf-bwh closed (MVP selesai). Data 2026: 2504 tx, 11/11 saldo match, AR/AP jadi akun transfer. Issue baru: bf-3e0 (liability), bf-dac (account detail), bf-ayj (budget_period), bf-z6w (investment grouping), bf-3ai (tracker), bf-noo (budget import), bf-uaw (sort order). bf-13t deferred (digantikan bf-3e0).
 - **2026-08-11** — bf-bwh closed (MVP selesai). Data 2026: 2504 tx, 11/11 saldo ✅, AR/AP jadi akun transfer proper. Issue baru dari sesi: bf-3e0 (liability), bf-dac (account detail), bf-ayj (budget_period), bf-z6w (investment grouping), bf-3ai (tracker), bf-noo (budget import), bf-uaw (sort order). bf-13t deferred → digantikan bf-3e0.
 - **2026-08-10** — Restruktur roadmap mengikuti format oims (changelog, timeline, gelombang). Hook git-reminder dimatikan (looping token). bf-wrp closed di beads.
