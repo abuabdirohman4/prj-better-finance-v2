@@ -1,6 +1,6 @@
 import { and, eq, desc, sql, inArray, isNull, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { savingsGoals, transactions } from "@/db/schema";
+import { savingsGoals, transactions, categories } from "@/db/schema";
 
 export interface GoalRow {
   id: string;
@@ -23,7 +23,7 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
   const transfersByGoal = db
     .select({
       goal_id: transactions.goal_id,
-      total: sql<number>`SUM(${transactions.amount}::numeric)`.as("total"),
+      total: sql<number>`SUM(${transactions.amount}::numeric)`.as("total_transfers"),
     })
     .from(transactions)
     .where(
@@ -37,6 +37,23 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
     .groupBy(transactions.goal_id)
     .as("transfers_by_goal");
 
+  const withdrawalsByGoal = db
+    .select({
+      goal_id: transactions.goal_id,
+      total: sql<number>`SUM(${transactions.amount}::numeric)`.as("total_withdrawals"),
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.transaction_type, "spending"),
+        isNotNull(transactions.goal_id),
+        isNull(transactions.deleted_at),
+      ),
+    )
+    .groupBy(transactions.goal_id)
+    .as("withdrawals_by_goal");
+
   const rows = await db
     .select({
       id: savingsGoals.id,
@@ -44,7 +61,7 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
       description: savingsGoals.description,
       goal_type: savingsGoals.goal_type,
       target_amount: sql<number>`${savingsGoals.target_amount}::numeric`,
-      collected_amount: sql<number>`${savingsGoals.collected_amount}::numeric + COALESCE(${transfersByGoal.total}, 0)`,
+      collected_amount: sql<number>`${savingsGoals.collected_amount}::numeric + COALESCE(${transfersByGoal.total}, 0) - COALESCE(${withdrawalsByGoal.total}, 0)`,
       monthly_contribution: sql<number>`${savingsGoals.monthly_contribution}::numeric`,
       deadline_date: savingsGoals.deadline_date,
       duration_label: savingsGoals.duration_label,
@@ -52,12 +69,57 @@ export async function getGoals(userId: string): Promise<GoalRow[]> {
     })
     .from(savingsGoals)
     .leftJoin(transfersByGoal, eq(transfersByGoal.goal_id, savingsGoals.id))
+    .leftJoin(withdrawalsByGoal, eq(withdrawalsByGoal.goal_id, savingsGoals.id))
     .where(and(eq(savingsGoals.user_id, userId), eq(savingsGoals.is_active, true)))
     .orderBy(savingsGoals.goal_type, desc(savingsGoals.collected_amount));
 
   return rows.map((r) => ({
     ...r,
-    percent: r.target_amount > 0 ? (r.collected_amount / r.target_amount) * 100 : 0,
+    percent: r.target_amount > 0 ? (Math.max(0, r.collected_amount) / r.target_amount) * 100 : 0,
+  }));
+}
+
+export interface GoalLedgerRow {
+  id: string;
+  transaction_date: string;
+  transaction_type: "transfer" | "spending";
+  amount: number;
+  note: string | null;
+  category_name: string | null;
+}
+
+export async function getGoalLedger(
+  userId: string,
+  goalId: string
+): Promise<GoalLedgerRow[]> {
+  const rows = await db
+    .select({
+      id: transactions.id,
+      transaction_date: transactions.transaction_date,
+      transaction_type: transactions.transaction_type,
+      amount: sql<number>`${transactions.amount}::numeric`,
+      note: transactions.note,
+      category_name: categories.name,
+    })
+    .from(transactions)
+    .leftJoin(categories, eq(categories.id, transactions.category_id))
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        eq(transactions.goal_id, goalId),
+        isNull(transactions.deleted_at),
+        sql`${transactions.transaction_type} IN ('transfer', 'spending')`,
+      ),
+    )
+    .orderBy(desc(transactions.transaction_date), desc(transactions.created_at));
+
+  return rows.map(r => ({
+    id: r.id,
+    transaction_date: r.transaction_date,
+    transaction_type: r.transaction_type as "transfer" | "spending",
+    amount: Number(r.amount),
+    note: r.note,
+    category_name: r.category_name,
   }));
 }
 

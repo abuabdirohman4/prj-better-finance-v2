@@ -7,6 +7,8 @@ import {
   createGoal,
   updateGoal,
   softDeleteGoal,
+  getGoalLedger,
+  type GoalLedgerRow,
   type GoalRow,
 } from "@/db/queries/goals";
 import { createGoalSchema, updateGoalSchema, type CreateGoalInput, type UpdateGoalInput } from "@/lib/schemas/goal";
@@ -73,5 +75,19 @@ export async function deleteGoalAction(
     return { success: true };
   } catch (error) {
     return { success: false, message: handleApiError(error, "menghapus data").message };
+  }
+}
+
+export async function getGoalLedgerAction(
+  goalId: string
+): Promise<ServerActionResult<GoalLedgerRow[]>> {
+  try {
+    const user = await requireUser();
+    const parsed = z.string().uuid().safeParse(goalId);
+    if (!parsed.success) return { success: false, message: "ID goal tidak valid." };
+    const data = await getGoalLedger(user.id, goalId);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
   }
 }

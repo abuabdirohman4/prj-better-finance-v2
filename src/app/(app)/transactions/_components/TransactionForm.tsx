@@ -74,7 +74,7 @@ export function TransactionForm({
   const { data: goalsRes } = useQuery({
     queryKey: transactionKeys.goalsForTransfer(),
     queryFn: async () => getGoalsForTransferAction(),
-    enabled: txType === "transfer",
+    enabled: txType === "transfer" || txType === "spending",
   });
   const goalsForTransfer = (goalsRes?.success ? goalsRes.data : []) ?? [];
 
@@ -196,11 +196,11 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Untuk Goal — opsional, hanya transfer */}
-      {txType === "transfer" && (
+      {/* Untuk Goal / From Goal — opsional, transfer & spending */}
+      {(txType === "transfer" || txType === "spending") && (
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Untuk Goal <span className="text-gray-400 text-xs">(opsional)</span>
+            {txType === "transfer" ? "Untuk Goal" : "From Goal"} <span className="text-gray-400 text-xs">(opsional)</span>
           </label>
           <SingleSelect
             options={goalOptions}

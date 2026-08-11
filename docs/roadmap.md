@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅. Next: bf-btz, bf-yz4.
+> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅ ~~bf-btz~~ ✅. Next: bf-yz4.
 
 ---
 
@@ -26,7 +26,7 @@ Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus.
 |---|---|---|
 | ~~bf-3e0~~ ✅ | AR/AP liability proper (gantikan bf-13t) | is_liability flag, AP kurangi net worth |
 | ~~bf-4z1~~ ✅ | income budget | planning pemasukan |
-| bf-btz | goal usage ledger | spend-down + history per goal |
+| ~~bf-btz~~ ✅ | goal usage ledger | spend-down + history per goal |
 | bf-yz4 | budget saving/transfer | target nabung per goal |
 | bf-aq8 | breakdown produk investasi | sub-produk per akun non-liquid |
 | bf-kvk | goal reality check | SUM(collected) ≈ saldo |
@@ -87,7 +87,7 @@ Plan + prompt tersedia di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan (b
 |---|---|---|---|
 | ~~`bf-3e0`~~ | ~~AR/AP liability~~ | 8 | ✅ |
 | ~~`bf-4z1`~~ | ~~Income budget: sisi pemasukan di halaman budget~~ | 6 | ✅ |
-| `bf-btz` | Goal usage ledger: spend-down + history per goal, spending ber-goal_id | 5 | ⏳ |
+| ~~`bf-btz`~~ | Goal usage ledger: spend-down + history per goal, spending ber-goal_id | 5 | ✅ |
 | `bf-yz4` | Budget saving: target nabung per goal (pakai monthly_contribution) | 6 | ⏳ |
 
 ### 📦 Post-MVP — Fitur Lanjutan
@@ -168,6 +168,7 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — bf-btz closed. Goal usage ledger: spending ber-goal_id kurangi collected, GoalLedger component, goal picker di TransactionForm spending.
 - **2026-08-11** — bf-4z1 closed. Income budget: section Budget Earning di halaman budget, color scheme hijau, filter per group.
 - **2026-08-11** — bf-3e0 closed. AR/AP liability: is_liability flag, AP kurangi net worth, section Liabilities di /assets, accounts total exclude liability.
 - **2026-08-11** — Planning P2 batch: 4 issue di-plan+beads+prompt (bf-3e0, bf-4z1, bf-btz, bf-yz4). bf-3e0: AR/AP liability (8 files), bf-4z1: income budget (6 files), bf-btz: goal usage ledger (5 files), bf-yz4: budget saving (6 files). Semua siap eksekusi Antigravity.
