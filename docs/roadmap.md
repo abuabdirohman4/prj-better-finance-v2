@@ -1,46 +1,77 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅ ~~bf-btz~~ ✅. Next: bf-yz4.
+> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan + P3 di-plan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅ ~~bf-btz~~ ✅. Next: bf-yz4, lalu P3 (8 issue plan+prompt siap, 4 migration sudah apply).
 
 ---
 
-## 🎯 MVP & Post-MVP
+## 🔜 Kerjaan Aktif — Urut Prioritas
 
-> **Definisi MVP:** app cukup buat GANTI Google Sheet — dogfood harian.
-> Aturan pilah: *"issue ini nampung DATA sheet, atau nambah FITUR baru?"* → nampung data = MVP, fitur baru = nanti.
+> **Ini satu-satunya tabel yang perlu dibaca buat "kerjakan apa selanjutnya".**
+> Plan + prompt siap di `docs/plans/` + `docs/prompts/`. Kerjakan dari atas.
 
-### MVP — SEKARANG (jalur ke migrasi)
+| # | Issue | Fitur | Files | Catatan |
+|---|---|---|---|---|
+| 1 | `bf-yz4` | Budget saving: target nabung per goal | 6 | P2 sisa, pakai monthly_contribution |
+| 2 | `bf-z6w` | Investment grouping 2-level (Reksadana/Saham/USD) | 7 | migration ✅ · **sebelum bf-3ai** |
+| 3 | `bf-3ai` | Investment Tracker: current value + P&L | 7 | migration ✅ · depends bf-z6w |
+| 4 | `bf-6rl` | Goal account linkage: "disimpan di X" + pre-fill transfer | 7 | migration ✅ |
+| 5 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
+| 6 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
+| 7 | `bf-uaw` | Sort order akun: ▲▼ reorder di /accounts | 3 | — |
+| 8 | `bf-noo` | Import budget historis dari sheet (script) | 1 | — |
+| 9 | `bf-4m1` | Import 2025 (AKTIVA/PASIVA format) | 1 | interaktif dgn user, bukan Antigravity blind |
 
-Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus.
+**Parkiran** (ter-capture, belum di-plan, tanpa komitmen waktu):
+`bf-aq8` breakdown produk investasi · `bf-kvk` goal reality check · `bf-9vf` settings+privacy · `bf-gv5` CFP insights (butuh data) · `bf-bp5` i18n pass · `bf-alx` rename /assets→/net-worth · `bf-qxb` UI kit lengkap · `bf-lp4` cursor polish
 
-| # | Issue | Kenapa MVP | Status |
-|---|---|---|---|
-| ✅ | ~~bf-yts~~ | Akun non-liquid + transfer 2-field + goal collected derived + Net Worth non-liquid. **DONE.** | ✅ closed |
-| ✅ | ~~bf-wrp~~ | Kategori management (add/edit/soft-delete dari `/budgets/categories`). **DONE.** | ✅ closed |
-| ✅ | ~~bf-bwh~~ | 🎯 **MVP selesai.** Import 2026: 2504 tx, 11/11 saldo match. Script . Import 2025 deferred. | ✅ closed |
+---
 
-### Post-MVP — NANTI (fitur, bukan blocker migrasi)
+## ✅ Selesai — Perjalanan Aplikasi
 
-| Issue | Fitur | Catatan |
-|---|---|---|
-| ~~bf-3e0~~ ✅ | AR/AP liability proper (gantikan bf-13t) | is_liability flag, AP kurangi net worth |
-| ~~bf-4z1~~ ✅ | income budget | planning pemasukan |
-| ~~bf-btz~~ ✅ | goal usage ledger | spend-down + history per goal |
-| bf-yz4 | budget saving/transfer | target nabung per goal |
-| bf-aq8 | breakdown produk investasi | sub-produk per akun non-liquid |
-| bf-kvk | goal reality check | SUM(collected) ≈ saldo |
-| bf-dac | account detail page | klik akun → transaksi |
-| bf-ayj | budget_period | alokasi gaji ke bulan tujuan |
-| bf-z6w | investment grouping 2-level | Reksadana/Saham/USD |
-| bf-3ai | investment tracker | current value + P&L |
-| bf-noo | import budget historis | dari sheet tab Spending/Earning |
-| bf-uaw | sort order akun | drag-and-drop reorder |
-| bf-9vf | settings + privacy | shell |
-| bf-gv5 | CFP analysis + insights | butuh data dulu |
-| bf-bp5 | global i18n pass | English-first + multi-bahasa |
-| bf-alx | rename /assets → /net-worth | kosmetik |
-| bf-qxb / bf-lp4 | UI kit lengkap / cursor polish | on-demand / batch Phase 5 |
+> Arsip kronologis progress dari awal. Tidak perlu dibaca buat "kerjakan apa" (itu di tabel atas) — ini dokumentasi perjalanan.
+
+### Phase 1 — Fondasi (scaffold + auth)
+
+- [x] Scaffold Next.js 16 + React 19 + TS strict + Tailwind v4
+- [x] Supabase auth 3-tier (client/server/proxy) + signin/signup Server Actions
+- [x] Access control + user profile management + auth callback route (email verify)
+
+### Phase 2 — Schema DB
+
+- [x] 11 tabel di `src/db/schema.ts` (accounts, transactions, categories, budgets, savings_goals, wishlists, wallet_denominations, account_balance_snapshots, ai_insights, dst)
+- [x] Drizzle setup + query layer pattern (filter user_id manual, no RLS)
+- [x] Balance mutation atomic via Postgres RPC `apply_transaction_balances` + IDOR patch (bf-ay8)
+
+### Phase 3 — Read-Only Awal
+
+- [x] Dashboard read-only (summary cards + accounts preview)
+- [x] Accounts list read-only + privacy toggle (Zustand)
+
+### Phase 4 Core — Feature Parity v1 (read+write)
+
+- [x] Dashboard — wire ke data real
+- [x] Accounts — list, CRUD, balancing, wallet denominations
+- [x] Transactions — list, filter, CRUD, transfer, soft-delete
+- [x] Budgets — monthly CRUD + progress bar (bf-n43) + weekly cascade (bf-9qc)
+- [x] Goals — CRUD, integrasi goal_id, collected derived (bf-4ln)
+- [x] Net Worth — layout v1, kartu Accounts agregat + non-liquid per akun (bf-9v5)
+- [x] Wishlist — CRUD, promote→goal, affordability free-cash (bf-ez2)
+- [x] UI kit minimal — Button, Input, Select, MultiSelect, SingleSelect
+
+### MVP — Jalur ke Migrasi Data (ganti Google Sheet)
+
+- [x] `bf-yts` — Akun non-liquid + transfer 2-field + goal collected derived + Net Worth non-liquid
+- [x] `bf-wrp` — Kategori management (add/edit/soft-delete, `/budgets/categories`)
+- [x] `bf-bwh` — 🎯 **MVP selesai.** Import 2026: 2504 tx, 11/11 saldo match. Script `scripts/migrate-sheet.ts`.
+
+### Post-MVP Batch (P2)
+
+- [x] `bf-3e0` — AR/AP liability: is_liability flag, AP kurangi net worth, section Liabilities di /assets
+- [x] `bf-4z1` — Income budget: section Budget Earning di halaman budget
+- [x] `bf-btz` — Goal usage ledger: spending ber-goal_id kurangi collected, GoalLedger component
+
+> Detail per fitur: tabel **Status Fitur** di bawah. Detail teknis tiap issue: git log + `docs/plans/`.
 
 ---
 
@@ -56,61 +87,6 @@ Eksekusi kode = Antigravity. Claude = plan + review + diskusi. Sesi dikelompokka
 | **discuss** | Diskusi global / roadmap / arah produk | `bf discuss-<topik>` | — |
 
 **Alur per issue:** Antigravity eksekusi (paste prompt) → sesi Claude baru → review → commit → `bd close`.
-
----
-
-## 🔜 Next Up — Urutan Eksekusi
-
-Plan + prompt siap di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan.
-
-### ✅ Phase 4 Core — Feature Parity v1 — SELESAI
-
-- [x] Dashboard — wire ke data real
-- [x] Accounts — list, CRUD, balancing, wallet denominations
-- [x] Transactions — list, filter, CRUD, transfer, soft-delete
-- [x] Budgets — monthly CRUD + progress bar (bf-n43) + weekly cascade (bf-9qc)
-- [x] Goals — CRUD, integrasi goal_id, collected derived (bf-4ln)
-- [x] Net Worth — layout v1, kartu Accounts agregat + non-liquid per akun (bf-9v5)
-- [x] Wishlist — CRUD, promote→goal, affordability free-cash (bf-ez2)
-- [x] Akun non-liquid + transfer 2-field + enum shrink (bf-yts)
-- [x] **Kategori management** — add/edit/soft-delete, `/budgets/categories` (bf-wrp) ✅
-
-### ✅ BERIKUTNYA — Migrasi Data (MVP final) — SELESAI
-
-- [x] `bf-bwh` — **Import 2026 done.** 2504 tx, 11/11 saldo ✅. Script `scripts/migrate-sheet.ts`. Import 2025 deferred (format beda).
-
-### 🔜 P2 — Siap Eksekusi Antigravity
-
-Plan + prompt tersedia di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan (bf-3e0 dulu, bf-4z1 + bf-yz4 bisa paralel setelah itu, bf-btz terakhir atau paralel dengan bf-4z1).
-
-| Issue | Fitur | Files | Status |
-|---|---|---|---|
-| ~~`bf-3e0`~~ | ~~AR/AP liability~~ | 8 | ✅ |
-| ~~`bf-4z1`~~ | ~~Income budget: sisi pemasukan di halaman budget~~ | 6 | ✅ |
-| ~~`bf-btz`~~ | Goal usage ledger: spend-down + history per goal, spending ber-goal_id | 5 | ✅ |
-| `bf-yz4` | Budget saving: target nabung per goal (pakai monthly_contribution) | 6 | ⏳ |
-
-### 📦 Post-MVP — Fitur Lanjutan
-
-**P2 (prioritas tinggi) — sudah di-plan di atas ↑**
-
-**P3 (fitur lanjutan dari import):**
-- [ ] `bf-dac` — Account detail page: klik akun → list transaksi (filter by account_id OR to_account_id)
-- [ ] `bf-ayj` — budget_period: pisah transaction_date dari alokasi bulan (source_month sudah ada)
-- [ ] `bf-z6w` — Investment grouping 2-level: Reksadana/Saham/USD sebagai grup → produk
-- [ ] `bf-3ai` — Investment Tracker: current value, P&L, modal vs nilai pasar per produk
-- [ ] `bf-noo` — Import budget historis dari sheet (Spending/Earning/Transfer/SpendingTF)
-- [ ] `bf-uaw` — Sort order akun: drag-and-drop reorder di /accounts dan /assets
-- [ ] `bf-6rl` — Goal account linkage: account_id di goal, pre-fill akun saat transfer, tampil "disimpan di X" di goal card
-- [ ] Import 2025 — SHEET_ID `18iigYTz2ked8bobH1CWGY2sDC-efuNsHjBhEYzdGZqM`, format beda (extra header AKTIVA/PASIVA)
-
-**Parkiran:**
-- [ ] `bf-9vf` — Settings profil + privacy persistence
-- [ ] `bf-gv5` — CFP analysis + insights (butuh data historis dulu)
-- [ ] `bf-bp5` — Global i18n pass
-- [ ] `bf-qxb` — UI kit lengkap on-demand
-- [ ] `bf-lp4` — UI polish cursor-pointer batch
-- [ ] `bf-alx` — Rename /assets → /net-worth
 
 ---
 
@@ -169,6 +145,7 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — Planning P3 batch: 8 issue di-plan+beads+prompt (bf-dac, bf-uaw, bf-6rl, bf-ayj, bf-z6w, bf-3ai, bf-noo, bf-4m1). bf-4m1 (Import 2025) bead baru. 4 migration di-apply Claude via MCP (savings_goals.account_id, transactions.budget_period, accounts.investment_group, accounts.current_value+last_valued_at) + schema.ts sinkron. Dependency: bf-z6w → bf-3ai. Siap Antigravity (bf-4m1 interaktif).
 - **2026-08-11** — bf-btz closed. Goal usage ledger: spending ber-goal_id kurangi collected, GoalLedger component, goal picker di TransactionForm spending.
 - **2026-08-11** — bf-4z1 closed. Income budget: section Budget Earning di halaman budget, color scheme hijau, filter per group.
 - **2026-08-11** — bf-3e0 closed. AR/AP liability: is_liability flag, AP kurangi net worth, section Liabilities di /assets, accounts total exclude liability.
