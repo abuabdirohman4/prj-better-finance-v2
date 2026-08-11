@@ -11,6 +11,7 @@ import type { BudgetWithSpending } from "@/db/queries/budgets";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { UpsertBudgetInput } from "@/lib/schemas/budget";
 import type { ServerActionResult } from "@/lib/errorUtils";
+import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
 
 interface Props {
   open: boolean;
@@ -135,11 +136,16 @@ export function BudgetBottomSheet({
     });
   }
 
-  const categoryOptions = categories.map((c) => ({
-    value: c.id,
-    label: c.name,
-    group: c.group_name || "Others",
-  }));
+  const groupOrder = Object.keys(CATEGORY_GROUP_LABELS);
+  
+  const categoryOptions = categories
+    .map((c) => ({
+      value: c.id,
+      label: c.name,
+      group: c.group_name || "Others",
+      _order: groupOrder.indexOf(c.group_name) !== -1 ? groupOrder.indexOf(c.group_name) : 999,
+    }))
+    .sort((a, b) => a._order - b._order);
 
   if (!open && !visible) return null;
 

@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan.** ~~bf-3e0~~ ✅ AR/AP liability done. Next: bf-4z1, bf-btz, bf-yz4.
+> Diperbarui: 2026-08-11 · Fase: **P2 batch berjalan.** ~~bf-3e0~~ ✅ ~~bf-4z1~~ ✅. Next: bf-btz, bf-yz4.
 
 ---
 
@@ -25,7 +25,7 @@ Urut. Tujuan akhir = **bf-bwh migrasi data sheet** berjalan mulus.
 | Issue | Fitur | Catatan |
 |---|---|---|
 | ~~bf-3e0~~ ✅ | AR/AP liability proper (gantikan bf-13t) | is_liability flag, AP kurangi net worth |
-| bf-4z1 | income budget | planning pemasukan |
+| ~~bf-4z1~~ ✅ | income budget | planning pemasukan |
 | bf-btz | goal usage ledger | spend-down + history per goal |
 | bf-yz4 | budget saving/transfer | target nabung per goal |
 | bf-aq8 | breakdown produk investasi | sub-produk per akun non-liquid |
@@ -86,7 +86,7 @@ Plan + prompt tersedia di `docs/plans/` + `docs/prompts/`. Kerjakan berurutan (b
 | Issue | Fitur | Files | Status |
 |---|---|---|---|
 | ~~`bf-3e0`~~ | ~~AR/AP liability~~ | 8 | ✅ |
-| `bf-4z1` | Income budget: sisi pemasukan di halaman budget | 6 | ⏳ |
+| ~~`bf-4z1`~~ | ~~Income budget: sisi pemasukan di halaman budget~~ | 6 | ✅ |
 | `bf-btz` | Goal usage ledger: spend-down + history per goal, spending ber-goal_id | 5 | ⏳ |
 | `bf-yz4` | Budget saving: target nabung per goal (pakai monthly_contribution) | 6 | ⏳ |
 
@@ -168,6 +168,7 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-11** — bf-4z1 closed. Income budget: section Budget Earning di halaman budget, color scheme hijau, filter per group.
 - **2026-08-11** — bf-3e0 closed. AR/AP liability: is_liability flag, AP kurangi net worth, section Liabilities di /assets, accounts total exclude liability.
 - **2026-08-11** — Planning P2 batch: 4 issue di-plan+beads+prompt (bf-3e0, bf-4z1, bf-btz, bf-yz4). bf-3e0: AR/AP liability (8 files), bf-4z1: income budget (6 files), bf-btz: goal usage ledger (5 files), bf-yz4: budget saving (6 files). Semua siap eksekusi Antigravity.
 - **2026-08-11** — bf-bwh closed (MVP selesai). Data 2026: 2504 tx, 11/11 saldo match, AR/AP jadi akun transfer. Issue baru: bf-3e0 (liability), bf-dac (account detail), bf-ayj (budget_period), bf-z6w (investment grouping), bf-3ai (tracker), bf-noo (budget import), bf-uaw (sort order). bf-13t deferred (digantikan bf-3e0).

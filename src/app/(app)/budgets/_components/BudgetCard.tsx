@@ -7,9 +7,15 @@ interface Props {
   budget: BudgetWithSpending;
   onEdit: (budget: BudgetWithSpending) => void;
   hideBalances: boolean;
+  isEarning?: boolean;
 }
 
-function getBudgetColors(percent: number) {
+function getBudgetColors(percent: number, isEarning?: boolean) {
+  if (isEarning) {
+    if (percent >= 100) return { bar: "bg-green-500", text: "text-green-600", badge: "bg-green-100 text-green-700" };
+    if (percent >= 80) return { bar: "bg-green-400", text: "text-green-500", badge: "bg-green-100 text-green-700" };
+    return { bar: "bg-green-300", text: "text-green-500", badge: "bg-green-100 text-green-700" };
+  }
   if (percent > 100) return { bar: "bg-red-500", text: "text-red-600", badge: "bg-red-100 text-red-700" };
   if (percent >= 80) return { bar: "bg-amber-400", text: "text-amber-600", badge: "bg-amber-100 text-amber-700" };
   return { bar: "bg-green-500", text: "text-green-600", badge: "bg-green-100 text-green-700" };
@@ -24,8 +30,8 @@ const ITEM_ICONS: Record<string, string> = {
 
 const MASK = "Rp •••";
 
-export function BudgetCard({ budget, onEdit, hideBalances }: Props) {
-  const colors = getBudgetColors(budget.percent);
+export function BudgetCard({ budget, onEdit, hideBalances, isEarning }: Props) {
+  const colors = getBudgetColors(budget.percent, isEarning);
   const barWidth = Math.min(budget.percent, 100);
   const remaining = budget.budgeted_amount - budget.actual_spending;
 

@@ -54,16 +54,21 @@ export async function getBudgets(
 export async function getBudgetsWithSpending(
   userId: string,
   year: number,
-  month: number
+  month: number,
+  type: "spending" | "earning" = "spending"
 ): Promise<BudgetWithSpending[]> {
-  const rows = await getBudgets(userId, year, month);
+  const allRows = await getBudgets(userId, year, month);
+  
+  const rows = type === "earning"
+    ? allRows.filter((r) => r.group_name === "earning")
+    : allRows.filter((r) => r.group_name !== "earning");
+
   if (rows.length === 0) return [];
 
-  // Sum spending per category untuk bulan ini
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = `${year}-${String(month).padStart(2, "0")}-${new Date(year, month, 0).getDate()}`;
 
-  const spending = await db
+  const actual = await db
     .select({
       category_id: transactions.category_id,
       total: sql<number>`sum(${transactions.amount})::numeric`,
@@ -72,7 +77,7 @@ export async function getBudgetsWithSpending(
     .where(
       and(
         eq(transactions.user_id, userId),
-        eq(transactions.transaction_type, "spending"),
+        eq(transactions.transaction_type, type),
         sql`${transactions.transaction_date} >= ${startDate}`,
         sql`${transactions.transaction_date} <= ${endDate}`,
         sql`${transactions.deleted_at} is null`,
@@ -84,12 +89,12 @@ export async function getBudgetsWithSpending(
     )
     .groupBy(transactions.category_id);
 
-  const spendingMap = new Map(spending.map((s) => [s.category_id, s.total]));
+  const actualMap = new Map(actual.map((s) => [s.category_id, s.total]));
 
   return rows.map((r) => {
-    const actual = spendingMap.get(r.category_id) ?? 0;
-    const percent = r.budgeted_amount > 0 ? (actual / r.budgeted_amount) * 100 : 0;
-    return { ...r, actual_spending: actual, percent };
+    const spent = actualMap.get(r.category_id) ?? 0;
+    const percent = r.budgeted_amount > 0 ? (spent / r.budgeted_amount) * 100 : 0;
+    return { ...r, actual_spending: spent, percent };
   });
 }
 

@@ -19,20 +19,20 @@ export type GoalType = "sinking" | "wishlist" | "emergency" | "investment" | "bu
 export type PlanTier = "free" | "pro" | "family";
 
 export type CategoryGroup =
+  | "earning"
   | "eating"
   | "living"
   | "saving"
   | "investing"
-  | "giving"
-  | "earning";
+  | "giving";
 
 export const CATEGORY_GROUP_LABELS: Record<CategoryGroup, string> = {
+  earning: "Earning",
   eating: "Eating",
   living: "Living",
   saving: "Saving",
   investing: "Investing",
   giving: "Giving",
-  earning: "Earning",
 };
 
 export const DEFAULT_CATEGORIES: Array<{ name: string; slug: string; group: CategoryGroup }> = [

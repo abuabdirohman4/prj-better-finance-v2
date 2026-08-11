@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { budgetKeys } from "@/lib/query";
 import {
   getBudgetsAction,
+  getIncomeBudgetsAction,
   upsertBudgetAction,
   deleteBudgetAction,
   getCategoriesForBudgetAction,
@@ -20,6 +21,17 @@ export function useBudgets(year: number, month: number) {
       if (!res.success) throw new Error(res.message);
       return res.data!;
     },
+    staleTime: 30_000,
+  });
+
+  const incomeQuery = useQuery({
+    queryKey: budgetKeys.income(year, month),
+    queryFn: async () => {
+      const res = await getIncomeBudgetsAction(year, month);
+      if (!res.success) throw new Error(res.message);
+      return res.data!;
+    },
+    staleTime: 30_000,
   });
 
   const categoriesQuery = useQuery({
@@ -45,5 +57,5 @@ export function useBudgets(year: number, month: number) {
     },
   });
 
-  return { query, categoriesQuery, upsertMutation, deleteMutation };
+  return { query, incomeQuery, categoriesQuery, upsertMutation, deleteMutation };
 }

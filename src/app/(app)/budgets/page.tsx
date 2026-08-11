@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronDown, BarChart3, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronDown, BarChart3, Calendar, Settings } from "lucide-react";
 import { useBudgets } from "./_hooks/useBudgets";
 import { BudgetGroup } from "./_components/BudgetGroup";
 import { BudgetBottomSheet } from "./_components/BudgetBottomSheet";
+
 import { Fab } from "@/components/layouts/Fab";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { formatCurrency } from "@/lib/helper";
@@ -21,9 +22,10 @@ export default function BudgetsPage() {
   const [editBudget, setEditBudget] = useState<BudgetWithSpending | null>(null);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
 
-  const { query, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
+  const { query, incomeQuery, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
 
   const budgets = query.data ?? [];
+  const incomeBudgets = incomeQuery.data ?? [];
 
   // Group by group_name
   const groups = budgets.reduce<Record<string, BudgetWithSpending[]>>((acc, b) => {
@@ -33,8 +35,9 @@ export default function BudgetsPage() {
     return acc;
   }, {});
 
-  const totalBudgeted = budgets.reduce((s, b) => s + Number(b.budgeted_amount), 0);
-  const totalSpent = budgets.reduce((s, b) => s + Number(b.actual_spending), 0);
+  const expenseBudgets = budgets.filter((b) => b.group_name !== "earning");
+  const totalBudgeted = expenseBudgets.reduce((s, b) => s + Number(b.budgeted_amount), 0);
+  const totalSpent = expenseBudgets.reduce((s, b) => s + Number(b.actual_spending), 0);
   const overallPercent = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
   const overallRemaining = totalBudgeted - totalSpent;
 
@@ -107,9 +110,13 @@ export default function BudgetsPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <div className="flex justify-between items-center mb-5">
             <h2 className="font-semibold text-gray-800">Overall Budgets Progress</h2>
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-              <BarChart3 className="w-4 h-4 text-purple-600" />
-            </div>
+            <Link 
+              href="/budgets/categories"
+              className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Categories
+            </Link>
           </div>
 
           <div className="flex justify-between mb-4">
@@ -138,6 +145,8 @@ export default function BudgetsPage() {
           </div>
         </div>
 
+
+
         {/* Loading */}
         {query.isLoading && (
           <div className="space-y-4">
@@ -153,13 +162,20 @@ export default function BudgetsPage() {
           </div>
         )}
 
-        {/* Budget Spending Title + Manage Categories link */}
+        {/* Income Budget Section */}
+        {!query.isLoading && incomeBudgets.length > 0 && (
+          <div className="space-y-4 mb-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900 text-lg">Budget Earning</h2>
+            </div>
+            <BudgetGroup group="earning" items={incomeBudgets} hideBalances={hideBalances} onEdit={openEdit} />
+          </div>
+        )}
+
+        {/* Budget Spending Title */}
         {!query.isLoading && (
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-gray-900 text-lg">Budget Spending</h2>
-            <Link href="/budgets/categories" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-              Manage Categories
-            </Link>
           </div>
         )}
 

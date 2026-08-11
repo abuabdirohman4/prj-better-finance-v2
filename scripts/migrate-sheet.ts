@@ -45,6 +45,21 @@ const BUCKET_CATEGORY: Record<string, "liquid" | "investment"> = {
   Saving: "investment",
 };
 
+// Kategori yang TIDAK boleh dibuat — nama akun, sistem internal, typo.
+// Jika muncul di kolom Category sheet, skip (jangan masuk tabel categories).
+const CATEGORY_BLACKLIST = new Set([
+  // Nama akun liquid
+  "wallet", "mandiri", "bca", "gopay", "ovo", "grab credit", "e-toll", "flip", "jenius",
+  // Nama akun investment
+  "jago", "bibit",
+  // Internal/sistem sheet
+  "rekapan", "retained", "sinking", "emergency", "investment",
+  // AR/AP (jadi akun, bukan kategori)
+  "ar", "ap",
+  // Typo duplikat dari sheet (sudah ada versi benar)
+  "entertaiment", "groceriea",
+]);
+
 // ── CSV parser (tanpa dep eksternal) ─────────────────────────────────────────
 
 function parseCSV(text: string): string[][] {
@@ -413,8 +428,12 @@ async function main() {
       if (!accountMap.has(categoryName.toLowerCase())) {
         newAccounts.set(categoryName, { name: categoryName, asset_category: "liquid" });
       }
-    } else if (categoryName && categoryName !== "-" && !categoryMap.has(categoryName.toLowerCase())) {
-      // AR/AP jangan jadi kategori — mereka akun tujuan.
+    } else if (
+      categoryName &&
+      categoryName !== "-" &&
+      !categoryMap.has(categoryName.toLowerCase()) &&
+      !CATEGORY_BLACKLIST.has(categoryName.toLowerCase())
+    ) {
       newCategories.set(categoryName, guessGroupName(categoryName));
     }
   }
@@ -1044,22 +1063,19 @@ async function main() {
 
 function guessGroupName(categoryName: string): string {
   const lower = categoryName.toLowerCase();
-  if (["salary", "freelance", "bonus", "income", "dividend", "revenue"].some((k) => lower.includes(k))) {
+  if (["salary", "freelance", "bonus", "income", "dividend", "revenue", "other earn"].some((k) => lower.includes(k))) {
     return "earning";
   }
-  if (["saving", "savings", "dana darurat", "emergency"].some((k) => lower.includes(k))) {
+  if (["saving", "savings", "dana darurat"].some((k) => lower.includes(k))) {
     return "saving";
   }
   if (["invest", "saham", "reksa", "crypto", "gold", "emas"].some((k) => lower.includes(k))) {
     return "investing";
   }
-  if (["food", "eat", "makan", "grocery", "groceries"].some((k) => lower.includes(k))) {
+  if (["food", "eat", "makan", "grocery", "groceries", "dining", "fruits", "buah"].some((k) => lower.includes(k))) {
     return "eating";
   }
-  if (["rent", "house", "rumah", "transport", "electric", "listrik", "utilities"].some((k) => lower.includes(k))) {
-    return "living";
-  }
-  if (["sedekah", "zakat", "charity", "giving", "donate"].some((k) => lower.includes(k))) {
+  if (["sedekah", "zakat", "charity", "giving", "donate", "infaq", "shodaqoh", "tax", "allowance"].some((k) => lower.includes(k))) {
     return "giving";
   }
   return "living";

@@ -35,6 +35,19 @@ export async function getBudgetsAction(
   }
 }
 
+export async function getIncomeBudgetsAction(
+  year: number,
+  month: number
+): Promise<ServerActionResult<BudgetWithSpending[]>> {
+  try {
+    const user = await requireUser();
+    const data = await getBudgetsWithSpending(user.id, year, month, "earning");
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: handleApiError(error, "memuat data").message };
+  }
+}
+
 export async function getCategoriesForBudgetAction(): Promise<ServerActionResult<CategoryRow[]>> {
   try {
     const user = await requireUser();

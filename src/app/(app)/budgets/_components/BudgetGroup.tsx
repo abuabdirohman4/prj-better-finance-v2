@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Receipt, Pizza, Home, Wallet, Gift, BarChart3 } from "lucide-react";
+import { ChevronDown, Receipt, Pizza, Home, Wallet, Gift, BarChart3, Banknote } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
 import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
 import { BudgetCard } from "./BudgetCard";
@@ -13,6 +13,7 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
   saving: <Wallet className="w-5 h-5" />,
   giving: <Gift className="w-5 h-5" />,
   investing: <BarChart3 className="w-5 h-5" />,
+  earning: <Banknote className="w-5 h-5" />,
   lainnya: <Receipt className="w-5 h-5" />
 };
 
@@ -39,7 +40,7 @@ export function BudgetGroup({ group, items, hideBalances, onEdit }: Props) {
         onClick={() => setCollapsed(!collapsed)}
         className="w-full text-left flex items-center p-3 mb-2 gap-3 cursor-pointer focus:outline-none rounded-xl hover:bg-gray-100/50 transition-colors"
       >
-        <div className="w-11 h-11 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+        <div className={`w-11 h-11 rounded-xl text-white flex items-center justify-center shrink-0 shadow-sm ${group === 'earning' ? 'bg-green-500' : 'bg-blue-500'}`}>
           {GROUP_ICONS[group] || <Receipt className="w-5 h-5" />}
         </div>
         <div className="flex-1">
@@ -77,7 +78,7 @@ export function BudgetGroup({ group, items, hideBalances, onEdit }: Props) {
       {!collapsed && (
         <div className="space-y-2 px-1 pb-1">
           {items.map((b) => (
-            <BudgetCard key={b.id} budget={b} onEdit={onEdit} hideBalances={hideBalances} />
+            <BudgetCard key={b.id} budget={b} onEdit={onEdit} hideBalances={hideBalances} isEarning={group === "earning"} />
           ))}
         </div>
       )}
