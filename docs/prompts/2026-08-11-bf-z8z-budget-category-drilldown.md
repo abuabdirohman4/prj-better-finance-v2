@@ -21,8 +21,9 @@ REFERENCE FILES:
 - Pattern acuan bottom sheet: @src/app/(app)/transactions/_components/TransactionBottomSheet.tsx
 - Existing BudgetCard: @src/app/(app)/budgets/_components/BudgetCard.tsx
 - Existing BudgetGroup: @src/app/(app)/budgets/_components/BudgetGroup.tsx
+- Existing SavingBudgetSection: @src/app/(app)/budgets/_components/SavingBudgetSection.tsx
 - Existing page: @src/app/(app)/budgets/page.tsx
 - Existing query: @src/db/queries/budgets.ts
 - Schema: @src/db/schema.ts
 
-Mulai dari Task 1.
+Mulai dari Task 0.

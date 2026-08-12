@@ -5,7 +5,7 @@ import { budgetKeys } from "@/lib/query";
 import {
   getBudgetsAction,
   getIncomeBudgetsAction,
-  getSavingBudgetsAction,
+  getTransferBudgetsAction,
   upsertBudgetAction,
   deleteBudgetAction,
   getCategoriesForBudgetAction,
@@ -35,10 +35,10 @@ export function useBudgets(year: number, month: number) {
     staleTime: 30_000,
   });
 
-  const savingQuery = useQuery({
+  const transferQuery = useQuery({
     queryKey: budgetKeys.saving(year, month),
     queryFn: async () => {
-      const res = await getSavingBudgetsAction(year, month);
+      const res = await getTransferBudgetsAction(year, month);
       if (!res.success) throw new Error(res.message);
       return res.data!;
     },
@@ -68,5 +68,12 @@ export function useBudgets(year: number, month: number) {
     },
   });
 
-  return { query, incomeQuery, savingQuery, categoriesQuery, upsertMutation, deleteMutation };
+  return {
+    query,
+    incomeQuery,
+    transferQuery,
+    categoriesQuery,
+    upsertMutation,
+    deleteMutation,
+  };
 }

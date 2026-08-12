@@ -12,7 +12,7 @@ import { BudgetDrillSheet } from "./_components/BudgetDrillSheet";
 import { Fab } from "@/components/layouts/Fab";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { formatCurrency } from "@/lib/helper";
-import type { BudgetWithSpending } from "@/db/queries/budgets";
+import type { BudgetWithSpending, TransferBudgetRow } from "@/db/queries/budgets";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -24,11 +24,11 @@ export default function BudgetsPage() {
   const [editBudget, setEditBudget] = useState<BudgetWithSpending | null>(null);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
 
-  const { query, incomeQuery, savingQuery, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
+  const { query, incomeQuery, transferQuery, categoriesQuery, upsertMutation, deleteMutation } = useBudgets(year, month);
 
   const budgets = query.data ?? [];
   const incomeBudgets = incomeQuery.data ?? [];
-  const savingBudgets = savingQuery.data ?? [];
+  const transferBudgets = transferQuery.data ?? [];
 
   // Group by group_name
   const groups = budgets.reduce<Record<string, BudgetWithSpending[]>>((acc, b) => {
@@ -47,19 +47,23 @@ export default function BudgetsPage() {
   function openCreate() { setEditBudget(null); setSheetOpen(true); }
   function openEdit(b: BudgetWithSpending) { setEditBudget(b); setSheetOpen(true); }
 
-  const [drillBudget, setDrillBudget] = useState<BudgetWithSpending | null>(null);
+  const [drillBudget, setDrillBudget] = useState<BudgetWithSpending | TransferBudgetRow | null>(null);
   const [drillOpen, setDrillOpen] = useState(false);
 
-  function openDrill(b: BudgetWithSpending) {
+  function openDrill(b: BudgetWithSpending | TransferBudgetRow) {
     setDrillBudget(b);
     setDrillOpen(true);
   }
 
-  function openEditFromDrill(b: BudgetWithSpending) {
+  function openEditFromDrill(b: BudgetWithSpending | TransferBudgetRow) {
     setDrillOpen(false);
     setTimeout(() => {
-      setEditBudget(b);
-      setSheetOpen(true);
+      // If it's a transfer budget row (has 'type' property), we don't support editing from the sheet directly right now,
+      // or we'd handle it differently. For now, only support edit if it's BudgetWithSpending.
+      if (!("type" in b)) {
+        setEditBudget(b);
+        setSheetOpen(true);
+      }
     }, 320); // Wait for drill sheet to close
   }
 
@@ -204,12 +208,7 @@ export default function BudgetsPage() {
           <BudgetGroup key={group} group={group} items={items} hideBalances={hideBalances} onTap={openDrill} />
         ))}
 
-        {/* Saving Budget Section */}
-        {!query.isLoading && savingBudgets.length > 0 && (
-          <div className="space-y-4 mb-6 mt-4">
-            <SavingBudgetSection items={savingBudgets} hideBalances={hideBalances} />
-          </div>
-        )}
+
       </div>
 
       <Fab onClick={openCreate} label="Add budget" />

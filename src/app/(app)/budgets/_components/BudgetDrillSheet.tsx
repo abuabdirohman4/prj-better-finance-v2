@@ -5,15 +5,15 @@ import { X, Pencil } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getBudgetTransactionsAction } from "../actions";
 import { formatCurrency } from "@/lib/helper";
-import type { BudgetWithSpending } from "@/db/queries/budgets";
+import type { BudgetWithSpending, TransferBudgetRow } from "@/db/queries/budgets";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  budget: BudgetWithSpending | null;
+  budget: BudgetWithSpending | TransferBudgetRow | null;
   year: number;
   month: number;
-  onEdit: (budget: BudgetWithSpending) => void;
+  onEdit: (budget: BudgetWithSpending | TransferBudgetRow) => void;
   hideBalances: boolean;
 }
 
@@ -43,11 +43,23 @@ export function BudgetDrillSheet({ open, onClose, budget, year, month, onEdit, h
     return () => document.removeEventListener("keydown", onKey);
   }, [open, handleClose]);
 
+  const isTransfer = budget && "type" in budget;
+  const label = isTransfer ? budget.label : budget?.category_name;
+  const actualSpending = isTransfer ? budget.actual_amount : budget?.actual_spending;
+  
   const txQuery = useQuery({
-    queryKey: ["budget-drill", budget?.category_id, year, month],
+    queryKey: ["budget-drill", budget?.category_id, year, month, isTransfer ? (budget as TransferBudgetRow).type : "budget"],
     queryFn: async () => {
       if (!budget) return [];
-      const type = budget.group_name === "earning" ? "earning" : "spending";
+      let type: "spending" | "earning" | "saving" | "investing" = "spending";
+      if (isTransfer) {
+        type = (budget as TransferBudgetRow).type;
+      } else {
+        const b = budget as BudgetWithSpending;
+        if (b.group_name === "earning") type = "earning";
+        else if (b.group_name === "saving") type = "saving";
+        else if (b.group_name === "investing") type = "investing";
+      }
       const res = await getBudgetTransactionsAction(budget.category_id, year, month, type);
       if (!res.success) throw new Error(res.message);
       return res.data!;
@@ -59,7 +71,7 @@ export function BudgetDrillSheet({ open, onClose, budget, year, month, onEdit, h
   if (!open && !visible) return null;
   if (!budget) return null;
 
-  const remaining = budget.budgeted_amount - budget.actual_spending;
+  const remaining = budget.budgeted_amount - (actualSpending ?? 0);
 
   return (
     <>
@@ -75,22 +87,24 @@ export function BudgetDrillSheet({ open, onClose, budget, year, month, onEdit, h
         {/* Header */}
         <div className="p-5 border-b border-gray-100">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-gray-900">{budget.category_name}</h2>
+            <h2 className="text-lg font-bold text-gray-900">{label}</h2>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => onEdit(budget)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-                Edit Budget
-              </button>
+              {!isTransfer && (
+                <button
+                  onClick={() => onEdit(budget)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  Edit Budget
+                </button>
+              )}
               <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500">
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>{hideBalances ? MASK : `${formatCurrency(budget.actual_spending)} spent`}</span>
+            <span>{hideBalances ? MASK : `${formatCurrency(actualSpending ?? 0)} spent`}</span>
             <span>{hideBalances ? MASK : `${formatCurrency(remaining > 0 ? remaining : 0)} left`}</span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
