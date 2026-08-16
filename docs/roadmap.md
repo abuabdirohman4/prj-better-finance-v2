@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-12 · Fase: **P3 aktif.** MVP ✅ · P2 ✅ · Sisa: bf-z6w → bf-3ai → bf-6rl → bf-ayj → bf-dac → bf-uaw.
+> Diperbarui: 2026-08-16 · Fase: **P3 aktif + Landing page di-plan.** MVP ✅ · P2 ✅ · Sisa: bf-z6w → bf-3ai → bf-6rl → bf-ayj → bf-dac → bf-uaw + bf-3mb (landing).
 
 ---
 
@@ -18,6 +18,7 @@
 | 4 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
 | 5 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
 | 6 | `bf-uaw` | Sort order akun: ▲▼ reorder di /accounts | 3 | — |
+| 7 | `bf-3mb` | Landing page: net worth positioning, "Ink & Paper" visual | ~15 | plan ✅ · prompt ✅ · Mode A (Antigravity) |
 
 ### 📦 Parkiran (ter-capture, belum di-plan)
 
@@ -109,7 +110,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 |---|---|---|---|
 | Scaffold + config | ✅ | — | Next 16 + Drizzle + TanStack + Supabase auth |
 | Auth (signin/signup) | ✅ | `/signin`, `/signup` | Server Actions + `useActionState` |
-| Dashboard | ✅ | `/` | Summary cards + accounts preview + privacy toggle |
+| Dashboard | ✅ | `/dashboard` | Summary cards + accounts preview + privacy toggle (pindah dari `/` untuk landing) |
 | Accounts — list + CRUD | ✅ | `/accounts` | Bottom sheet create/edit/delete; balance auto-update |
 | Accounts — balancing | ✅ | `/accounts/[id]` | Reality check + wallet denominations |
 | Transactions — list + filter | ✅ | `/transactions` | Grouped by date, month+year picker, filter panel |
@@ -129,6 +130,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Goal account linkage | ⏳ | `/goals` | "disimpan di X" + pre-fill transfer (bf-6rl) |
 | Account detail | ⏳ | `/accounts/[id]` | Klik akun → list transaksi (bf-dac) |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy (bf-9vf) |
+| Landing page | ⏳ | `/` (publik) | Persona: perencana serius · diferensiasi: net worth utuh · CTA: gratis → signup (bf-3mb) |
 | PWA | 🔄 | — | Manifest + globals ada; service worker belum |
 | Tests | 🔄 | — | Vitest unit: calcUpdateDeltas ✅; Playwright E2E belum |
 
@@ -161,6 +163,7 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-16** — Planning bf-3mb: landing page net-worth positioning. Plan + prompt + beads di-create. Positioning: persona=individu perencana serius, diferensiasi=net worth utuh, visual=Ink & Paper (biru/indigo), harga=gratis dulu, signature=NetWorthDemo interaktif. Dashboard dipindah `/` → `/dashboard`. Siap eksekusi Antigravity.
 - **2026-08-12** — Roadmap update: tambah Timeline, parkiran jadi tabel terstruktur, hapus duplikat changelog, Status Fitur sinkron P2+P3.
 - **2026-08-11** — bf-yz4 redesign jadi 2 issue: bf-i6e (Budget Transfers aggregate Saving/Investing) + bf-z8z (budget drill-down). bf-i6e + bf-z8z closed. bf-noo + bf-4m1 turun ke Parkiran.
 - **2026-08-11** — P3 planning batch: 8 issue di-plan+beads+prompt (bf-dac, bf-uaw, bf-6rl, bf-ayj, bf-z6w, bf-3ai, bf-noo, bf-4m1). 4 migration applied via MCP (savings_goals.account_id, transactions.budget_period, accounts.investment_group, accounts.current_value+last_valued_at). schema.ts sinkron.
