@@ -27,6 +27,7 @@
 | bf-noo | Import budget historis | — |
 | bf-4m1 | Import 2025 (AKTIVA/PASIVA, interaktif) | — |
 | bf-aq8 | Breakdown produk investasi: sub-produk per akun | depends bf-z6w |
+| bf-z65 | Audit reksadana overstated + opening auto-recompute | depends bf-z6w · P2 |
 | bf-kvk | Goal reality check: SUM(collected) ≈ saldo | — |
 | bf-9vf | Settings profil + privacy persistence | — |
 | bf-gv5 | CFP analysis + insights | butuh data dulu |
