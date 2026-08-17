@@ -17,7 +17,7 @@
 
 import { createHash } from "crypto";
 import { writeFileSync } from "fs";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, notLike } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, accountTypes, categories, savingsGoals, transactions } from "@/db/schema";
 
@@ -164,6 +164,29 @@ function parseNum(raw: string): number {
 
 function rowHash(fields: string[]): string {
   return createHash("sha256").update(fields.join("|")).digest("hex").slice(0, 32);
+}
+
+// Natural dedup key from FINAL values (ids, not names) — stable across sheet tabs.
+// Used to skip rows already in DB regardless of which month-tab they came from.
+function naturalKey(f: {
+  date: string;
+  type: string;
+  accountId: string | null;
+  toAccountId: string | null;
+  amount: number;
+  note: string;
+}): string {
+  // NOTE: categoryId intentionally excluded — old imported rows may reference
+  // soft-deleted/ambiguous categories not resolvable on re-parse, which would
+  // break dedup. date+type+accounts+amount+note is unique enough in practice.
+  return [
+    f.date,
+    f.type,
+    f.accountId ?? "",
+    f.toAccountId ?? "",
+    f.amount.toFixed(2),
+    (f.note ?? "").trim(),
+  ].join("|");
 }
 
 // ── Slug ───────────────────────────────────────────────────────────────────────
@@ -341,10 +364,13 @@ async function main() {
   console.log("\n📋 Task 2: Resolving accounts & categories...");
 
   // Load existing
+  // Include inactive accounts (e.g. deactivated BNI) — old imported rows still
+  // reference them; excluding makes re-parse resolve account_id=null and breaks
+  // natural-key dedup against those rows.
   const existingAccounts = await db
     .select({ id: accounts.id, name: accounts.name, asset_category: accounts.asset_category })
     .from(accounts)
-    .where(and(eq(accounts.user_id, userId), eq(accounts.is_active, true)));
+    .where(eq(accounts.user_id, userId));
 
   const existingCategories = await db
     .select({ id: categories.id, name: categories.name, group_name: categories.group_name })
@@ -514,23 +540,41 @@ async function main() {
 
   console.log("\n💾 Task 3: Transforming & inserting transactions...");
 
-  // Load existing hashes to skip
-  const existingHashes = new Set<string>();
-  if (!dry) {
-    const hashRows = await db
-      .select({ import_row_hash: transactions.import_row_hash })
+  // Load existing rows as natural keys to skip (stable across month-tabs).
+  // Loaded in BOTH dry & real so --dry reports accurate "new" counts.
+  const existingKeys = new Set<string>();
+  {
+    const rows = await db
+      .select({
+        transaction_date: transactions.transaction_date,
+        transaction_type: transactions.transaction_type,
+        account_id: transactions.account_id,
+        to_account_id: transactions.to_account_id,
+        amount: transactions.amount,
+        note: transactions.note,
+      })
       .from(transactions)
       .where(
         and(
           eq(transactions.user_id, userId),
-          eq(transactions.is_imported, true),
-          isNull(transactions.deleted_at)
+          eq(transactions.is_imported, true)
+          // NOTE: include soft-deleted rows too — a row we deliberately removed
+          // as a duplicate must NOT be re-inserted on the next migrate run.
         )
       );
-    for (const r of hashRows) {
-      if (r.import_row_hash) existingHashes.add(r.import_row_hash);
+    for (const r of rows) {
+      existingKeys.add(
+        naturalKey({
+          date: r.transaction_date,
+          type: r.transaction_type,
+          accountId: r.account_id,
+          toAccountId: r.to_account_id,
+          amount: Number(r.amount),
+          note: r.note ?? "",
+        })
+      );
     }
-    console.log(`  Existing imported hashes: ${existingHashes.size}`);
+    console.log(`  Existing imported rows: ${existingKeys.size}`);
   }
 
   let inserted = 0;
@@ -690,9 +734,18 @@ async function main() {
 
     if (amount <= 0) continue;
 
-    const hash = rowHash([txDate, finalType, accountName, categoryName, note, String(amount), month]);
+    const hash = rowHash([txDate, finalType, accountName, categoryName, note, String(amount)]);
 
-    if (existingHashes.has(hash)) {
+    // Natural-key dedup (stable across month-tabs) — supersedes hash-based skip.
+    const dupKey = naturalKey({
+      date: txDate,
+      type: finalType,
+      accountId: overrideAccountId ?? accountId,
+      toAccountId,
+      amount,
+      note,
+    });
+    if (existingKeys.has(dupKey)) {
       skipped++;
       continue;
     }
@@ -730,7 +783,7 @@ async function main() {
 
     if (dry) {
       inserted++;
-      existingHashes.add(hash);
+      existingKeys.add(dupKey);
       continue;
     }
 
@@ -748,7 +801,7 @@ async function main() {
       import_row_hash: hash,
     });
 
-    existingHashes.add(hash);
+    existingKeys.add(dupKey);
     inserted++;
   }
 
@@ -908,7 +961,12 @@ async function main() {
     await db
       .delete(transactions)
       .where(
-        and(eq(transactions.user_id, userId), eq(transactions.source_month, `${year}-Opening`))
+        and(
+          eq(transactions.user_id, userId),
+          eq(transactions.source_month, `${year}-Opening`),
+          // Preserve manually-seeded non-liquid asset openings (opening-<year>-nl-*).
+          notLike(transactions.import_row_hash, `opening-${year}-nl-%`)
+        )
       );
     const mutRows = await db.execute<{ name: string; mutation: string }>(
       `

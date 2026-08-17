@@ -163,3 +163,18 @@ Full CRUD halaman kelola kategori. Entry point: link "Manage Categories" di `/bu
 - **Query distinction**: `getManageCategories` (grouped, buat halaman manage) vs `getCategories` (flat, buat picker transaksi/budget).
 - **Grup free-text**: user pilih 6 existing groups (eating/living/saving/investing/giving/earning) atau ketik grup baru.
 - **Slug**: auto-generated via `toSlug(name)` (`src/lib/slug.ts`). Unique constraint `(user_id, slug, group_name)`.
+
+
+## Migrasi Sheet → DB (`scripts/migrate-sheet.ts`)
+
+`pnpm migrate 2026 [--dry]` — import Google Sheet 2026 ke Postgres. Idempotent via **natural-key dedup** (bukan hash).
+
+- **Dedup**: `naturalKey(date|type|account_id|to_account_id|category_id|amount.toFixed(2)|note)`. Load existing key dari DB (SERTAKAN soft-deleted — biar dup yang sengaja dihapus tak masuk lagi). JANGAN pakai hash berbasis `month` — dulu bug: transaksi carry-over antar tab (muncul di tab Jul & Aug) hash beda → dobel. (Fixed 2026-08-16.)
+- **`import_row_hash`** masih diisi (kolom ada) tapi TIDAK dipakai dedup lagi — natural-key yang otoritatif.
+- **Opening balance**: saldo awal (carry 2025) ditambal 1 transaksi `source_month='<year>-Opening'`, tanggal 1 Jan. Liquid: di-derive dari tab Summary (`Summary − mutasi`). **Aset non-liquid**: TIDAK ada di Summary → di-seed manual via SQL, hash `opening-<year>-nl-<slug>`. Task 5 delete opening **PRESERVE** `opening-<year>-nl-*` (jangan hapus seed manual aset).
+- **Gotcha saldo liquid "cocok" walau ada dobel**: opening liquid = `Summary − mutasi`, jadi mutasi kelebihan (dobel) diserap opening → saldo akhir tetap match. Dobel cuma kelihatan di aset non-liquid (tak ada opening penyerap). Cek dup dgn query GROUP BY natural fields HAVING COUNT>1, pisah lintas-month (pasti bug) vs same-month (bisa sah — kategori beda, mis. "Soto 2x" Dining vs Shodaqoh).
+- **Balance amount CHECK**: `amount >= 0`. Opening negatif → pakai `spending` (bukan earning amount negatif).
+
+## Investment: current_balance = modal, current_value = harga pasar (bf-z6w)
+
+`accounts.current_balance` = setoran/modal (dari transaksi). `accounts.current_value` + `last_valued_at` = harga pasar (BELUM dipakai, untuk bf-z6w tracker P&L). Net Worth saat ini pakai current_balance (agregat). Detail sub-produk (Emas Antam 1g, Saham PGAS dll) + P&L = bf-z6w. Lihat bd memory `bf-z6w-investment-detail`.
