@@ -8,6 +8,9 @@ export interface AssetRow {
   current_balance: number;
   asset_category: string; // "liquid" | "investment"
   investment_group: string | null;
+  current_value: number | null;   // harga pasar, input manual (bf-3ai); null = belum dinilai
+  last_valued_at: string | null;
+  pnl: number | null;             // current_value − current_balance; null kalau belum dinilai
   is_liability: boolean;
   icon_name: string | null;
   color_hex: string | null;
@@ -17,7 +20,10 @@ export interface AssetRow {
 export interface InvestmentGroupRow {
   key: string;   // investment_group, atau id akun kalau tak bergrup — dipakai di URL /assets/[group]
   label: string; // nama tampil grup
-  total: number;
+  total: number;       // Σ current_balance (modal) — angka utama, dipakai Net Worth
+  totalValue: number;  // Σ (current_value ?? current_balance) — produk belum dinilai dianggap at cost
+  pnl: number;         // Σ pnl produk yang sudah dinilai
+  valuedCount: number; // berapa produk punya current_value
   items: AssetRow[];
 }
 
@@ -39,6 +45,8 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
       current_balance: sql<number>`${accounts.current_balance}::numeric`,
       asset_category: accounts.asset_category,
       investment_group: accounts.investment_group,
+      current_value: accounts.current_value,
+      last_valued_at: accounts.last_valued_at,
       is_liability: accounts.is_liability,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
@@ -62,25 +70,40 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
     .reduce((s, r) => s + Number(r.current_balance), 0);
   const totalLiabilities = liabilityRows.reduce((s, r) => s + Number(r.current_balance), 0);
 
-  const assetRows: AssetRow[] = nonLiabilityRows.map((r) => ({
-    ...r,
-    current_balance: Number(r.current_balance),
-  }));
+  const toAssetRow = (r: (typeof rows)[number]): AssetRow => {
+    const balance = Number(r.current_balance);
+    const value = r.current_value == null ? null : Number(r.current_value);
+    return {
+      ...r,
+      current_balance: balance,
+      current_value: value,
+      last_valued_at: r.last_valued_at ? r.last_valued_at.toISOString() : null,
+      pnl: value == null ? null : value - balance,
+    };
+  };
+  const assetRows: AssetRow[] = nonLiabilityRows.map(toAssetRow);
 
   // Kartu non-liquid dikelompokkan per investment_group; akun tanpa grup jadi kartu sendiri.
   const groupMap = new Map<string, InvestmentGroupRow>();
   for (const a of assetRows) {
     if (a.asset_category === "liquid") continue;
     const key = a.investment_group ?? a.id;
+    const valued = a.current_value != null;
     const group = groupMap.get(key);
     if (group) {
       group.total += a.current_balance;
+      group.totalValue += a.current_value ?? a.current_balance;
+      group.pnl += a.pnl ?? 0;
+      group.valuedCount += valued ? 1 : 0;
       group.items.push(a);
     } else {
       groupMap.set(key, {
         key,
         label: a.investment_group ?? a.name,
         total: a.current_balance,
+        totalValue: a.current_value ?? a.current_balance,
+        pnl: a.pnl ?? 0,
+        valuedCount: valued ? 1 : 0,
         items: [a],
       });
     }
@@ -88,10 +111,7 @@ export async function getAssets(userId: string): Promise<AssetsSummary> {
 
   return {
     assets: assetRows,
-    liabilities: liabilityRows.map((r) => ({
-      ...r,
-      current_balance: Number(r.current_balance),
-    })),
+    liabilities: liabilityRows.map(toAssetRow),
     totalLiquid,
     totalNonLiquid,
     totalLiabilities,

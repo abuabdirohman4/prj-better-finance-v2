@@ -153,6 +153,12 @@ function GroupCard({ group, hideBalances }: { group: InvestmentGroupRow; hideBal
         <p className="font-bold text-[9px] truncate">
           {hideBalances ? MASK : formatCurrency(group.total)}
         </p>
+        {/* P&L tampil hanya kalau ada produk yang sudah dinilai (bf-3ai) */}
+        {group.valuedCount > 0 && !hideBalances && (
+          <p className={`text-[9px] font-semibold truncate ${group.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            {group.pnl >= 0 ? "+" : "-"}{formatCurrency(Math.abs(group.pnl), "short")}
+          </p>
+        )}
       </div>
     </Link>
   );

@@ -238,6 +238,22 @@ export async function updateRealityCheck(
     .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
 }
 
+/** Harga pasar manual (bf-3ai). null = hapus valuasi. Tidak menyentuh current_balance/Net Worth. */
+export async function updateAccountValue(
+  userId: string,
+  accountId: string,
+  value: number | null
+): Promise<void> {
+  await db
+    .update(accounts)
+    .set({
+      current_value: value == null ? null : String(value),
+      last_valued_at: value == null ? null : new Date(),
+      updated_at: new Date(),
+    })
+    .where(and(eq(accounts.id, accountId), eq(accounts.user_id, userId)));
+}
+
 /**
  * Update current_balance dengan delta atomik.
  * spending → delta negatif, earning → delta positif,

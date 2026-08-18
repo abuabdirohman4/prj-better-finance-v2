@@ -1,41 +1,75 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-18 · Fase: **P3 aktif + Landing page di-plan.** MVP ✅ · P2 ✅ · Sisa: bf-3ai → bf-z65 → bf-6rl → bf-ayj → bf-dac → bf-uaw + bf-3mb (landing).
+> Diperbarui: 2026-08-19 · Fase: **A (investasi) aktif.** MVP ✅ · P2 ✅ · z6w ✅ · Peta A→E di bawah. Target: ganti spreadsheet, pakai harian.
 
 ---
 
-## 🔜 Kerjaan Aktif — Urut Prioritas
+## 🔜 Kerjaan Aktif — Per Fase (dipetakan 2026-08-19)
 
-> **Ini satu-satunya tabel yang perlu dibaca buat "kerjakan apa selanjutnya".**
-> Plan + prompt siap di `docs/plans/` + `docs/prompts/`. Kerjakan dari atas.
+> **Ini satu-satunya tabel yang perlu dibaca buat "kerjakan apa selanjutnya".** Kerjakan fase berurutan; di dalam fase, baris atas dulu.
+> Plan + prompt di `docs/plans/` + `docs/prompts/`. Peta lengkap + alasan urutan: `docs/plans/2026-08-19-roadmap-peta-fase-a-e.md`.
+>
+> **Arah:** target user = **ganti spreadsheet, pakai app harian secepatnya** → integritas data + input harian dulu, historis & landing belakangan. Suatu titik `pnpm migrate` berhenti (cutover, bf-udk) → app jadi sumber kebenaran.
 
-| # | Issue | Fitur | Files | Catatan |
+### Fase A — Investasi tuntas · Claude direct
+
+| # | Issue | Eksekutor · Sesi | Catatan |
+|---|---|---|---|
+| A1 | `bf-3ai` | ✅ 2026-08-19 | current_value input manual + P&L per sub-produk di `/assets/[group]`. Data diisi user sendiri (belum). Net Worth tetap modal-based |
+| A2 | `bf-aq8` | ✅ closed | ter-cover z6w+3ai |
+| A3 | `bf-m2s` | Antigravity (plan Claude) | Add product di `/assets/[group]`, field Group → SingleSelect existing + new |
+| A4 | `bf-z65` | Claude · `bf-z65 bugfix-audit-reksadana` | Audit 2 jalur (mutasi Bibit ada / cuma saldo). Hipotesis: penarikan dari reksadana tak tercatat (0 transfer keluar 2026). **Setelah bf-dac** |
+
+### Fase B — Input harian nyaman · Antigravity paralel, Claude review batch
+
+| # | Issue | Files | Review batch | Catatan |
 |---|---|---|---|---|
-| 1 | `bf-3ai` | Investment Tracker: current value + P&L | ~5 | **NEXT** · model sub-produk dari bf-z6w ✅ |
-| 2 | `bf-z65` | Audit reksadana overstated + opening tak rapuh | ? | P2 · unblocked oleh bf-z6w |
-| 3 | `bf-6rl` | Goal account linkage: "disimpan di X" + pre-fill transfer | 7 | migration ✅ |
-| 4 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
-| 5 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
-| 6 | `bf-uaw` | Sort order akun: ▲▼ reorder di /accounts | 3 | — |
-| 7 | `bf-3mb` | Landing page: net worth positioning, "Ink & Paper" visual | ~15 | plan ✅ · prompt ✅ · Mode A (Antigravity) |
+| B0 | `bf-alx` | mekanis | gabung B1 | rename `/assets` → `/net-worth`. **Sebelum dac**, setelah Fase A (3ai sentuh `/assets`) |
+| B1 | `bf-dac` | 5 | `review-accounts-ux` | account detail → list transaksi; universal (AR/AP, sub-produk). Prasyarat z65 + cutover |
+| B1 | `bf-uaw` | 3 | ↑ | sort order akun |
+| B2 | `bf-6rl` | 7 | `review-goals-budget` | goal.account_id + pre-fill. **Cek plan vs model sub-produk** (goal per produk = account_id ke sub-akun) |
+| B2 | `bf-ayj` | 5 | ↑ | budget_period (gaji tgl 25 → bulan depan). **Validasi plan lama dulu** |
+| B3 | `bf-9vf` | 5 | `review-settings` | settings + privacy persist. Cek plan 07-22 masih valid |
+| B3 | `bf-7m3` | 1-2 | gabung mana saja | edit tipe akun; belum ada plan |
 
-### 📦 Parkiran (ter-capture, belum di-plan)
+### Fase C — Cutover: berhenti spreadsheet
 
-| Issue | Fitur | Catatan |
+| # | Issue | Eksekutor | Catatan |
+|---|---|---|---|
+| C1 | `bf-atf` | brainstorm Claude → Antigravity | alur tarik/jual investasi: auto-split transfer (modal) + earning/spending (untung/rugi). Depends 3ai |
+| C2 | `bf-udk` | Claude interaktif | cutover checklist: migrate final → reconcile semua akun → opening statis → freeze sheet. Depends z65, dac |
+| C3 | `bf-kvk` | Antigravity | goal reality check. Depends 6rl |
+| C4 | `bf-7h2` | Claude plan → Antigravity | auto price feed opt-in (quantity + price_symbol → refresh). Cuma ~6/24 produk punya harga publik; manual (3ai) tetap fallback. Setelah cutover |
+
+### Fase D — Historis + insight · Claude interaktif
+
+| # | Issue | Catatan |
 |---|---|---|
-| bf-noo | Import budget historis | — |
-| bf-4m1 | Import 2025 (AKTIVA/PASIVA, interaktif) | — |
-| bf-aq8 | Breakdown produk investasi: sub-produk per akun | kemungkinan ter-cover bf-z6w+bf-3ai — review |
-| bf-kvk | Goal reality check: SUM(collected) ≈ saldo | — |
-| bf-9vf | Settings profil + privacy persistence | — |
-| bf-gv5 | CFP analysis + insights | butuh data dulu |
-| bf-bp5 | Global i18n pass | English-first + multi-bahasa |
-| bf-alx | Rename /assets → /net-worth | kosmetik |
-| bf-qxb | UI kit lengkap (Toast, DatePicker, dll) | on-demand |
-| bf-lp4 | cursor-pointer polish global | batch Phase 5 |
-| bf-m2s | Alur tambah produk investasi baru (entry point + grup dropdown) | depends bf-z6w |
-| — | README masih boilerplate create-next-app | tulis ulang: deskripsi produk + setup |
+| D1 | `bf-noo` | import budget historis, 1 script, plan ✅ |
+| D2 | `bf-4m1` | import 2025 (AKTIVA/PASIVA), plan ✅. Non-liquid → `opening-2025-nl-*` per sub-produk |
+| D3 | `bf-gv5` | CFP insights — **brainstorm** (AI vs rule-based). Depends 4m1 |
+
+### Fase E — Publik · Antigravity
+
+| # | Issue | Catatan |
+|---|---|---|
+| E1 | `bf-8ph` | onboarding + empty state user baru — **brainstorm scope**. Wajib sebelum landing |
+| E2 | `bf-bp5` | i18n pass (hardcode EN vs next-intl) |
+| E3 | `bf-lp4` | cursor-pointer polish |
+| E4 | `bf-qxb` | UI kit lengkap — **on-demand**, jangan sekaligus |
+| E5 | `bf-3mb` | landing — plan+prompt ✅. Depends 8ph. **Terakhir** |
+| E6 | `bf-xd4` | README tulis ulang |
+
+### 🧠 Topik brainstorm (`superpowers:brainstorming` saat sampai)
+1. bf-atf withdraw flow — kategori realized gain/loss, partial withdraw, efek goal collected
+2. bf-z65 root cause — setelah data Bibit / list transaksi per akun (dac)
+3. bf-8ph onboarding — minimal vs wizard
+4. bf-gv5 CFP — apa yang dihitung, AI atau rule-based dulu
+5. bf-ayj — validasi plan lama sebelum Antigravity
+
+### 🧊 Deferred (sengaja tak jadi issue)
+Riwayat current_value (reuse `account_balance_snapshots` kalau perlu grafik) · Emas berat/karat, multi-lot · reorder/collapse grup Net Worth.
 
 ---
 
@@ -87,6 +121,7 @@
 | 2026-08-11 | P3 planned | 8 issue di-plan+beads+prompt, 4 migration applied via MCP |
 | 2026-08-12 | P3 aktif | bf-z6w next |
 | 2026-08-18 | **bf-z6w ✅** | Sub-produk Emas 7 + Saham 3, grouping Net Worth, Net Worth tetap 50.831.765 |
+| 2026-08-19 | Peta A–E | 20 issue → 5 fase; 4 issue baru; arah: ganti spreadsheet |
 
 ---
 
@@ -130,7 +165,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | UI kit — lengkap | 🔄 | `src/components/ui/` | ConfirmDialog ✅; sisa: Toast, DatePicker, dll (bf-qxb) |
 | Akun non-liquid | ✅ | `/accounts` → `/assets` | Enum liquid/investment, redirect ke /assets (bf-yts) |
 | Investment sub-produk + grouping | ✅ | `/assets` + `/assets/[group]` | 1 akun per sub-produk, kartu per grup → detail (bf-z6w) |
-| Investment tracker P&L | ⏳ | `/assets/[group]` | current_value + P&L per sub-produk (bf-3ai) |
+| Investment tracker P&L | ✅ | `/assets/[group]` | current_value input manual + P&L per sub-produk (bf-3ai); auto price = bf-7h2 |
 | Goal account linkage | ⏳ | `/goals` | "disimpan di X" + pre-fill transfer (bf-6rl) |
 | Account detail | ⏳ | `/accounts/[id]` | Klik akun → list transaksi (bf-dac) |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy (bf-9vf) |
@@ -167,6 +202,8 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 
 ## 📜 Changelog
 
+- **2026-08-19** — **bf-3ai closed** (input manual current_value di `/assets/[group]`, P&L per produk + grup, kartu grup tampil P&L; Net Worth tetap modal). **bf-aq8 closed** (ter-cover). Issue baru bf-7h2 auto price feed (Fase C4).
+- **2026-08-19** — **Peta roadmap A–E.** Sesi planning Fable: 20 issue dipetakan 5 fase (A investasi → B input harian → C cutover → D historis → E publik). Keputusan: target ganti spreadsheet secepatnya; landing setelah onboarding; Antigravity paralel utk plan siap. 4 issue baru: bf-atf (tarik/jual investasi), bf-udk (cutover checklist), bf-8ph (onboarding user baru), bf-xd4 (README). Deps ditambah (z65←dac, udk←z65+dac, kvk←6rl, 3mb←8ph, aq8←3ai, gv5←4m1). bf-z6w closed.
 - **2026-08-19** — **bf-v4r closed.** Dropdown akun: grup collapsible (default terlipat, opsi tanpa grup selalu di atas & tak dilipat). Search tembus grup terlipat + cocokkan nama grup. Issue baru: bf-m2s (alur tambah produk investasi — daftar sub-produk sekarang cuma ada karena import, user baru kosong).
 - **2026-08-18** — **bf-z6w closed.** Model sub-produk: 1 akun per produk + `investment_group` (bukan tabel holdings). Emas 1 akun → 7 sub, Saham 1 → 3, Crypto rename `Crypto : Bitcoin`. `/assets` kartu per grup (17 → 7 kartu) → route baru `/assets/[group]` detail sub-produk. Picker transaksi optgroup. Migrate Tipe C dest per sub-produk. Helper `src/lib/investment.ts`. Net Worth tak berubah: 50.831.765,27.
 
