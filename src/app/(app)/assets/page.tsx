@@ -6,7 +6,7 @@ import { useAssets } from "./_hooks/useAssets";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { getAccountVisual } from "@/lib/accountVisuals";
-import type { AssetRow } from "@/db/queries/assets";
+import type { AssetRow, InvestmentGroupRow } from "@/db/queries/assets";
 
 const MASK = "Rp •••.•••";
 
@@ -15,7 +15,7 @@ export default function AssetsPage() {
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
 
-  const { assets = [], liabilities = [], totalLiquid = 0, totalNonLiquid = 0, totalLiabilities = 0, netWorth = 0 } = data ?? {};
+  const { liabilities = [], investmentGroups = [], totalLiquid = 0, totalNonLiquid = 0, totalLiabilities = 0, netWorth = 0 } = data ?? {};
   
   const liquidPercent = netWorth > 0 ? (totalLiquid / netWorth) * 100 : 0;
   const nonLiquidPercent = netWorth > 0 ? (totalNonLiquid / netWorth) * 100 : 0;
@@ -41,7 +41,7 @@ export default function AssetsPage() {
           <button
             onClick={toggle}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
-            aria-label="Toggle saldo"
+            aria-label="Toggle balance visibility"
           >
             {hideBalances ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
           </button>
@@ -87,7 +87,7 @@ export default function AssetsPage() {
         {isLoading ? (
           <div className="grid grid-cols-3 gap-3"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
         ) : isError ? (
-          <p className="text-red-500 text-sm px-1">Gagal memuat data.</p>
+          <p className="text-red-500 text-sm px-1">Failed to load data.</p>
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-3 gap-3">
@@ -106,9 +106,9 @@ export default function AssetsPage() {
                 </div>
               </Link>
 
-              {/* Non-liquid per akun */}
-              {assets.filter(a => a.asset_category !== "liquid").map(a => (
-                <AssetCard key={a.id} asset={a} hideBalances={hideBalances} />
+              {/* Non-liquid per grup investasi — tap masuk ke detail sub-produk */}
+              {investmentGroups.map(g => (
+                <GroupCard key={g.key} group={g} hideBalances={hideBalances} />
               ))}
             </div>
 
@@ -133,33 +133,28 @@ export default function AssetsPage() {
   );
 }
 
-function AssetCard({ asset, hideBalances }: { asset: AssetRow; hideBalances: boolean }) {
-  const visual = getAccountVisual(asset.name);
-  const initials = visual.initials || asset.name.substring(0, 2).toUpperCase();
-  const isLiquid = asset.asset_category === "liquid";
+function GroupCard({ group, hideBalances }: { group: InvestmentGroupRow; hideBalances: boolean }) {
+  const initials = getAccountVisual(group.label).initials || group.label.substring(0, 2).toUpperCase();
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col active:scale-95 transition-transform hover:shadow-xl group">
+    <Link
+      href={`/assets/${encodeURIComponent(group.key)}`}
+      className="block bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden active:scale-95 transition-transform hover:shadow-xl group"
+    >
       <div className="flex flex-col items-center p-3 pb-3">
-        {visual.isWalletIcon ? (
-          <div className={`mb-1.5 ${isLiquid ? "text-blue-500" : "text-emerald-500"}`}>
-            <Wallet className="w-6 h-6" strokeWidth={1.8} />
-          </div>
-        ) : (
-          <div className={`mb-1.5 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${isLiquid ? "bg-blue-500" : "bg-emerald-500"}`}>
-            {initials}
-          </div>
-        )}
+        <div className="mb-1.5 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] font-bold text-white">
+          {initials}
+        </div>
         <h3 className="font-bold text-gray-900 text-xs text-center truncate w-full group-hover:text-blue-600 transition-colors">
-          {asset.name}
+          {group.label}
         </h3>
       </div>
-      <div className={`text-center py-1.5 px-1 mt-auto ${isLiquid ? "bg-blue-100/50 text-blue-600" : "bg-emerald-100/50 text-emerald-700"}`}>
+      <div className="text-center py-1.5 px-1 mt-auto bg-emerald-100/50 text-emerald-700">
         <p className="font-bold text-[9px] truncate">
-          {hideBalances ? MASK : formatCurrency(asset.current_balance)}
+          {hideBalances ? MASK : formatCurrency(group.total)}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 

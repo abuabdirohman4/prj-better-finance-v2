@@ -5,6 +5,7 @@ import { Filter } from "lucide-react";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
+import { productLabel } from "@/lib/investment";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { TransactionFilters } from "@/db/queries/transactions";
 
@@ -57,7 +58,12 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
 
-  const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }));
+  // Akun investasi dikelompokkan per investment_group (optgroup di MultiSelect).
+  const accountOptions = accounts.map((a) =>
+    a.asset_category === "investment"
+      ? { value: a.id, label: productLabel(a.name), group: a.investment_group ?? "Investment" }
+      : { value: a.id, label: a.name }
+  );
   const categoryOptions = categories.map((c) => ({
     value: c.id,
     label: c.name,

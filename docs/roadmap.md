@@ -1,7 +1,7 @@
 # 🗺️ Roadmap: Better Finance v2
 
 > **File ini = peta arah produk.** Sumber tunggal visi + status fitur + next up.
-> Diperbarui: 2026-08-16 · Fase: **P3 aktif + Landing page di-plan.** MVP ✅ · P2 ✅ · Sisa: bf-z6w → bf-3ai → bf-6rl → bf-ayj → bf-dac → bf-uaw + bf-3mb (landing).
+> Diperbarui: 2026-08-18 · Fase: **P3 aktif + Landing page di-plan.** MVP ✅ · P2 ✅ · Sisa: bf-3ai → bf-z65 → bf-6rl → bf-ayj → bf-dac → bf-uaw + bf-3mb (landing).
 
 ---
 
@@ -12,8 +12,8 @@
 
 | # | Issue | Fitur | Files | Catatan |
 |---|---|---|---|---|
-| 1 | `bf-z6w` | Investment grouping 2-level (Reksadana/Saham/USD) | 7 | migration ✅ · **sebelum bf-3ai** |
-| 2 | `bf-3ai` | Investment Tracker: current value + P&L | 7 | migration ✅ · depends bf-z6w |
+| 1 | `bf-3ai` | Investment Tracker: current value + P&L | ~5 | **NEXT** · model sub-produk dari bf-z6w ✅ |
+| 2 | `bf-z65` | Audit reksadana overstated + opening tak rapuh | ? | P2 · unblocked oleh bf-z6w |
 | 3 | `bf-6rl` | Goal account linkage: "disimpan di X" + pre-fill transfer | 7 | migration ✅ |
 | 4 | `bf-ayj` | budget_period: pisah tanggal transaksi dari alokasi bulan | 5 | migration ✅ |
 | 5 | `bf-dac` | Account detail: klik akun → list transaksi | 5 | — |
@@ -26,8 +26,7 @@
 |---|---|---|
 | bf-noo | Import budget historis | — |
 | bf-4m1 | Import 2025 (AKTIVA/PASIVA, interaktif) | — |
-| bf-aq8 | Breakdown produk investasi: sub-produk per akun | depends bf-z6w |
-| bf-z65 | Audit reksadana overstated + opening auto-recompute | depends bf-z6w · P2 |
+| bf-aq8 | Breakdown produk investasi: sub-produk per akun | kemungkinan ter-cover bf-z6w+bf-3ai — review |
 | bf-kvk | Goal reality check: SUM(collected) ≈ saldo | — |
 | bf-9vf | Settings profil + privacy persistence | — |
 | bf-gv5 | CFP analysis + insights | butuh data dulu |
@@ -35,6 +34,8 @@
 | bf-alx | Rename /assets → /net-worth | kosmetik |
 | bf-qxb | UI kit lengkap (Toast, DatePicker, dll) | on-demand |
 | bf-lp4 | cursor-pointer polish global | batch Phase 5 |
+| bf-m2s | Alur tambah produk investasi baru (entry point + grup dropdown) | depends bf-z6w |
+| — | README masih boilerplate create-next-app | tulis ulang: deskripsi produk + setup |
 
 ---
 
@@ -85,6 +86,7 @@
 | 2026-08-11 | P2 batch selesai | bf-3e0, bf-4z1, bf-btz, bf-z8z, bf-i6e — 5 issue 1 hari |
 | 2026-08-11 | P3 planned | 8 issue di-plan+beads+prompt, 4 migration applied via MCP |
 | 2026-08-12 | P3 aktif | bf-z6w next |
+| 2026-08-18 | **bf-z6w ✅** | Sub-produk Emas 7 + Saham 3, grouping Net Worth, Net Worth tetap 50.831.765 |
 
 ---
 
@@ -127,7 +129,8 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | UI kit — minimal | ✅ | `src/components/ui/` | Button, Input, Select, MultiSelect, SingleSelect |
 | UI kit — lengkap | 🔄 | `src/components/ui/` | ConfirmDialog ✅; sisa: Toast, DatePicker, dll (bf-qxb) |
 | Akun non-liquid | ✅ | `/accounts` → `/assets` | Enum liquid/investment, redirect ke /assets (bf-yts) |
-| Investment grouping | ⏳ | `/assets` | 2-level group + tracker P&L (bf-z6w, bf-3ai) |
+| Investment sub-produk + grouping | ✅ | `/assets` + `/assets/[group]` | 1 akun per sub-produk, kartu per grup → detail (bf-z6w) |
+| Investment tracker P&L | ⏳ | `/assets/[group]` | current_value + P&L per sub-produk (bf-3ai) |
 | Goal account linkage | ⏳ | `/goals` | "disimpan di X" + pre-fill transfer (bf-6rl) |
 | Account detail | ⏳ | `/accounts/[id]` | Klik akun → list transaksi (bf-dac) |
 | Settings | ⏳ | `/settings` | Profil, theme, privacy (bf-9vf) |
@@ -163,6 +166,9 @@ Target: akun, transaksi, budget bulanan+mingguan, goals, aset. AI insights & sub
 ---
 
 ## 📜 Changelog
+
+- **2026-08-19** — **bf-v4r closed.** Dropdown akun: grup collapsible (default terlipat, opsi tanpa grup selalu di atas & tak dilipat). Search tembus grup terlipat + cocokkan nama grup. Issue baru: bf-m2s (alur tambah produk investasi — daftar sub-produk sekarang cuma ada karena import, user baru kosong).
+- **2026-08-18** — **bf-z6w closed.** Model sub-produk: 1 akun per produk + `investment_group` (bukan tabel holdings). Emas 1 akun → 7 sub, Saham 1 → 3, Crypto rename `Crypto : Bitcoin`. `/assets` kartu per grup (17 → 7 kartu) → route baru `/assets/[group]` detail sub-produk. Picker transaksi optgroup. Migrate Tipe C dest per sub-produk. Helper `src/lib/investment.ts`. Net Worth tak berubah: 50.831.765,27.
 
 - **2026-08-16** — Planning bf-3mb: landing page net-worth positioning. Plan + prompt + beads di-create. Positioning: persona=individu perencana serius, diferensiasi=net worth utuh, visual=Ink & Paper (biru/indigo), harga=gratis dulu, signature=NetWorthDemo interaktif. Dashboard dipindah `/` → `/dashboard`. Siap eksekusi Antigravity.
 - **2026-08-12** — Roadmap update: tambah Timeline, parkiran jadi tabel terstruktur, hapus duplikat changelog, Status Fitur sinkron P2+P3.

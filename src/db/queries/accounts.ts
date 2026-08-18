@@ -1,6 +1,7 @@
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, accountTypes, categories, transactions } from "@/db/schema";
+import { deriveInvestmentGroup } from "@/lib/investment";
 
 // ── Types (query results — numeric kolom di-cast ke number) ─────────────────────
 
@@ -12,6 +13,7 @@ export interface AccountRow {
   last_reality_check: number | null;
   last_reality_check_at: string | null;
   asset_category: string;
+  investment_group: string | null;
   icon_name: string | null;
   color_hex: string | null;
   is_active: boolean;
@@ -51,6 +53,7 @@ export async function getAccountsWithType(userId: string): Promise<AccountRow[]>
       last_reality_check: accounts.last_reality_check,
       last_reality_check_at: accounts.last_reality_check_at,
       asset_category: accounts.asset_category,
+      investment_group: accounts.investment_group,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
       is_active: accounts.is_active,
@@ -131,6 +134,10 @@ export async function createAccount(userId: string, input: CreateAccountInput): 
       slug,
       current_balance: String(input.current_balance),
       asset_category: input.asset_category,
+      investment_group:
+        input.asset_category === "investment"
+          ? (input.investment_group?.trim() || deriveInvestmentGroup(input.name))
+          : null,
       include_in_net_worth: input.include_in_net_worth ?? true,
       is_wallet: input.is_wallet ?? false,
       is_liability: input.is_liability ?? false,
@@ -156,6 +163,8 @@ export async function updateAccount(
   }
   if (input.current_balance !== undefined) values.current_balance = String(input.current_balance);
   if (input.asset_category !== undefined) values.asset_category = input.asset_category;
+  if (input.investment_group !== undefined)
+    values.investment_group = input.investment_group?.trim() || null;
   if (input.include_in_net_worth !== undefined) values.include_in_net_worth = input.include_in_net_worth;
   if (input.is_wallet !== undefined) values.is_wallet = input.is_wallet;
   if (input.is_liability !== undefined) values.is_liability = input.is_liability;
@@ -188,6 +197,7 @@ export async function getAccountById(
       last_reality_check: accounts.last_reality_check,
       last_reality_check_at: accounts.last_reality_check_at,
       asset_category: accounts.asset_category,
+      investment_group: accounts.investment_group,
       icon_name: accounts.icon_name,
       color_hex: accounts.color_hex,
       is_active: accounts.is_active,
@@ -258,6 +268,7 @@ function mapAccountRow(r: {
   last_reality_check: string | null;
   last_reality_check_at: Date | null;
   asset_category: string;
+  investment_group: string | null;
   icon_name: string | null;
   color_hex: string | null;
   is_active: boolean;
@@ -276,6 +287,7 @@ function mapAccountRow(r: {
     last_reality_check: r.last_reality_check == null ? null : Number(r.last_reality_check),
     last_reality_check_at: r.last_reality_check_at ? r.last_reality_check_at.toISOString() : null,
     asset_category: r.asset_category,
+    investment_group: r.investment_group,
     icon_name: r.icon_name,
     color_hex: r.color_hex,
     is_active: r.is_active,

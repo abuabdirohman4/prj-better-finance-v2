@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { productLabel } from "@/lib/investment";
 import { transactionKeys } from "@/lib/query";
 import { getGoalsForTransferAction } from "../actions";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
@@ -78,11 +79,16 @@ export function TransactionForm({
   });
   const goalsForTransfer = (goalsRes?.success ? goalsRes.data : []) ?? [];
 
-  const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }));
-  
-  const toAccountOptions = accounts
-    .filter((a) => a.id !== accountId)
-    .map((a) => ({ value: a.id, label: a.name }));
+  // Akun investasi dikelompokkan per investment_group (optgroup di SingleSelect);
+  // label produk dipendekkan karena nama grup sudah jadi header.
+  const toAccountOption = (a: (typeof accounts)[number]) =>
+    a.asset_category === "investment"
+      ? { value: a.id, label: productLabel(a.name), group: a.investment_group ?? "Investment" }
+      : { value: a.id, label: a.name };
+
+  const accountOptions = accounts.map(toAccountOption);
+
+  const toAccountOptions = accounts.filter((a) => a.id !== accountId).map(toAccountOption);
 
   const goalOptions = goalsForTransfer.map((g) => ({ value: g.id, label: g.name }));
 

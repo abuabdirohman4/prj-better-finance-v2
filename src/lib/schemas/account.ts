@@ -5,6 +5,7 @@ export const createAccountSchema = z.object({
   account_type_id: z.string().uuid("Tipe akun tidak valid"),
   current_balance: z.number(),
   asset_category: z.enum(["liquid", "investment"]).default("liquid"),
+  investment_group: z.string().trim().max(40).nullable().optional(),
   include_in_net_worth: z.boolean().default(true),
   is_wallet: z.boolean().default(false),
   is_liability: z.boolean().default(false),

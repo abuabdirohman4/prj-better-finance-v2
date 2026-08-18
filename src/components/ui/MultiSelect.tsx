@@ -18,6 +18,29 @@ export interface MultiSelectOption {
   group?: string;
 }
 
+/** Cocokkan label ATAU group — label produk dipendekkan ("Antam 1g" di group "Emas"). */
+export function matchesSearch(option: MultiSelectOption, search: string): boolean {
+  const q = search.toLowerCase();
+  return (
+    option.label.toLowerCase().includes(q) || (option.group?.toLowerCase().includes(q) ?? false)
+  );
+}
+
+/** Kelompokkan opsi; grup kosong (opsi tanpa group) selalu di urutan pertama. */
+export function groupOptions(
+  options: MultiSelectOption[]
+): { group: string; items: MultiSelectOption[] }[] {
+  const map = new Map<string, MultiSelectOption[]>();
+  for (const o of options) {
+    const g = o.group ?? "";
+    if (!map.has(g)) map.set(g, []);
+    map.get(g)!.push(o);
+  }
+  return Array.from(map, ([group, items]) => ({ group, items })).sort((a, b) =>
+    a.group === b.group ? 0 : a.group === "" ? -1 : b.group === "" ? 1 : 0
+  );
+}
+
 interface MultiSelectProps {
   options: MultiSelectOption[];
   value: string[];
@@ -58,21 +81,36 @@ export function MultiSelect({
 
   const filtered = useMemo(() => {
     if (!search) return options;
-    return options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()));
+    return options.filter((o) => matchesSearch(o, search));
   }, [options, search]);
 
   const hasGroups = useMemo(() => options.some((o) => o.group), [options]);
 
   const groupedFiltered = useMemo(() => {
     if (!hasGroups) return [];
-    const map = new Map<string, MultiSelectOption[]>();
-    for (const o of filtered) {
-      const g = o.group ?? "";
-      if (!map.has(g)) map.set(g, []);
-      map.get(g)!.push(o);
-    }
-    return Array.from(map, ([group, items]) => ({ group, items }));
+    // Opsi tanpa grup (mis. akun liquid) selalu di atas — tak dilipat, tetap 1 klik.
+    return groupOptions(filtered);
   }, [filtered, hasGroups]);
+
+  // Grup default terlipat; search membuka semua grup yang punya hasil (keunggulan vs 2 dropdown).
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const searching = search.trim().length > 0;
+  // Grup dibuka kalau: sedang search, user expand manual, atau ada opsi terpilih di dalamnya
+  // (biar pilihan yang sudah ada tak tersembunyi saat dropdown dibuka lagi).
+  const groupsWithSelection = useMemo(() => {
+    const set = new Set<string>();
+    for (const o of options) if (o.group && value.includes(o.value)) set.add(o.group);
+    return set;
+  }, [options, value]);
+  const isGroupOpen = (group: string) =>
+    searching || expandedGroups.has(group) || groupsWithSelection.has(group);
+  const toggleGroup = (group: string) =>
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
 
   const allSelected = options.length > 0 && options.every((o) => value.includes(o.value));
 
@@ -226,11 +264,23 @@ export function MultiSelect({
                 groupedFiltered.map(({ group, items }) => (
                   <div key={group || "__ungrouped"}>
                     {group && (
-                      <div className="mx-1 my-1 border-y border-gray-100 bg-gray-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                        {group}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(group)}
+                        aria-expanded={isGroupOpen(group)}
+                        className="mx-1 my-1 flex w-[calc(100%-0.5rem)] items-center gap-1.5 border-y border-gray-100 bg-gray-50 px-3 py-1.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                      >
+                        <ChevronDown
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 transition-transform",
+                            isGroupOpen(group) ? "rotate-0" : "-rotate-90"
+                          )}
+                        />
+                        <span className="flex-1">{group}</span>
+                        <span className="font-semibold text-gray-400">{items.length}</span>
+                      </button>
                     )}
-                    {items.map(renderOption)}
+                    {(!group || isGroupOpen(group)) && items.map(renderOption)}
                   </div>
                 ))
               ) : (
@@ -238,7 +288,7 @@ export function MultiSelect({
               )
             ) : (
               <div className="px-3 py-4 text-center text-sm text-gray-400">
-                {search ? "Tidak ada hasil" : "Belum ada opsi"}
+                {search ? "No results" : "No options yet"}
               </div>
             )}
           </div>

@@ -89,6 +89,8 @@ Reusable primitives — pakai untuk semua form, filter, button di seluruh v2.
 
 `MultiSelect`/`SingleSelect` prop `direction`: `"down" | "up" | "auto"` (default `"auto"` — flip otomatis kalau ruang bawah sempit). Pakai `"up"` untuk field di bagian bawah bottom sheet.
 
+**Grup collapsible (bf-v4r):** opsi ber-`group` dirender sebagai header yang bisa dilipat (default TERLIPAT, tampil nama + count). Opsi TANPA `group` selalu di urutan pertama dan tak pernah dilipat — akun liquid tetap 1 klik. Grup otomatis terbuka kalau: sedang search, atau ada opsi terpilih di dalamnya. Search mencocokkan **label DAN nama grup** (`matchesSearch`) — wajib, karena label produk investasi dipendekkan pakai `productLabel`. Helper murni `matchesSearch` + `groupOptions` diekspor dari `MultiSelect.tsx` (ada unit test; project tak punya testing-library, jadi logika dipisah dari render).
+
 **Reference Projects:** Lihat `docs/reference-projects.md` sebelum explore projek acuan (prj-better-finance v1, portfolio-management-service, prj-better-planner, school-management) — hemat token.
 
 ## Dokumentasi yang Wajib Di-update Tiap Sesi
@@ -154,7 +156,7 @@ Enum: `"liquid" | "investment"` (lihat `src/lib/constants.ts`; DB CHECK constrai
 
 ## Feature Pages (`src/app/(app)/`)
 
-`accounts` · `assets` (Net Worth) · `budgets` · `goals` · `settings` · `transactions` · `wishlist`. Semua ikut Page Pattern di atas.
+`accounts` · `assets` (Net Worth) + `assets/[group]` (detail sub-produk investasi) · `budgets` · `goals` · `settings` · `transactions` · `wishlist`. Semua ikut Page Pattern di atas.
 
 ### `/budgets/categories` — Manage Categories (bf-wrp)
 Full CRUD halaman kelola kategori. Entry point: link "Manage Categories" di `/budgets`.
@@ -171,10 +173,20 @@ Full CRUD halaman kelola kategori. Entry point: link "Manage Categories" di `/bu
 
 - **Dedup**: `naturalKey(date|type|account_id|to_account_id|category_id|amount.toFixed(2)|note)`. Load existing key dari DB (SERTAKAN soft-deleted — biar dup yang sengaja dihapus tak masuk lagi). JANGAN pakai hash berbasis `month` — dulu bug: transaksi carry-over antar tab (muncul di tab Jul & Aug) hash beda → dobel. (Fixed 2026-08-16.)
 - **`import_row_hash`** masih diisi (kolom ada) tapi TIDAK dipakai dedup lagi — natural-key yang otoritatif.
+- **Dest sub-produk**: note tanpa kurung tapi ada `":"` (Tipe C, mis. `"Emas : Antam 1g"`) → dest = akun sub-produk penuh, BUKAN akun agregat `Emas` (bf-z6w). Akun baru yang dibuat script otomatis dapat `investment_group` via `deriveInvestmentGroup`.
 - **Opening balance**: saldo awal (carry 2025) ditambal 1 transaksi `source_month='<year>-Opening'`, tanggal 1 Jan. Liquid: di-derive dari tab Summary (`Summary − mutasi`). **Aset non-liquid**: TIDAK ada di Summary → di-seed manual via SQL, hash `opening-<year>-nl-<slug>`. Task 5 delete opening **PRESERVE** `opening-<year>-nl-*` (jangan hapus seed manual aset).
 - **Gotcha saldo liquid "cocok" walau ada dobel**: opening liquid = `Summary − mutasi`, jadi mutasi kelebihan (dobel) diserap opening → saldo akhir tetap match. Dobel cuma kelihatan di aset non-liquid (tak ada opening penyerap). Cek dup dgn query GROUP BY natural fields HAVING COUNT>1, pisah lintas-month (pasti bug) vs same-month (bisa sah — kategori beda, mis. "Soto 2x" Dining vs Shodaqoh).
 - **Balance amount CHECK**: `amount >= 0`. Opening negatif → pakai `spending` (bukan earning amount negatif).
 
-## Investment: current_balance = modal, current_value = harga pasar (bf-z6w)
+## Investment: sub-produk + grouping (bf-z6w)
 
-`accounts.current_balance` = setoran/modal (dari transaksi). `accounts.current_value` + `last_valued_at` = harga pasar (BELUM dipakai, untuk bf-z6w tracker P&L). Net Worth saat ini pakai current_balance (agregat). Detail sub-produk (Emas Antam 1g, Saham PGAS dll) + P&L = bf-z6w. Lihat bd memory `bf-z6w-investment-detail`.
+**1 akun `accounts` = 1 sub-produk.** Tidak ada tabel holdings — reuse transaksi/RPC balance, opening-nl, `current_value`, `savings_goals.account_id`. Nama akun konvensi **`"<Grup> : <Produk>"`** (`Emas : Antam 1g`, `Saham : PGAS`, `RDPU : Trimegah Kas Syariah`, `BPJS : JHT`).
+
+`accounts.investment_group` (text nullable) = grup tampilan: `Reksadana | Emas | Saham | USD | Crypto | BPJS`. **Kolom eksplisit = sumber kebenaran**; nama akun cuma default saat kosong (`deriveInvestmentGroup` di `src/lib/investment.ts` — prefix sebelum `":"`, RD* → `Reksadana`). Akun investment tanpa grup (mis. Jago) → kartu sendiri di Net Worth, key = id akun.
+
+- `src/lib/investment.ts`: `deriveInvestmentGroup(name)` + `productLabel(name)` (`"Emas : Antam 1g"` → `"Antam 1g"`). Dipakai query layer, picker transaksi, halaman detail, migrate script.
+- `getAssets` return `investmentGroups: { key, label, total, items }[]` (key = `investment_group` ?? id akun) — agregasi sekali di query, dipakai `/assets` + `/assets/[group]`.
+- `/assets` = kartu per grup → tap → **`/assets/[group]`** (detail sub-produk). Detail page pakai `useAssets()` yang sama + filter client — tak ada query/action/hook baru.
+- Picker transaksi (`TransactionForm`, `FilterBar`): akun investment pakai `group: investment_group` (optgroup) + label dipendekkan `productLabel`. `MultiSelect` search mencocokkan label **dan** group.
+- `current_balance` = modal/setoran (dari transaksi). `current_value` + `last_valued_at` = harga pasar — **belum dipakai**, jatah bf-3ai (P&L = current_value − current_balance). Net Worth tetap modal-based (parity spreadsheet).
+- Split akun agregat (Emas 1 → 7, Saham 1 → 3, 2026-08-18): row agregat di-**rename** jadi sub terbesar (bukan dinonaktifkan → tak ada akun zombie), sisanya insert baru, opening `opening-2026-nl-<slug-sub>` per sub, opening agregat lama dihapus. Σ per grup tetap → Net Worth tak berubah.

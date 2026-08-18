@@ -36,6 +36,9 @@ export function AccountBottomSheet({
   const [assetCategory, setAssetCategory] = useState<"liquid" | "investment">(
     (account?.asset_category as "liquid" | "investment") ?? "liquid"
   );
+  const [investmentGroup, setInvestmentGroup] = useState(
+    account?.investment_group ?? ""
+  );
   const [includeInNetWorth, setIncludeInNetWorth] = useState(
     account?.include_in_net_worth ?? true
   );
@@ -98,6 +101,7 @@ export function AccountBottomSheet({
           account_type_id: accountTypeId,
           current_balance: parsedBalance,
           asset_category: assetCategory,
+          investment_group: assetCategory === "investment" ? investmentGroup.trim() || null : null,
           include_in_net_worth: includeInNetWorth,
           is_wallet: isWallet,
           is_liability: assetCategory === "liquid" ? isLiability : false,
@@ -113,6 +117,10 @@ export function AccountBottomSheet({
           current_balance: parsedBalance !== account!.current_balance ? parsedBalance : undefined,
           asset_category:
             assetCategory !== account!.asset_category ? assetCategory : undefined,
+          investment_group:
+            (investmentGroup.trim() || null) !== (account!.investment_group ?? null)
+              ? investmentGroup.trim() || null
+              : undefined,
           include_in_net_worth:
             includeInNetWorth !== account!.include_in_net_worth ? includeInNetWorth : undefined,
           is_wallet: isWallet !== account!.is_wallet ? isWallet : undefined,
@@ -224,6 +232,23 @@ export function AccountBottomSheet({
               ]}
             />
           </div>
+
+          {/* Investment group — kosong = otomatis dari prefix nama ("Emas : Antam 1g" → Emas) */}
+          {assetCategory === "investment" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Group (optional)
+              </label>
+              <input
+                type="text"
+                value={investmentGroup}
+                onChange={(e) => setInvestmentGroup(e.target.value)}
+                maxLength={40}
+                placeholder="e.g. Reksadana, Emas, Saham — auto from name if empty"
+                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          )}
 
           {/* Saldo */}
           <div>

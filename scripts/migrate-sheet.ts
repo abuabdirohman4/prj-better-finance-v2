@@ -20,6 +20,7 @@ import { writeFileSync } from "fs";
 import { and, eq, notLike } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, accountTypes, categories, savingsGoals, transactions } from "@/db/schema";
+import { deriveInvestmentGroup } from "@/lib/investment";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -199,7 +200,7 @@ function naturalKey(f: {
 //        "JAMSOSTEK (JHT 2%) (BPJS : JHT)" → dest="BPJS : JHT", goal="JAMSOSTEK (JHT 2%)"
 //   B: "Depan (X)"  kurung TANPA ":"  → dest=srcAccount (Jago), goal=X
 //        "Emergency Jago (Claude)" → dest=<src>, goal="Claude"
-//   C: "Emas : X"  tanpa kurung, ada ":"  → dest="Emas"
+//   C: "Emas : X"  tanpa kurung, ada ":"  → dest="Emas : X" (akun sub-produk, bf-z6w)
 //   D: plain (tanpa kurung, tanpa ":")  → dest=srcAccount, goal=note
 //        "Tabungan", "Domain", "Balancing" → dest=<src>, goal=note
 function parseInvestmentDest(
@@ -222,9 +223,9 @@ function parseInvestmentDest(
   }
 
   // No parens
-  if (/^emas\s*:/i.test(trimmed)) {
-    // Tipe C: "Emas : X" → akun "Emas"
-    return { account: "Emas", goal: null };
+  if (trimmed.includes(":")) {
+    // Tipe C: "Emas : Antam 1g" → akun sub-produk penuh (bf-z6w: 1 akun per sub-produk)
+    return { account: trimmed, goal: null };
   }
   // Tipe D: plain → akun = sumber, note = goal
   return { account: srcAccount, goal: trimmed || null };
@@ -478,6 +479,8 @@ async function main() {
           name,
           slug,
           asset_category,
+          investment_group:
+            asset_category === "investment" ? deriveInvestmentGroup(name) : null,
         })
         .onConflictDoNothing()
         .returning({ id: accounts.id, name: accounts.name });
