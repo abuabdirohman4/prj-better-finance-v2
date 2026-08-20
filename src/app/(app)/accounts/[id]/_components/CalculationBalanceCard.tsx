@@ -3,6 +3,7 @@
 import { formatCurrency, formatLastUpdated } from "@/lib/helper";
 import { isBankAccount } from "@/lib/accountVisuals";
 import type { AccountRow } from "@/db/queries/accounts";
+import { useTranslations } from "next-intl";
 
 interface Props {
   account: AccountRow;
@@ -23,6 +24,8 @@ function diffLabel(diff: number): string {
 }
 
 export function CalculationBalanceCard({ account, liveRealityCheck, hideBalances }: Props) {
+  const t = useTranslations("accounts");
+  const tc = useTranslations("common");
   const isBank = isBankAccount(account.account_type_slug);
 
   // Prefer live input, fallback to stored value
@@ -45,12 +48,12 @@ export function CalculationBalanceCard({ account, liveRealityCheck, hideBalances
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 overflow-hidden">
       {/* Header */}
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Calculation Balance</h2>
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">{t("calculationBalance")}</h2>
 
       <div className="space-y-3">
         {/* Current Balance row */}
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">Current Balance</span>
+          <span className="text-gray-500">{t("currentBalance")}</span>
           <span className="font-bold text-lg text-gray-900">
             {formatBal(account.current_balance)}
           </span>
@@ -58,7 +61,7 @@ export function CalculationBalanceCard({ account, liveRealityCheck, hideBalances
 
         {/* Reality Balance row */}
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">Reality Balance</span>
+          <span className="text-gray-500">{t("realityBalance")}</span>
           <span className="font-bold text-lg text-blue-600">
             {realityVal != null ? (
               hideBalances ? (
@@ -67,7 +70,7 @@ export function CalculationBalanceCard({ account, liveRealityCheck, hideBalances
                 formatBal(realityVal)
               )
             ) : (
-              <span className="italic text-gray-400 font-normal">Not yet recorded</span>
+              <span className="italic text-gray-400 font-normal">{tc("notRecorded")}</span>
             )}
           </span>
         </div>

@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createTransactionAction, updateTransactionAction, deleteTransactionAction } from "../actions";
 import { TransactionForm } from "./TransactionForm";
 import { transactionKeys, accountKeys, dashboardKeys, goalKeys } from "@/lib/query";
+import { useTranslations } from "next-intl";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { TransactionRow } from "@/db/queries/transactions";
 import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
@@ -29,6 +30,8 @@ export function TransactionBottomSheet({
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("transactions");
+  const tc = useTranslations("common");
   const queryClient = useQueryClient();
 
   const isEdit = Boolean(editTx);
@@ -102,7 +105,7 @@ export function TransactionBottomSheet({
         className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
         onClick={handleClose}
-        aria-label="Tutup"
+        aria-label={tc("close")}
       />
 
       {/* Sheet */}
@@ -122,7 +125,7 @@ export function TransactionBottomSheet({
                   onClick={handleDelete}
                   disabled={isDeleting || isPending}
                   className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors disabled:opacity-40"
-                  aria-label="Hapus transaksi"
+                  aria-label={t("deleteTransaction")}
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -130,7 +133,7 @@ export function TransactionBottomSheet({
               <button
                 onClick={handleClose}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                aria-label="Tutup"
+                aria-label={tc("close")}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -138,7 +141,7 @@ export function TransactionBottomSheet({
           </div>
 
           {isDeleting && (
-            <p className="text-sm text-red-600 mb-3">Menghapus transaksi…</p>
+            <p className="text-sm text-red-600 mb-3">{t("deleting")}</p>
           )}
 
           <TransactionForm

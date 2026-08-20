@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { SingleSelect } from "@/components/ui/MultiSelect";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 import type { WishlistRow } from "@/db/queries/wishlist";
 
 interface Props {
@@ -41,6 +42,8 @@ const STATUS_OPTIONS = [
 ];
 
 export function WishlistBottomSheet({ open, onClose, item, onSave, onDelete, isPending, error }: Props) {
+  const t = useTranslations("wishlist");
+  const tc = useTranslations("common");
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [priceRaw, setPriceRaw] = useState("");
@@ -135,7 +138,7 @@ export function WishlistBottomSheet({ open, onClose, item, onSave, onDelete, isP
         className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
         onClick={handleClose}
-        aria-label="Close"
+        aria-label={tc("close")}
       />
 
       {/* Sheet */}
@@ -155,7 +158,7 @@ export function WishlistBottomSheet({ open, onClose, item, onSave, onDelete, isP
                   onClick={handleDelete}
                   disabled={isPending}
                   className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors disabled:opacity-40"
-                  aria-label="Delete item"
+                  aria-label={t("deleteItem")}
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -163,7 +166,7 @@ export function WishlistBottomSheet({ open, onClose, item, onSave, onDelete, isP
               <button
                 onClick={handleClose}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                aria-label="Close"
+                aria-label={tc("close")}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -178,60 +181,60 @@ export function WishlistBottomSheet({ open, onClose, item, onSave, onDelete, isP
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Item Name"
+              label={t("itemName")}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. iPhone 16 Pro"
+              placeholder={t("itemNamePlaceholder")}
             />
 
             <Input
-              label="Estimated Price"
+              label={t("estimatedPrice")}
               value={priceDisplay}
               onChange={(e) => handlePriceChange(e.target.value)}
-              placeholder="Rp 0"
+              placeholder={tc("amountPlaceholder")}
               inputMode="numeric"
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t("priority")}</label>
               <SingleSelect
                 options={PRIORITY_OPTIONS}
                 value={priority}
                 onChange={setPriority}
-                placeholder="Select priority"
+                placeholder={t("selectPriority")}
                 direction="down"
               />
             </div>
 
             <Input
-              label="URL (Optional)"
+              label={t("urlLabel")}
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://tokopedia.link/..."
             />
 
             <Input
-              label="Target Date (Optional)"
+              label={t("targetDate")}
               type="date"
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
             />
 
             <Input
-              label="Notes (Optional)"
+              label={t("notesLabel")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Black, 256GB..."
+              placeholder={t("notesPlaceholder")}
             />
 
             {isEdit && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("status")}</label>
                 <SingleSelect
                   options={STATUS_OPTIONS}
                   value={status}
                   onChange={setStatus}
-                  placeholder="Select status"
+                  placeholder={t("selectStatus")}
                   direction="up"
                 />
               </div>

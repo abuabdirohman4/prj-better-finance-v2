@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { ServerActionResult } from "@/lib/errorUtils";
 import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 interface Props {
   open: boolean;
@@ -28,6 +29,7 @@ export function GroupRenameBottomSheet({
   onSuccess,
   renameMutation,
 }: Props) {
+  const t = useTranslations("categories");
   const [visible, setVisible] = useState(false);
   const [newName, setNewName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export function GroupRenameBottomSheet({
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900">Rename Group</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t("renameGroup")}</h2>
             <button
               type="button"
               onClick={handleClose}
@@ -124,7 +126,7 @@ export function GroupRenameBottomSheet({
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Type new group name"
+              placeholder={t("typeNewGroup")}
               disabled={renameMutation.isPending}
               required
             />

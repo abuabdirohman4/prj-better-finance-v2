@@ -13,6 +13,7 @@ import { formatCurrency, formatDate } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import type { TransactionFilters, TransactionRow } from "@/db/queries/transactions";
 import { Fab } from "@/components/layouts/Fab";
+import { useTranslations } from "next-intl";
 
 const MASK = "Rp •••";
 
@@ -44,6 +45,8 @@ export default function TransactionsPage() {
   const [selectedTx, setSelectedTx] = useState<TransactionRow | null>(null);
 
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
+  const t = useTranslations("transactions");
+  const tc = useTranslations("common");
 
   // Merge month+year range into filters; null month = all time
   const filters: TransactionFilters = {
@@ -83,12 +86,12 @@ export default function TransactionsPage() {
         </div>
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Kembali">
+            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label={tc("back")}>
               <ChevronLeft className="w-7 h-7 text-white" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white">Transactions</h1>
-              {/* <p className="text-blue-100 text-sm">Track your financial activities</p> */}
+              <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+              {/* <p className="text-blue-100 text-sm">{t("subtitle")}</p> */}
             </div>
           </div>
 
@@ -100,7 +103,7 @@ export default function TransactionsPage() {
                 onChange={(e) => setSelectedMonth(e.target.value ? Number(e.target.value) : null)}
                 className="appearance-none bg-white/20 text-white border border-white/30 rounded-xl px-3 py-2 pr-7 text-sm font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="" className="text-gray-900 bg-white">Semua</option>
+                <option value="" className="text-gray-900 bg-white">{tc("all")}</option>
                 {MONTHS.map((m, i) => (
                   <option key={i} value={i + 1} className="text-gray-900 bg-white">{m}</option>
                 ))}
@@ -127,7 +130,7 @@ export default function TransactionsPage() {
         {/* Net Balance card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-700">Net Balance</h2>
+            <h2 className="text-base font-semibold text-gray-700">{t("netBalance")}</h2>
             <div className="w-10 h-10 bg-linear-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center">
               <Calculator className="w-5 h-5 text-white" />
             </div>
@@ -144,7 +147,7 @@ export default function TransactionsPage() {
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                 <ArrowUp className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-800">Earning</span>
+              <span className="text-sm font-medium text-green-800">{t("earning")}</span>
             </div>
             <p className="text-xl font-bold text-green-900">
               {hideBalances ? MASK : formatCurrency(earning)}
@@ -155,7 +158,7 @@ export default function TransactionsPage() {
               <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
                 <ArrowDown className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-red-800">Spending</span>
+              <span className="text-sm font-medium text-red-800">{t("spending")}</span>
             </div>
             <p className="text-xl font-bold text-red-900">
               {hideBalances ? MASK : formatCurrency(spending)}
@@ -167,7 +170,7 @@ export default function TransactionsPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Header: "Transaction" + Show Filters toggle */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Transaction</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t("transaction")}</h2>
             <FilterBar
               accounts={accounts}
               categories={categories}
@@ -197,11 +200,11 @@ export default function TransactionsPage() {
             </div>
           ) : isError ? (
             <div className="p-6 text-center">
-              <p className="text-sm text-red-600">Gagal memuat transaksi.</p>
+              <p className="text-sm text-red-600">{t("loadFailed")}</p>
             </div>
           ) : sortedDates.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-gray-400 text-sm">Belum ada transaksi.</p>
+              <p className="text-gray-400 text-sm">{t("empty")}</p>
             </div>
           ) : (
             <div>
@@ -226,7 +229,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* FAB */}
-      <Fab onClick={openCreate} label="Tambah transaksi" />
+      <Fab onClick={openCreate} label={t("addTransaction")} />
 
       <TransactionBottomSheet
         open={sheetOpen}

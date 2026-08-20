@@ -1,6 +1,7 @@
 "use client";
 import { Wallet, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 import type { TransferBudgetRow } from "@/db/queries/budgets";
 
 interface Props {
@@ -12,12 +13,13 @@ interface Props {
 const MASK = "Rp •••";
 
 export function SavingBudgetSection({ items, hideBalances, onSetBudget }: Props) {
+  const t = useTranslations("budgets");
   if (items.length === 0) return null;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-bold text-gray-900 text-lg">Budget Transfers</h2>
+        <h2 className="font-bold text-gray-900 text-lg">{t("budgetTransfers")}</h2>
       </div>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 space-y-2">
         {items.map(item => {
@@ -46,7 +48,7 @@ export function SavingBudgetSection({ items, hideBalances, onSetBudget }: Props)
                 </div>
                 <div className="text-right">
                   {item.budgeted_amount === 0 ? (
-                    <span className="text-xs text-blue-500 font-medium">Set budget</span>
+                    <span className="text-xs text-blue-500 font-medium">{t("setBudget")}</span>
                   ) : (
                     <span className="font-bold text-sm text-gray-900 block">
                       {hideBalances ? MASK : formatCurrency(remaining > 0 ? remaining : 0)}

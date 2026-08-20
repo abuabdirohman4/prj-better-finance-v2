@@ -9,6 +9,7 @@ import {
 } from "../actions";
 import type { AccountRow } from "@/db/queries/accounts";
 import { SingleSelect } from "@/components/ui/MultiSelect";
+import { useTranslations } from "next-intl";
 
 interface AccountBottomSheetProps {
   mode: "create" | "edit";
@@ -25,6 +26,8 @@ export function AccountBottomSheet({
   onClose,
   onSuccess,
 }: AccountBottomSheetProps) {
+  const t = useTranslations("accounts");
+  const tc = useTranslations("common");
   // ── Form state ──────────────────────────────────────────────────────────────
   const [name, setName] = useState(account?.name ?? "");
   const [accountTypeId, setAccountTypeId] = useState(
@@ -93,7 +96,7 @@ export function AccountBottomSheet({
     startTransition(async () => {
       if (mode === "create") {
         if (!accountTypeId) {
-          setError("Pilih tipe akun terlebih dahulu.");
+          setError(t("selectTypeFirst"));
           return;
         }
         const res = await createAccountAction({
@@ -108,7 +111,7 @@ export function AccountBottomSheet({
           sort_order: parsedOrder ?? 999,
         });
         if (!res.success) {
-          setError(res.message ?? "Gagal menyimpan akun.");
+          setError(res.message ?? t("saveFailed"));
           return;
         }
       } else {
@@ -131,7 +134,7 @@ export function AccountBottomSheet({
               : undefined,
         });
         if (!res.success) {
-          setError(res.message ?? "Gagal mengupdate akun.");
+          setError(res.message ?? t("updateFailed"));
           return;
         }
       }
@@ -144,7 +147,7 @@ export function AccountBottomSheet({
     startDelete(async () => {
       const res = await deleteAccountAction(account!.id);
       if (!res.success) {
-        setError(res.message ?? "Gagal menghapus akun.");
+        setError(res.message ?? t("deleteFailed"));
         return;
       }
       onSuccess();
@@ -158,7 +161,7 @@ export function AccountBottomSheet({
         className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
         onClick={handleClose}
-        aria-label="Tutup"
+        aria-label={tc("close")}
       />
 
       {/* Sheet */}
@@ -174,7 +177,7 @@ export function AccountBottomSheet({
           <button
             onClick={handleClose}
             className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-            aria-label="Tutup"
+            aria-label={tc("close")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -193,7 +196,7 @@ export function AccountBottomSheet({
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={50}
-              placeholder="Contoh: BCA Tabungan"
+              placeholder={t("namePlaceholder")}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -209,7 +212,7 @@ export function AccountBottomSheet({
                 onChange={setAccountTypeId}
                 searchable={false}
                 options={accountTypes.map((t) => ({ value: t.id, label: t.name }))}
-                placeholder={accountTypes.length === 0 ? "Belum ada tipe akun" : "Pilih tipe akun"}
+                placeholder={accountTypes.length === 0 ? t("noTypes") : t("selectType")}
               />
             </div>
           )}
@@ -244,7 +247,7 @@ export function AccountBottomSheet({
                 value={investmentGroup}
                 onChange={(e) => setInvestmentGroup(e.target.value)}
                 maxLength={40}
-                placeholder="e.g. Reksadana, Emas, Saham — auto from name if empty"
+                placeholder={t("investmentGroupPlaceholder")}
                 className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -319,7 +322,7 @@ export function AccountBottomSheet({
               </button>
             ) : (
               <div className="flex items-center gap-3">
-                <p className="text-sm text-red-700 font-medium flex-1">Yakin hapus?</p>
+                <p className="text-sm text-red-700 font-medium flex-1">{tc("confirmDelete")}</p>
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="px-4 py-2 text-sm rounded-xl border border-gray-300 hover:bg-gray-50 transition-colors"

@@ -7,10 +7,12 @@ import { useWeeklyBudget } from "./_hooks/useWeeklyBudget";
 import { WeeklyBudgetCard } from "./_components/WeeklyBudgetCard";
 import { WeeklyOverallCard } from "./_components/WeeklyOverallCard";
 import { usePrivacyStore } from "@/stores/privacyStore";
+import { useTranslations } from "next-intl";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function WeeklyBudgetPage() {
+  const t = useTranslations("budgets");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -34,8 +36,8 @@ export default function WeeklyBudgetPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-1">
               <div>
-                <h1 className="text-2xl font-bold text-white leading-tight">Budgets</h1>
-                <p className="text-blue-100 text-sm">Track your spending limits</p>
+                <h1 className="text-2xl font-bold text-white leading-tight">{t("title")}</h1>
+                <p className="text-blue-100 text-sm">{t("subtitle")}</p>
               </div>
             </div>
             {/* Month + Year selectors */}
@@ -114,8 +116,8 @@ export default function WeeklyBudgetPage() {
 
         {!isLoading && weeklyData.length === 0 && (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-            <p className="text-gray-400 text-sm">No eating budgets for this month.</p>
-            <p className="text-gray-400 text-xs mt-1">Set a budget in the <Link href="/budgets" className="text-blue-500 underline">Budgets</Link> page first.</p>
+            <p className="text-gray-400 text-sm">{t("weeklyEmpty")}</p>
+            <p className="text-gray-400 text-xs mt-1">{t("weeklySetHint")} <Link href="/budgets" className="text-blue-500 underline">{t("title")}</Link> page first.</p>
           </div>
         )}
 

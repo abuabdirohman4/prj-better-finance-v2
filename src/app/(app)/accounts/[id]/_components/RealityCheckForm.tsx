@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 
 interface Props {
   accountName: string;
@@ -27,6 +28,7 @@ export function RealityCheckForm({
   successDiff,
   errorMessage,
 }: Props) {
+  const tc = useTranslations("common");
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     // Support format Indonesia: digit + opsional koma + max 2 desimal
     const input = e.target.value;
@@ -81,7 +83,7 @@ export function RealityCheckForm({
             inputMode="numeric"
             value={displayValue}
             onChange={handleChange}
-            placeholder="Rp 0"
+            placeholder={tc("amountPlaceholder")}
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300"
           />
         </div>

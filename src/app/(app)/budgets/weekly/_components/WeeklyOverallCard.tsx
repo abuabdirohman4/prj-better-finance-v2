@@ -1,6 +1,7 @@
 "use client";
 import { Calendar } from "lucide-react";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 import type { WeeklyCategoryData } from "../_utils/budgetCalculations";
 
 const MASK = "Rp •••";
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function WeeklyOverallCard({ weeklyData, hideBalances }: Props) {
+  const t = useTranslations("budgets");
   const totalBudget = weeklyData.reduce((s, d) => s + d.weeklyBudget, 0);
   const totalSpent = weeklyData.reduce((s, d) => s + d.weeklySpending, 0);
   const remaining = totalBudget - totalSpent;
@@ -19,7 +21,7 @@ export function WeeklyOverallCard({ weeklyData, hideBalances }: Props) {
   return (
     <div className="bg-white rounded-2xl p-4.5 shadow-sm border border-gray-100">
       <div className="flex justify-between items-start mb-4">
-        <h2 className="font-bold text-gray-900 text-lg">Overall Weekly Progress</h2>
+        <h2 className="font-bold text-gray-900 text-lg">{t("weeklyOverall")}</h2>
         <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0">
           <Calendar className="w-5 h-5" />
         </div>
@@ -27,13 +29,13 @@ export function WeeklyOverallCard({ weeklyData, hideBalances }: Props) {
 
       <div className="flex justify-between mb-4">
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Spending / Budget</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t("spendingOverBudget")}</p>
           <p className="font-bold text-gray-900">
             {hideBalances ? MASK : `${formatCurrency(totalSpent)} / ${formatCurrency(totalBudget)}`}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500 mb-0.5">Remaining</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t("remaining")}</p>
           <p className={`font-bold text-lg ${remaining < 0 ? "text-red-600" : "text-gray-900"}`}>
             {hideBalances ? MASK : formatCurrency(remaining)}
           </p>

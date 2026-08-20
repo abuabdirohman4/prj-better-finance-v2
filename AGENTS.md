@@ -6,13 +6,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Architecture Patterns
 
-## Language: English-first (UI wording)
+## i18n: next-intl (bf-bp5)
 
-**Semua wording di UI aplikasi WAJIB English** — label, button, placeholder, empty state, error message yang tampil ke user, tooltip. Multi-bahasa (termasuk Indonesian) menyusul lewat i18n; sampai itu ada, default English.
+**Semua string user-facing WAJIB lewat `t()`**, bukan literal di JSX. Locale: `en` (default) + `id`, katalog di `src/i18n/messages/<locale>.json`.
 
-- Berlaku: teks JSX, zod schema messages, thrown Error messages yang di-surface ke UI.
-- TIDAK berlaku: komentar kode, nama variabel (boleh apa adanya), doc internal (plan/prompt boleh Indonesian).
-- **Debt:** `ErrorContext` union di `src/lib/errorUtils.ts` + fallback `getErrorMessage` masih Indonesian (shared semua fitur). Translate saat i18n pass global, bukan per-fitur.
+- **Client component:** `const t = useTranslations("<namespace>")` dari `next-intl`.
+- **Server action / RSC:** `await getTranslations("<namespace>")` dari `next-intl/server`.
+- **TANPA i18n routing** — locale dari cookie `BF_LOCALE`, bukan URL segment. Jadi TIDAK ada `app/[locale]/`; route tetap flat. Ganti locale lewat `setLocale()` (`src/i18n/actions.ts`), UI-nya `LocaleSwitcher` di `/settings`.
+- **Key type-safe:** `src/global.d.ts` augment `AppConfig["Messages"]` dari `en.json` → typo di `t("...")` = build error. Tambah key ke `en.json` DULU sebelum dipakai.
+- **`en.json` dan `id.json` wajib punya key identik** — dijaga unit test `src/i18n/__tests__/messages.test.ts`. Tambah key di satu file saja = test merah.
+- **TETAP literal English (bukan `t()`):** zod schema messages (`src/lib/schemas/*`) + `ErrorContext` union & `getErrorMessage` fallback di `errorUtils.ts` — dipanggil di luar request context, jadi `getTranslations` tak bisa dipakai. `handleAuthError` sudah **async** + ter-translate (2 caller, keduanya server action).
+- TIDAK berlaku: komentar kode, nama variabel, doc internal (plan/prompt boleh Indonesian).
 
 
 > **Integrasi fitur (Goals/Assets/Transactions/Budgets):** READ `docs/architecture-integration.md` sebelum kerja di goals/assets/budget derivation — jelaskan model 1-source-of-truth (transaksi → semua view derived) + keputusan `goal_id` eksplisit.

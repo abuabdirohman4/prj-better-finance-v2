@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { productLabel } from "@/lib/investment";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { TransactionFilters } from "@/db/queries/transactions";
+import { useTranslations } from "next-intl";
 
 const TX_TYPE_OPTIONS = [
   { value: "spending", label: "Spending" },
@@ -53,6 +54,7 @@ export function FilterBar({ open, onToggle, accounts, categories, onFiltersChang
 
 /** Collapsible filter panel — rendered below the list header */
 export function FilterBarPanel({ accounts, categories, onFiltersChange }: FilterBarPanelProps) {
+  const t = useTranslations("transactions");
   const [types, setTypes] = useState<string[]>([]);
   const [accountIds, setAccountIds] = useState<string[]>([]);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
@@ -90,7 +92,7 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
             options={TX_TYPE_OPTIONS}
             value={types}
             onChange={setTypes}
-            placeholder="All Types"
+            placeholder={t("allTypes")}
             iconPrefix="💰"
             allOptionLabel="All Types"
           />
@@ -104,7 +106,7 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
             options={accountOptions}
             value={accountIds}
             onChange={setAccountIds}
-            placeholder="All Accounts"
+            placeholder={t("allAccounts")}
             iconPrefix="🏦"
             searchable
             allOptionLabel="Semua Akun"
@@ -119,7 +121,7 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
             options={categoryOptions}
             value={categoryIds}
             onChange={setCategoryIds}
-            placeholder="All Categories"
+            placeholder={t("allCategories")}
             iconPrefix="📂"
             searchable
             allOptionLabel="Semua Kategori"
@@ -134,7 +136,7 @@ export function FilterBarPanel({ accounts, categories, onFiltersChange }: Filter
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Search in notes..."
+            placeholder={t("searchNotes")}
           />
         </div>
     </div>

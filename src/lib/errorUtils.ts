@@ -1,13 +1,15 @@
+import { getTranslations } from "next-intl/server";
+
 export type ErrorContext =
-  | "menyimpan data"
-  | "memuat data"
-  | "menghapus data"
-  | "mengupdate data"
-  | "autentikasi"
-  | "validasi"
-  | "migrasi data"
-  | "kalkulasi budget"
-  | "kalkulasi goal";
+  | "saving data"
+  | "loading data"
+  | "deleting data"
+  | "updating data"
+  | "authentication"
+  | "validation"
+  | "data migration"
+  | "budget calculation"
+  | "goal calculation";
 
 export interface ErrorInfo {
   context: ErrorContext;
@@ -27,7 +29,7 @@ function getErrorMessage(error: unknown): string {
     return error.message;
   }
   if (typeof error === "string") return error;
-  return "Terjadi kesalahan yang tidak diketahui";
+  return "An unknown error occurred";
 }
 
 export function handleApiError(error: unknown, context: ErrorContext): ErrorInfo {
@@ -43,17 +45,14 @@ export function handleApiError(error: unknown, context: ErrorContext): ErrorInfo
   };
 }
 
-export function handleAuthError(error: unknown): string {
+// Async because it translates: only ever called from server actions.
+export async function handleAuthError(error: unknown): Promise<string> {
   const message = getErrorMessage(error);
-  if (message.toLowerCase().includes("invalid login credentials")) {
-    return "Email atau password salah";
-  }
-  if (message.toLowerCase().includes("email not confirmed")) {
-    return "Email belum diverifikasi. Cek inbox kamu";
-  }
-  if (message.toLowerCase().includes("too many requests")) {
-    return "Terlalu banyak percobaan login. Coba lagi nanti";
-  }
+  const lower = message.toLowerCase();
+  const t = await getTranslations("auth");
+  if (lower.includes("invalid login credentials")) return t("invalidCredentials");
+  if (lower.includes("email not confirmed")) return t("emailNotConfirmed");
+  if (lower.includes("too many requests")) return t("tooManyRequests");
   return message;
 }
 

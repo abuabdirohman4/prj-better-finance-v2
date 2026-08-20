@@ -13,6 +13,7 @@ import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { accountKeys, dashboardKeys } from "@/lib/query";
 import { Fab } from "@/components/layouts/Fab";
+import { useTranslations } from "next-intl";
 
 const MASK = "Rp •••.•••";
 
@@ -20,6 +21,8 @@ export default function AccountsPage() {
   const { data: accounts, isLoading, isError } = useAccounts();
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+  const t = useTranslations("accounts");
+  const tc = useTranslations("common");
 
   // ── Create sheet state (edit moved to [id]/page.tsx) ─────────────────────────
   const [createOpen, setCreateOpen] = useState(false);
@@ -69,13 +72,13 @@ export default function AccountsPage() {
             <Link
               href="/"
               className="p-2 rounded-full hover:bg-white/20 transition-colors"
-              aria-label="Kembali"
+              aria-label={tc("back")}
             >
               <ChevronLeft className="w-7 h-7 text-white" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">Accounts</h1>
-              <p className="text-blue-100 text-sm">Manage your financial accounts</p>
+              <h1 className="text-2xl font-bold text-white mb-1">{t("title")}</h1>
+              <p className="text-blue-100 text-sm">{t("subtitle")}</p>
             </div>
           </div>
         </div>
@@ -85,12 +88,12 @@ export default function AccountsPage() {
         {/* Total Balance card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-800">Total Balance</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{t("totalBalance")}</h2>
             <div className="flex items-center space-x-2">
               <button
                 onClick={toggle}
                 className="p-1 rounded-full hover:bg-gray-100 text-gray-400"
-                aria-label="Toggle saldo"
+                aria-label={tc("toggleBalance")}
               >
                 {hideBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -106,7 +109,7 @@ export default function AccountsPage() {
               <p className="text-3xl font-bold text-gray-900 mb-1">
                 {hideBalances ? MASK : formatCurrency(total)}
               </p>
-              <p className="text-sm text-gray-500">Across {count} accounts</p>
+              <p className="text-sm text-gray-500">{t("acrossCount", { count })}</p>
             </>
           )}
         </div>
@@ -120,7 +123,7 @@ export default function AccountsPage() {
           </div>
         ) : isError ? (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p className="text-sm text-red-600">⚠️ Gagal memuat akun.</p>
+            <p className="text-sm text-red-600">{t("loadFailed")}</p>
           </div>
         ) : count > 0 ? (
           <div className="grid grid-cols-3 gap-3">
@@ -132,13 +135,13 @@ export default function AccountsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p className="text-gray-400 text-sm">Belum ada akun.</p>
+            <p className="text-gray-400 text-sm">{t("empty")}</p>
           </div>
         )}
       </div>
 
       {/* FAB — tambah akun */}
-      <Fab onClick={() => setCreateOpen(true)} label="Tambah akun" />
+      <Fab onClick={() => setCreateOpen(true)} label={t("addAccount")} />
 
       {/* Create bottom sheet */}
       {createOpen && (

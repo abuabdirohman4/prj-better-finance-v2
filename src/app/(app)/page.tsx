@@ -7,6 +7,7 @@ import { useDashboard } from "./_hooks/useDashboard";
 import { formatCurrency, formatDate } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { Avatar } from "@/components/ui/Avatar";
+import { useTranslations } from "next-intl";
 import type { RecentTransactionRow } from "@/db/queries/accounts";
 
 const MASK = "Rp •••.•••";
@@ -16,6 +17,10 @@ export default function DashboardPage() {
   const { data, isLoading, isError } = useDashboard();
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+  const tc = useTranslations("common");
+  const td = useTranslations("dashboard");
+  const ta = useTranslations("accounts");
+  const tt = useTranslations("transactions");
 
   const displayName = data?.user.displayName ?? "";
   const topAccounts =
@@ -60,7 +65,7 @@ export default function DashboardPage() {
         {/* Net Worth card */}
         <Link href="/assets" className="block bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow group">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">Net Worth</h2>
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">{td("netWorth")}</h2>
             <div className="flex items-center space-x-2">
               <button
                 onClick={(e) => {
@@ -68,7 +73,7 @@ export default function DashboardPage() {
                   toggle();
                 }}
                 className="p-1 rounded-full hover:bg-gray-100 text-gray-400"
-                aria-label="Toggle saldo"
+                aria-label={tc("toggleBalance")}
               >
                 {hideBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -89,7 +94,7 @@ export default function DashboardPage() {
         {/* Top Used Accounts */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-800">Top Used Accounts</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{td("topAccounts")}</h2>
             <Link href="/accounts" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
               View All
             </Link>
@@ -109,14 +114,14 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <EmptyCard text="Belum ada akun." />
+            <EmptyCard text={ta("empty")} />
           )}
         </div>
 
         {/* Recent Transactions */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Recent Transactions</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{td("recentTransactions")}</h2>
             <Link
               href="/transactions"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -131,7 +136,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : isError ? (
-            <p className="text-sm text-red-600">⚠️ Gagal memuat transaksi.</p>
+            <p className="text-sm text-red-600">{tt("loadFailed")}</p>
           ) : (data?.recentTransactions.length ?? 0) > 0 ? (
             <div className="space-y-3">
               {data!.recentTransactions.slice(0, 3).map((t) => (
@@ -139,7 +144,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">Belum ada transaksi.</p>
+            <p className="text-gray-400 text-sm">{tt("empty")}</p>
           )}
         </div>
       </div>

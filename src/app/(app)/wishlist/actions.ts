@@ -23,7 +23,7 @@ export async function getWishlistAction(
     const data = await getWishlistItems(user.id, status);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -52,7 +52,7 @@ export async function getAffordabilityAction(): Promise<ServerActionResult<Affor
 
     return { success: true, data: { liquidBalance, allocated, freeCash } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -68,7 +68,7 @@ export async function createWishlistAction(
     const id = await createWishlistItem(user.id, { ...parsed.data, url: parsed.data.url || null });
     return { success: true, data: { id } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -88,7 +88,7 @@ export async function updateWishlistAction(
     await updateWishlistItem(user.id, itemId, { ...parsed.data, ...(parsed.data.url !== undefined ? { url: parsed.data.url || null } : {}) });
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }
 
@@ -102,7 +102,7 @@ export async function deleteWishlistAction(
     await deleteWishlistItem(user.id, itemId);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }
 
@@ -117,6 +117,6 @@ export async function promoteWishlistToGoalAction(
     const goalId = await promoteWishlistToGoal(user.id, wishlistId);
     return { success: true, data: { goalId } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }

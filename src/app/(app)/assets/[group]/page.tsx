@@ -9,6 +9,7 @@ import { usePrivacyStore } from "@/stores/privacyStore";
 import { productLabel } from "@/lib/investment";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 import type { AssetRow } from "@/db/queries/assets";
 
 const MASK = "Rp •••.•••";
@@ -24,6 +25,9 @@ export default function InvestmentGroupPage({
   const { data, isLoading, isError } = useAssets();
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+  const t = useTranslations("assets");
+  const tc = useTranslations("common");
+  const te = useTranslations("error");
 
   const group = data?.investmentGroups.find((g) => g.key === groupKey);
   const money = (n: number) => (hideBalances ? MASK : formatCurrency(n));
@@ -51,7 +55,7 @@ export default function InvestmentGroupPage({
           <button
             onClick={toggle}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
-            aria-label="Toggle balance visibility"
+            aria-label={tc("toggleBalance")}
           >
             {hideBalances ? (
               <EyeOff className="w-5 h-5 text-white" />
@@ -68,10 +72,10 @@ export default function InvestmentGroupPage({
             <div className="animate-pulse bg-gray-200 h-10 w-48 rounded mx-auto" />
           </div>
         ) : isError ? (
-          <p className="text-red-500 text-sm px-1">Failed to load data.</p>
+          <p className="text-red-500 text-sm px-1">{te("loadData")}</p>
         ) : !group ? (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center">
-            <p className="text-gray-500 text-sm">Group not found.</p>
+            <p className="text-gray-500 text-sm">{t("groupNotFound")}</p>
             <Link href="/assets" className="text-blue-600 text-sm font-semibold mt-2 inline-block">
               Back to Net Worth
             </Link>
@@ -153,6 +157,7 @@ function formatPnl(pnl: number, basis: number): string {
 
 function ProductRow({ item, hideBalances }: { item: AssetRow; hideBalances: boolean }) {
   const [editing, setEditing] = useState(false);
+  const t = useTranslations("assets");
   const label = productLabel(item.name);
   const initials = label.substring(0, 2).toUpperCase();
   const money = (n: number) => (hideBalances ? MASK : formatCurrency(n));
@@ -170,14 +175,14 @@ function ProductRow({ item, hideBalances }: { item: AssetRow; hideBalances: bool
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900 text-sm truncate">{label}</p>
           <p className="text-[11px] text-gray-400">
-            Invested {money(item.current_balance)}
-            {item.last_valued_at && ` · Updated ${formatDate(new Date(item.last_valued_at))}`}
+            {t("invested")} {money(item.current_balance)}
+            {item.last_valued_at && ` · ${t("updated")} ${formatDate(new Date(item.last_valued_at))}`}
           </p>
         </div>
         <div className="shrink-0 text-right">
           {item.current_value == null ? (
             <span className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600">
-              <Pencil className="w-3 h-3" /> Set value
+              <Pencil className="w-3 h-3" /> {t("setValue")}
             </span>
           ) : (
             <>
@@ -195,6 +200,8 @@ function ProductRow({ item, hideBalances }: { item: AssetRow; hideBalances: bool
 }
 
 function ValueEditor({ item, onDone }: { item: AssetRow; onDone: () => void }) {
+  const t = useTranslations("assets");
+  const tc = useTranslations("common");
   const [raw, setRaw] = useState(item.current_value == null ? "" : String(Math.round(item.current_value)));
   const [error, setError] = useState<string | null>(null);
   const mutation = useUpdateAccountValue();
@@ -218,24 +225,24 @@ function ValueEditor({ item, onDone }: { item: AssetRow; onDone: () => void }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!raw) return setError("Enter a market value, or use Clear to remove it.");
+        if (!raw) return setError(t("enterMarketValue"));
         save(parseInt(raw, 10));
       }}
       className="px-4 pb-4 pt-1 bg-gray-50/70 space-y-3"
     >
       <Input
-        label="Current market value"
+        label={t("marketValue")}
         inputMode="numeric"
         value={display}
         onChange={handleChange}
-        placeholder="Rp 0"
+        placeholder={tc("amountPlaceholder")}
         autoFocus
         error={error ?? undefined}
         className="font-semibold"
       />
       <div className="flex gap-2">
         <Button type="submit" size="sm" disabled={mutation.isPending} className="flex-1">
-          {mutation.isPending ? "Saving…" : "Save"}
+          {mutation.isPending ? tc("saving") : tc("save")}
         </Button>
         {item.current_value != null && (
           <Button
@@ -245,11 +252,11 @@ function ValueEditor({ item, onDone }: { item: AssetRow; onDone: () => void }) {
             disabled={mutation.isPending}
             onClick={() => save(null)}
           >
-            Clear
+            {tc("clear")}
           </Button>
         )}
         <Button type="button" size="sm" variant="ghost" onClick={onDone}>
-          Cancel
+          {tc("cancel")}
         </Button>
       </div>
     </form>

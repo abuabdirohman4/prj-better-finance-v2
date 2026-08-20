@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/helper";
 import { getGoalLedgerAction } from "../actions";
+import { useTranslations } from "next-intl";
 
 interface Props {
   goalId: string;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function GoalLedger({ goalId, hideBalances }: Props) {
+  const t = useTranslations("common");
   const { data = [], isLoading } = useQuery({
     queryKey: ["goal-ledger", goalId],
     queryFn: async () => {
@@ -21,7 +23,7 @@ export function GoalLedger({ goalId, hideBalances }: Props) {
 
   if (isLoading) return <div className="h-20 animate-pulse bg-gray-100 rounded-xl" />;
   if (data.length === 0) return (
-    <p className="text-xs text-gray-400 py-3 text-center">No history yet.</p>
+    <p className="text-xs text-gray-400 py-3 text-center">{t("noHistory")}</p>
   );
 
   return (

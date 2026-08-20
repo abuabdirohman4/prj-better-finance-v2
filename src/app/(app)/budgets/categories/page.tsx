@@ -8,9 +8,12 @@ import { CategoryBottomSheet } from "./_components/CategoryBottomSheet";
 import { GroupRenameBottomSheet } from "./_components/GroupRenameBottomSheet";
 import { Fab } from "@/components/layouts/Fab";
 import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 import type { ManageCategoryRow } from "@/db/queries/categories";
 
 export default function ManageCategoriesPage() {
+  const t = useTranslations("categories");
+  const tc = useTranslations("common");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [renameSheetOpen, setRenameSheetOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<ManageCategoryRow | null>(null);
@@ -41,12 +44,12 @@ export default function ManageCategoriesPage() {
           </svg>
         </div>
         <div className="relative z-10 flex items-center">
-          <Link href="/budgets" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Back">
+          <Link href="/budgets" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label={tc("back")}>
             <ChevronLeft className="w-7 h-7 text-white" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white leading-tight">Manage Categories</h1>
-            <p className="text-blue-100 text-sm">Add, edit, or remove categories</p>
+            <h1 className="text-2xl font-bold text-white leading-tight">{t("title")}</h1>
+            <p className="text-blue-100 text-sm">{t("subtitle")}</p>
           </div>
         </div>
       </div>
@@ -60,8 +63,8 @@ export default function ManageCategoriesPage() {
 
         {!query.isLoading && categories.length === 0 && (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-            <p className="text-gray-400 text-sm">No categories yet.</p>
-            <p className="text-gray-400 text-xs mt-1">Tap + to add one.</p>
+            <p className="text-gray-400 text-sm">{t("empty")}</p>
+            <p className="text-gray-400 text-xs mt-1">{t("emptyHint")}</p>
           </div>
         )}
 
@@ -74,7 +77,7 @@ export default function ManageCategoriesPage() {
               <button 
                 onClick={() => openRenameGroup(group)}
                 className="p-1.5 rounded-md hover:bg-gray-200/50 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Rename Group"
+                title={t("renameGroup")}
               >
                 <Pencil className="w-3.5 h-3.5" />
               </button>
@@ -92,7 +95,7 @@ export default function ManageCategoriesPage() {
         ))}
       </div>
 
-      <Fab onClick={openCreate} label="Add category" />
+      <Fab onClick={openCreate} label={t("addCategory")} />
 
       <CategoryBottomSheet
         open={sheetOpen}

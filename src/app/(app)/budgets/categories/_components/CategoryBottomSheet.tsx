@@ -6,6 +6,7 @@ import { SingleSelect } from "@/components/ui/MultiSelect";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 import type { ManageCategoryRow } from "@/db/queries/categories";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { UpsertCategoryInput } from "@/lib/schemas/category";
@@ -26,6 +27,8 @@ interface Props {
 export function CategoryBottomSheet({
   open, onClose, editCategory, existingGroups, onSuccess, upsertMutation, deleteMutation,
 }: Props) {
+  const t = useTranslations("categories");
+  const tc = useTranslations("common");
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [groupSel, setGroupSel] = useState("");
@@ -126,19 +129,19 @@ export function CategoryBottomSheet({
           {error && <p className="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Category Name" type="text" value={name}
-              onChange={(e) => setName(e.target.value)} placeholder="e.g. Coffee"
+            <Input label={t("nameLabel")} type="text" value={name}
+              onChange={(e) => setName(e.target.value)} placeholder={t("namePlaceholder")}
               disabled={upsertMutation.isPending} required />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{tc("group")}</label>
               <SingleSelect options={groupOptions} value={groupSel} onChange={setGroupSel}
-                placeholder="Select Group" searchable direction="up" disabled={upsertMutation.isPending} />
+                placeholder={t("selectGroup")} searchable direction="up" disabled={upsertMutation.isPending} />
             </div>
 
             {groupSel === NEW_GROUP && (
-              <Input label="New Group Name" type="text" value={newGroup}
-                onChange={(e) => setNewGroup(e.target.value)} placeholder="e.g. Travel"
+              <Input label={t("newGroupLabel")} type="text" value={newGroup}
+                onChange={(e) => setNewGroup(e.target.value)} placeholder={t("newGroupPlaceholder")}
                 disabled={upsertMutation.isPending} />
             )}
 

@@ -9,7 +9,7 @@ export function useDashboard() {
     queryKey: dashboardKeys.all,
     queryFn: async () => {
       const res = await getDashboard();
-      if (!res.success) throw new Error(res.message ?? "Gagal memuat dashboard");
+      if (!res.success) throw new Error(res.message ?? "Failed to load dashboard");
       return res.data!;
     },
   });

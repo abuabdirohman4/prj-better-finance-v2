@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 
 interface Props {
   open: boolean;
@@ -18,13 +19,14 @@ export function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Hapus",
-  cancelLabel = "Batal",
+  confirmLabel,
+  cancelLabel,
   danger = true,
   loading = false,
   onConfirm,
   onCancel,
 }: Props) {
+  const t = useTranslations("common");
   if (!open) return null;
 
   return (
@@ -35,7 +37,7 @@ export function ConfirmDialog({
         {message && <p className="mt-2 text-sm text-gray-500">{message}</p>}
         <div className="mt-6 flex gap-3">
           <Button type="button" variant="outline" onClick={onCancel} disabled={loading} className="flex-1 cursor-pointer">
-            {cancelLabel}
+            {cancelLabel ?? t("cancel")}
           </Button>
           <Button
             type="button"
@@ -45,7 +47,7 @@ export function ConfirmDialog({
               danger ? "flex-1 bg-red-600 hover:bg-red-700" : "flex-1"
             }`}
           >
-            {loading ? "Memproses..." : confirmLabel}
+            {loading ? t("processing") : (confirmLabel ?? t("delete"))}
           </Button>
         </div>
       </div>

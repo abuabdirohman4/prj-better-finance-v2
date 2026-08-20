@@ -55,7 +55,7 @@
 | # | Issue | Catatan |
 |---|---|---|
 | E1 | `bf-8ph` | onboarding + empty state user baru — **brainstorm scope**. Wajib sebelum landing |
-| E2 | `bf-bp5` | i18n pass (hardcode EN vs next-intl) |
+| E2 | ~~`bf-bp5`~~ | ✅ **DONE** — next-intl terpasang (no URL routing, cookie `BF_LOCALE`), en+id catalog, LocaleSwitcher di /settings |
 | E3 | `bf-lp4` | cursor-pointer polish |
 | E4 | `bf-qxb` | UI kit lengkap — **on-demand**, jangan sekaligus |
 | E5 | `bf-3mb` | landing — plan+prompt ✅. Depends 8ph. **Terakhir** |

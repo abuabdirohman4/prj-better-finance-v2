@@ -3,14 +3,14 @@ import { z } from "zod";
 export const transactionTypeSchema = z.enum(["spending", "earning", "transfer"]);
 
 export const createTransactionSchema = z.object({
-  account_id: z.string().uuid("ID akun tidak valid"),
-  to_account_id: z.string().uuid("ID akun tujuan tidak valid").optional().nullable(),
+  account_id: z.string().uuid("Invalid account ID"),
+  to_account_id: z.string().uuid("Invalid destination account ID").optional().nullable(),
   transaction_type: transactionTypeSchema,
-  amount: z.number().positive("Jumlah harus lebih dari 0"),
-  note: z.string().min(1, "Catatan wajib diisi"),
+  amount: z.number().positive("Amount must be greater than 0"),
+  note: z.string().min(1, "Note is required"),
   category_id: z.string().uuid().optional().nullable(),
   goal_id: z.string().uuid().optional().nullable(),
-  transaction_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid"),
+  transaction_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
 });
 
 export const updateTransactionSchema = createTransactionSchema.partial().extend({

@@ -4,17 +4,19 @@ import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "./actions";
 import GoogleButton from "../_components/GoogleButton";
+import { useTranslations } from "next-intl";
 
 function SignInForm() {
   const [state, action, pending] = useActionState(signIn, null);
   const message = useSearchParams().get("message");
+  const t = useTranslations("auth");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-600 to-indigo-700 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Better Finance</h1>
-          <p className="text-sm text-gray-500 mt-1">Kelola keuangan dengan lebih cerdas</p>
+          <p className="text-sm text-gray-500 mt-1">{t("tagline")}</p>
         </div>
 
         {(state?.error || message) && (
@@ -35,7 +37,7 @@ function SignInForm() {
               required
               autoComplete="email"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="kamu@email.com"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 

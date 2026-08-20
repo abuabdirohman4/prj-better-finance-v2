@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { productLabel } from "@/lib/investment";
 import { transactionKeys } from "@/lib/query";
+import { useTranslations } from "next-intl";
 import { getGoalsForTransferAction } from "../actions";
 import type { AccountRow, CategoryRow } from "@/db/queries/accounts";
 import type { CreateTransactionInput, UpdateTransactionInput } from "@/lib/schemas/transaction";
@@ -32,12 +33,6 @@ interface TransactionFormProps {
 }
 
 type TxType = "spending" | "earning" | "transfer";
-
-const TYPE_LABELS: Record<TxType, string> = {
-  spending: "Spending",
-  earning: "Earning",
-  transfer: "Transfer",
-};
 
 const TYPE_ACTIVE: Record<TxType, string> = {
   spending: "bg-red-500 text-white",
@@ -71,6 +66,14 @@ export function TransactionForm({
     initAmount ? formatCurrency(Number(initAmount)) : ""
   );
   const [note, setNote] = useState(init?.note ?? "");
+
+  const t = useTranslations("transactions");
+  const tc = useTranslations("common");
+  const TYPE_LABELS: Record<TxType, string> = {
+    spending: t("typeSpending"),
+    earning: t("typeEarning"),
+    transfer: t("typeTransfer"),
+  };
 
   const { data: goalsRes } = useQuery({
     queryKey: transactionKeys.goalsForTransfer(),
@@ -156,7 +159,7 @@ export function TransactionForm({
 
       <Input
         type="date"
-        label="Tanggal"
+        label={t("date")}
         value={date}
         onChange={(e) => setDate(e.target.value)}
         required
@@ -165,36 +168,36 @@ export function TransactionForm({
       {/* Row 1: Akun + Kategori (or Ke Akun for transfer) */}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Akun <span className="text-red-500">*</span></label>
+          <label className="text-sm font-medium text-gray-700">{t("account")} <span className="text-red-500">*</span></label>
           <SingleSelect
             options={accountOptions}
             value={accountId}
             onChange={setAccountId}
-            placeholder={accounts.length === 0 ? "Belum ada akun" : "Pilih akun"}
+            placeholder={accounts.length === 0 ? t("noAccounts") : t("selectAccount")}
             searchable
             direction="up"
           />
         </div>
         {txType === "transfer" ? (
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Ke Akun <span className="text-red-500">*</span></label>
+            <label className="text-sm font-medium text-gray-700">{t("toAccount")} <span className="text-red-500">*</span></label>
             <SingleSelect
               options={toAccountOptions}
               value={toAccountId}
               onChange={setToAccountId}
-              placeholder="Pilih tujuan"
+              placeholder={t("selectDestination")}
               searchable
               direction="up"
             />
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Kategori</label>
+            <label className="text-sm font-medium text-gray-700">{t("category")}</label>
             <SingleSelect
               options={categoryOptions}
               value={categoryId}
               onChange={setCategoryId}
-              placeholder="Tanpa kategori"
+              placeholder={t("noCategory")}
               searchable
               direction="up"
             />
@@ -206,13 +209,13 @@ export function TransactionForm({
       {(txType === "transfer" || txType === "spending") && (
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            {txType === "transfer" ? "Untuk Goal" : "From Goal"} <span className="text-gray-400 text-xs">(opsional)</span>
+            {txType === "transfer" ? t("forGoal") : t("fromGoal")} <span className="text-gray-400 text-xs">{t("optional")}</span>
           </label>
           <SingleSelect
             options={goalOptions}
             value={goalId}
             onChange={setGoalId}
-            placeholder="Tanpa goal"
+            placeholder={t("noGoal")}
             searchable
             direction="up"
           />
@@ -224,20 +227,20 @@ export function TransactionForm({
         {/* Jumlah — dual-state raw/display */}
         <Input
           type="text"
-          label="Catatan"
+          label={t("note")}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Makan siang"
+          placeholder={t("notePlaceholder")}
           maxLength={200}
           required
         />
         <Input
           type="tel"
           inputMode="numeric"
-          label="Jumlah"
+          label={t("amount")}
           value={displayAmount}
           onChange={handleAmountChange}
-          placeholder="Rp 0"
+          placeholder={tc("amountPlaceholder")}
           required
           className="font-semibold"
         />
@@ -250,7 +253,7 @@ export function TransactionForm({
         disabled={isPending || !rawAmount}
         className="w-full py-3 rounded-xl"
       >
-        {isPending ? "Menyimpan\u2026" : "Simpan"}
+        {isPending ? tc("saving") : tc("save")}
       </Button>
     </form>
   );

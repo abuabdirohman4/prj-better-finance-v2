@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { GoalRow } from "@/db/queries/goals";
 import type { CreateGoalInput } from "@/lib/schemas/goal";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 
 interface Props {
   open: boolean;
@@ -32,6 +33,8 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const t = useTranslations("goals");
+  const tc = useTranslations("common");
 
   useEffect(() => {
     if (open) {
@@ -63,8 +66,8 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
-    if (!name.trim()) return setErrorMsg("Nama goal harus diisi");
-    if (!targetAmountRaw) return setErrorMsg("Target amount harus diisi");
+    if (!name.trim()) return setErrorMsg(t("nameRequired"));
+    if (!targetAmountRaw) return setErrorMsg(t("targetRequired"));
 
     setIsSubmitting(true);
     try {
@@ -78,7 +81,7 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
       });
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || "Gagal menyimpan goal");
+      setErrorMsg(err.message || t("saveFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +95,7 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
       setConfirmOpen(false);
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || "Gagal menghapus");
+      setErrorMsg(err.message || t("deleteFailed"));
       setIsSubmitting(false);
     }
   };
@@ -118,7 +121,7 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
 
         <div className="px-6 pb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">
-            {goal ? "Edit Goal" : "New Goal"}
+            {goal ? t("editGoal") : t("newGoal")}
           </h2>
           <button onClick={onClose} className="p-2 bg-gray-100 rounded-full text-gray-500">
             <X className="w-5 h-5" />
@@ -134,14 +137,14 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Nama Goal"
+              label={t("name")}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Dana Darurat"
+              placeholder={t("namePlaceholder")}
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Goal</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t("type")}</label>
               <SingleSelect
                 options={[
                   { value: "Saving", label: "Saving" },
@@ -149,42 +152,42 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
                 ]}
                 value={goalType}
                 onChange={(val) => setGoalType(val as "Saving" | "Investment")}
-                placeholder="Pilih tipe"
+                placeholder={t("selectType")}
                 direction="down"
               />
             </div>
 
             <Input
-              label="Target Goal"
+              label={t("target")}
               value={targetAmountDisplay}
               onChange={(e) => handleAmountChange(e.target.value, setTargetAmountRaw, setTargetAmountDisplay)}
-              placeholder="Rp 0"
+              placeholder={tc("amountPlaceholder")}
               inputMode="numeric"
             />
 
             {goal && (
               <div className="space-y-1">
                 <Input
-                  label="Saldo Awal (opening)"
+                  label={t("openingBalance")}
                   value={collectedAmountDisplay}
                   onChange={(e) => handleAmountChange(e.target.value, setCollectedAmountRaw, setCollectedAmountDisplay)}
-                  placeholder="Rp 0"
+                  placeholder={tc("amountPlaceholder")}
                   inputMode="numeric"
                 />
-                <p className="text-xs text-gray-500">Uang yang sudah terkumpul sebelum pakai app. Kontribusi berikutnya otomatis dari transaksi transfer ke goal ini.</p>
+                <p className="text-xs text-gray-500">{t("openingBalanceHint")}</p>
               </div>
             )}
 
             <Input
-              label="Kontribusi Bulanan (Opsional)"
+              label={t("monthlyContribution")}
               value={monthlyContributionDisplay}
               onChange={(e) => handleAmountChange(e.target.value, setMonthlyContributionRaw, setMonthlyContributionDisplay)}
-              placeholder="Rp 0"
+              placeholder={tc("amountPlaceholder")}
               inputMode="numeric"
             />
 
             <Input
-              label="Tanggal Target / Deadline (Opsional)"
+              label={t("deadline")}
               type="date"
               value={deadlineDate}
               onChange={(e) => setDeadlineDate(e.target.value)}
@@ -203,7 +206,7 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
                 </Button>
               )}
               <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? "Menyimpan..." : "Simpan Goal"}
+                {isSubmitting ? tc("saving") : t("saveGoal")}
               </Button>
             </div>
           </form>
@@ -212,8 +215,8 @@ export function GoalBottomSheet({ open, onClose, goal, onSave, onDelete }: Props
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Hapus goal ini?"
-        message="Goal akan dihapus. Transaksi yang sudah ter-tag goal ini tetap ada, hanya kehilangan tautannya."
+        title={t("confirmDeleteTitle")}
+        message={t("confirmDeleteMessage")}
         loading={isSubmitting}
         onConfirm={confirmDelete}
         onCancel={() => setConfirmOpen(false)}

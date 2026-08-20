@@ -3,16 +3,18 @@
 import { useActionState } from "react";
 import { signUp } from "./actions";
 import GoogleButton from "../_components/GoogleButton";
+import { useTranslations } from "next-intl";
 
 export default function SignUpPage() {
   const [state, action, pending] = useActionState(signUp, null);
+  const t = useTranslations("auth");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-600 to-indigo-700 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Daftar Akun</h1>
-          <p className="text-sm text-gray-500 mt-1">Mulai kelola keuanganmu</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("signUpTitle")}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t("signUpSubtitle")}</p>
         </div>
 
         {state?.error && (
@@ -32,7 +34,7 @@ export default function SignUpPage() {
               type="text"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Nama kamu"
+              placeholder={t("namePlaceholder")}
             />
           </div>
 
@@ -47,7 +49,7 @@ export default function SignUpPage() {
               required
               autoComplete="email"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="kamu@email.com"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 
@@ -63,7 +65,7 @@ export default function SignUpPage() {
               minLength={8}
               autoComplete="new-password"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Min. 8 karakter"
+              placeholder={t("passwordPlaceholder")}
             />
           </div>
 

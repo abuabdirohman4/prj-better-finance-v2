@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { handleAuthError } from "@/lib/errorUtils";
+import { getTranslations } from "next-intl/server";
 
 export async function signUp(
   _prevState: { error?: string; success?: string } | null,
@@ -13,11 +14,11 @@ export async function signUp(
   const password = formData.get("password")?.toString();
 
   if (!email || !password || !name) {
-    return { error: "Semua field wajib diisi" };
+    return { error: (await getTranslations("auth"))("allFieldsRequired") };
   }
 
   if (password.length < 8) {
-    return { error: "Password minimal 8 karakter" };
+    return { error: (await getTranslations("auth"))("passwordMinLength") };
   }
 
   const supabase = await createClient();
@@ -31,7 +32,7 @@ export async function signUp(
   });
 
   if (error) {
-    return { error: handleAuthError(error) };
+    return { error: await handleAuthError(error) };
   }
 
   redirect("/");

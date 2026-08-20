@@ -13,6 +13,7 @@ import {
 } from "@/db/queries/goals";
 import { createGoalSchema, updateGoalSchema, type CreateGoalInput, type UpdateGoalInput } from "@/lib/schemas/goal";
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 
 export async function getGoalsAction(): Promise<ServerActionResult<GoalRow[]>> {
   try {
@@ -20,7 +21,7 @@ export async function getGoalsAction(): Promise<ServerActionResult<GoalRow[]>> {
     const data = await getGoals(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -37,7 +38,7 @@ export async function createGoalAction(
     const id = await createGoal(user.id, parsed.data);
     return { success: true, data: { id } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -49,7 +50,7 @@ export async function updateGoalAction(
     const user = await requireUser();
     
     const parsedId = z.string().uuid().safeParse(goalId);
-    if (!parsedId.success) return { success: false, message: "ID goal tidak valid." };
+    if (!parsedId.success) return { success: false, message: (await getTranslations("goals"))("invalidId") };
 
     const parsed = updateGoalSchema.safeParse(input);
     if (!parsed.success) {
@@ -59,7 +60,7 @@ export async function updateGoalAction(
     await updateGoal(user.id, goalId, parsed.data);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }
 
@@ -69,12 +70,12 @@ export async function deleteGoalAction(
   try {
     const user = await requireUser();
     const parsed = z.string().uuid().safeParse(goalId);
-    if (!parsed.success) return { success: false, message: "ID goal tidak valid." };
+    if (!parsed.success) return { success: false, message: (await getTranslations("goals"))("invalidId") };
     
     await softDeleteGoal(user.id, goalId);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }
 
@@ -84,10 +85,10 @@ export async function getGoalLedgerAction(
   try {
     const user = await requireUser();
     const parsed = z.string().uuid().safeParse(goalId);
-    if (!parsed.success) return { success: false, message: "ID goal tidak valid." };
+    if (!parsed.success) return { success: false, message: (await getTranslations("goals"))("invalidId") };
     const data = await getGoalLedger(user.id, goalId);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }

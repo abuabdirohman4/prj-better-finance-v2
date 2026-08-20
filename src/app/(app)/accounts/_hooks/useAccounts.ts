@@ -9,7 +9,7 @@ export function useAccounts() {
     queryKey: accountKeys.list(),
     queryFn: async () => {
       const res = await getAccounts();
-      if (!res.success) throw new Error(res.message ?? "Gagal memuat akun");
+      if (!res.success) throw new Error(res.message ?? "Failed to load accounts");
       return res.data!;
     },
   });

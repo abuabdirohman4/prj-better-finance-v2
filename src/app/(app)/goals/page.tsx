@@ -9,6 +9,7 @@ import { GoalBottomSheet } from "./_components/GoalBottomSheet";
 import { Fab } from "@/components/layouts/Fab";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 import type { GoalRow } from "@/db/queries/goals";
 import type { CreateGoalInput } from "@/lib/schemas/goal";
 
@@ -16,6 +17,8 @@ export default function GoalsPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editGoal, setEditGoal] = useState<GoalRow | null>(null);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
+  const t = useTranslations("goals");
+  const tc = useTranslations("common");
 
   const { query, createMutation, updateMutation, deleteMutation } = useGoals();
   const goals = query.data ?? [];
@@ -61,12 +64,12 @@ export default function GoalsPage() {
         </div>
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Back">
+            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label={tc("back")}>
               <ChevronLeft className="w-7 h-7 text-white" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white leading-tight">Goals</h1>
-              <p className="text-blue-100 text-sm">Track your savings and investments</p>
+              <h1 className="text-2xl font-bold text-white leading-tight">{t("title")}</h1>
+              <p className="text-blue-100 text-sm">{t("subtitle")}</p>
             </div>
           </div>
         </div>
@@ -75,7 +78,7 @@ export default function GoalsPage() {
       <div className="px-4 mt-4 pb-24 space-y-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-bold text-gray-900 text-lg">Overall Goals Progress</h2>
+            <h2 className="font-bold text-gray-900 text-lg">{t("overallProgress")}</h2>
             <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shadow-sm">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
                 <polyline points="20 6 9 17 4 12" />
@@ -85,11 +88,11 @@ export default function GoalsPage() {
           
           <div className="flex justify-between items-center mb-4">
             <div className="text-center flex-1">
-              <p className="text-sm text-gray-500 mb-1">Total Collected</p>
+              <p className="text-sm text-gray-500 mb-1">{t("totalCollected")}</p>
               <p className="font-bold text-green-600 text-lg">{hideBalances ? MASK : formatCurrency(totalCollected)}</p>
             </div>
             <div className="text-center flex-1">
-              <p className="text-sm text-gray-500 mb-1">Total Target</p>
+              <p className="text-sm text-gray-500 mb-1">{t("totalTarget")}</p>
               <p className="font-bold text-gray-900 text-lg">{hideBalances ? MASK : formatCurrency(totalTarget)}</p>
             </div>
           </div>
@@ -120,13 +123,13 @@ export default function GoalsPage() {
             <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">🎯</span>
             </div>
-            <h3 className="font-bold text-gray-900 mb-1">Belum Ada Goal</h3>
-            <p className="text-sm text-gray-500 mb-6">Mulai rencanakan masa depan finansial Anda.</p>
+            <h3 className="font-bold text-gray-900 mb-1">{t("empty")}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t("emptyHint")}</p>
             <button
               onClick={openCreate}
               className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
             >
-              Buat Goal Pertama
+              {t("createFirst")}
             </button>
           </div>
         )}
@@ -134,18 +137,18 @@ export default function GoalsPage() {
         {(!query.isLoading && (savingGoals.length > 0 || investingGoals.length > 0)) && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100">
-              <h2 className="font-bold text-gray-900 text-lg">Financial Goals</h2>
+              <h2 className="font-bold text-gray-900 text-lg">{t("financialGoals")}</h2>
             </div>
             <div className="p-4 bg-slate-50/50">
               <GoalCategoryCard
-                title="Saving"
+                title={t("saving")}
                 type="Saving"
                 goals={savingGoals}
                 onEdit={openEdit}
                 hideBalances={hideBalances}
               />
               <GoalCategoryCard
-                title="Investment"
+                title={t("investment")}
                 type="Investment"
                 goals={investingGoals}
                 onEdit={openEdit}

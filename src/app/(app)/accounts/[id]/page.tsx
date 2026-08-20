@@ -13,6 +13,7 @@ import { AccountBottomSheet } from "../_components/AccountBottomSheet";
 import { accountKeys, dashboardKeys } from "@/lib/query";
 import { getAccountVisual } from "@/lib/accountVisuals";
 import { usePrivacyStore } from "@/stores/privacyStore";
+import { useTranslations } from "next-intl";
 
 export default function AccountDetailPage({
   params,
@@ -20,6 +21,7 @@ export default function AccountDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params); // React 19: params is a Promise
+  const t = useTranslations("accounts");
 
   // ── Form state ──────────────────────────────────────────────────────────────
   const [rawValue, setRawValue] = useState("");
@@ -82,7 +84,7 @@ export default function AccountDetailPage({
   function handleSubmit() {
     if (!rawValue.trim()) {
       setLastResult("error");
-      setErrorMsg("Masukkan nominal saldo aktual.");
+      setErrorMsg(t("enterActualBalance"));
       return;
     }
     const num = parseFloat(rawValue);
@@ -145,7 +147,7 @@ export default function AccountDetailPage({
               <Link
                 href="/accounts"
                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                aria-label="Kembali ke daftar akun"
+                aria-label={t("backToList")}
               >
                 <ChevronLeft className="w-7 h-7 text-white" />
               </Link>
@@ -168,7 +170,7 @@ export default function AccountDetailPage({
               <button
                 onClick={() => setEditOpen(true)}
                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                aria-label="Edit akun"
+                aria-label={t("editAccount")}
               >
                 <Pencil className="w-5 h-5 text-white" />
               </button>
@@ -186,7 +188,7 @@ export default function AccountDetailPage({
           </>
         ) : isError || !account ? (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p className="text-sm text-red-600">⚠️ Gagal memuat akun.</p>
+            <p className="text-sm text-red-600">{t("loadFailed")}</p>
           </div>
         ) : (
           <>

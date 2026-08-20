@@ -17,6 +17,7 @@ import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
 import { createTransactionSchema, updateTransactionSchema } from "@/lib/schemas/transaction";
 import { calcUpdateDeltas } from "./_lib/balanceDelta";
+import { getTranslations } from "next-intl/server";
 
 export async function getTransactionsAction(
   filters: TransactionFilters = {}
@@ -26,7 +27,7 @@ export async function getTransactionsAction(
     const data = await getTransactions(user.id, filters);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -36,7 +37,7 @@ export async function getCategoriesAction(): Promise<ServerActionResult<Category
     const data = await getCategories(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -46,7 +47,7 @@ export async function getGoalsForTransferAction(): Promise<ServerActionResult<Go
     const all = await getGoalsForSelect(user.id);
     return { success: true, data: all };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -64,20 +65,20 @@ export async function createTransactionAction(
 
     // Validate account ownership before inserting
     const sourceAccount = await getAccountById(user.id, validInput.account_id);
-    if (!sourceAccount) return { success: false, message: "Akun tidak ditemukan." };
+    if (!sourceAccount) return { success: false, message: (await getTranslations("transactions"))("accountNotFound") };
 
     if (validInput.transaction_type === "transfer" && validInput.to_account_id) {
       if (validInput.account_id === validInput.to_account_id) {
-        return { success: false, message: "Akun sumber dan tujuan tidak boleh sama." };
+        return { success: false, message: (await getTranslations("transactions"))("sameAccount") };
       }
       const destAccount = await getAccountById(user.id, validInput.to_account_id);
-      if (!destAccount) return { success: false, message: "Akun tujuan tidak ditemukan." };
+      if (!destAccount) return { success: false, message: (await getTranslations("transactions"))("destinationNotFound") };
     }
 
     if (validInput.goal_id) {
       const goals = await getGoalsForSelect(user.id);
       if (!goals.find((g) => g.id === validInput.goal_id)) {
-        return { success: false, message: "Goal tidak ditemukan atau bukan milik Anda." };
+        return { success: false, message: (await getTranslations("transactions"))("goalNotFound") };
       }
     }
 
@@ -94,7 +95,7 @@ export async function createTransactionAction(
 
     return { success: true, data: { id } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -108,7 +109,7 @@ export async function updateTransactionAction(
 
     // Fetch old transaction to reverse its balance effect
     const old = await getTransactionById(user.id, txId);
-    if (!old) return { success: false, message: "Transaksi tidak ditemukan." };
+    if (!old) return { success: false, message: (await getTranslations("transactions"))("notFound") };
 
     const parsed = updateTransactionSchema.safeParse(input);
     if (!parsed.success) {
@@ -124,21 +125,21 @@ export async function updateTransactionAction(
     // Ownership guard: akun baru (jika diganti) harus milik user
     if (newAccountId !== old.account_id) {
       const acc = await getAccountById(user.id, newAccountId);
-      if (!acc) return { success: false, message: "Akun tidak ditemukan." };
+      if (!acc) return { success: false, message: (await getTranslations("transactions"))("accountNotFound") };
     }
     if (newType === "transfer" && newToAccountId && newToAccountId !== old.to_account_id) {
       const destAcc = await getAccountById(user.id, newToAccountId);
-      if (!destAcc) return { success: false, message: "Akun tujuan tidak ditemukan." };
+      if (!destAcc) return { success: false, message: (await getTranslations("transactions"))("destinationNotFound") };
     }
     if (newType === "transfer" && newAccountId === newToAccountId) {
-      return { success: false, message: "Akun sumber dan tujuan tidak boleh sama." };
+      return { success: false, message: (await getTranslations("transactions"))("sameAccount") };
     }
 
     const newGoalId = "goal_id" in validInput ? validInput.goal_id : old.goal_id;
     if (newGoalId && newGoalId !== old.goal_id) {
       const goals = await getGoalsForSelect(user.id);
       if (!goals.find((g) => g.id === newGoalId)) {
-        return { success: false, message: "Goal tidak ditemukan atau bukan milik Anda." };
+        return { success: false, message: (await getTranslations("transactions"))("goalNotFound") };
       }
     }
 
@@ -162,7 +163,7 @@ export async function updateTransactionAction(
     await updateTransaction(user.id, txId, validInput);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }
 
@@ -172,9 +173,9 @@ export async function deleteTransactionAction(
   try {
     const user = await requireUser();
     const txIdParsed = z.string().uuid().safeParse(txId);
-    if (!txIdParsed.success) return { success: false, message: "ID transaksi tidak valid." };
+    if (!txIdParsed.success) return { success: false, message: (await getTranslations("transactions"))("invalidId") };
     const tx = await getTransactionById(user.id, txId);
-    if (!tx) return { success: false, message: "Transaksi tidak ditemukan." };
+    if (!tx) return { success: false, message: (await getTranslations("transactions"))("notFound") };
 
     const reverseDelta = tx.transaction_type === "earning" ? -tx.amount : tx.amount;
     const adjustments: { account_id: string; delta: number }[] = [
@@ -188,6 +189,6 @@ export async function deleteTransactionAction(
     await softDeleteTransaction(user.id, txId);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }

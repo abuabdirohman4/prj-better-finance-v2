@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const createAccountSchema = z.object({
-  name: z.string().min(1, "Nama akun wajib diisi").max(50),
-  account_type_id: z.string().uuid("Tipe akun tidak valid"),
+  name: z.string().min(1, "Account name is required").max(50),
+  account_type_id: z.string().uuid("Invalid account type"),
   current_balance: z.number(),
   asset_category: z.enum(["liquid", "investment"]).default("liquid"),
   investment_group: z.string().trim().max(40).nullable().optional(),

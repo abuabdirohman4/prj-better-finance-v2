@@ -10,7 +10,7 @@ export function useTransactions(filters: TransactionFilters = {}) {
     queryKey: transactionKeys.list(filters),
     queryFn: async () => {
       const res = await getTransactionsAction(filters);
-      if (!res.success) throw new Error(res.message ?? "Gagal memuat transaksi");
+      if (!res.success) throw new Error(res.message ?? "Failed to load transactions");
       return res.data!;
     },
   });

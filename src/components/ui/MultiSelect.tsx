@@ -11,6 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { ChevronDown, Check, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export interface MultiSelectOption {
   value: string;
@@ -59,8 +60,8 @@ export function MultiSelect({
   options,
   value,
   onChange,
-  placeholder = "All",
-  searchPlaceholder = "Search...",
+  placeholder: placeholderProp,
+  searchPlaceholder: searchPlaceholderProp,
   searchable = false,
   iconPrefix,
   allOptionLabel,
@@ -68,6 +69,9 @@ export function MultiSelect({
   className,
   disabled = false,
 }: MultiSelectProps) {
+  const tc = useTranslations("common");
+  const placeholder = placeholderProp ?? tc("all");
+  const searchPlaceholder = searchPlaceholderProp ?? tc("search");
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -325,7 +329,7 @@ export function MultiSelect({
               onMouseDown={(e) => { e.stopPropagation(); }}
               onClick={clearAll}
               className="rounded p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label="Clear"
+              aria-label={tc("clear")}
             >
               <X className="w-3.5 h-3.5" />
             </span>

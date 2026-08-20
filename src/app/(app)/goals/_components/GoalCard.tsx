@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/helper";
 import type { GoalRow } from "@/db/queries/goals";
 import { useState } from "react";
 import { GoalLedger } from "./GoalLedger";
+import { useTranslations, useLocale } from "next-intl";
 
 function getGoalColors(percent: number) {
   if (percent >= 100) return { bar: "bg-green-500", badge: "bg-green-100 text-green-700", iconBg: "bg-green-100 text-green-600" };
@@ -20,6 +21,8 @@ interface Props {
 }
 
 export function GoalCard({ goal, onEdit, hideBalances }: Props) {
+  const t = useTranslations("goals");
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
   const colors = getGoalColors(goal.percent);
   const MASK = "Rp •••";
@@ -47,13 +50,13 @@ export function GoalCard({ goal, onEdit, hideBalances }: Props) {
 
       <div className="flex justify-between items-end mb-2 mt-4">
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Terkumpul</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t("collected")}</p>
           <p className="font-bold text-gray-900">
             {hideBalances ? MASK : formatCurrency(goal.collected_amount)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500 mb-0.5">Target</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t("targetShort")}</p>
           <p className="font-bold text-gray-900">
             {hideBalances ? MASK : formatCurrency(goal.target_amount)}
           </p>
@@ -70,7 +73,7 @@ export function GoalCard({ goal, onEdit, hideBalances }: Props) {
       {goal.deadline_date && (
         <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1 mb-2">
           <CalendarIcon className="w-3.5 h-3.5" />
-          <span>Deadline: {new Date(goal.deadline_date).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span>{t("deadline_prefix")}: {new Date(goal.deadline_date).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
         </div>
       )}
 

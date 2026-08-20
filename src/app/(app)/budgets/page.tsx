@@ -12,11 +12,14 @@ import { BudgetDrillSheet } from "./_components/BudgetDrillSheet";
 import { Fab } from "@/components/layouts/Fab";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { formatCurrency } from "@/lib/helper";
+import { useTranslations } from "next-intl";
 import type { BudgetWithSpending, TransferBudgetRow } from "@/db/queries/budgets";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function BudgetsPage() {
+  const t = useTranslations("budgets");
+  const tc = useTranslations("common");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -80,12 +83,12 @@ export default function BudgetsPage() {
         </div>
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Back">
+            <Link href="/" className="p-2 rounded-full hover:bg-white/20 transition-colors" aria-label={tc("back")}>
               <ChevronLeft className="w-7 h-7 text-white" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white leading-tight">Budgets</h1>
-              <p className="text-blue-100 text-sm">Track your spending limits</p>
+              <h1 className="text-2xl font-bold text-white leading-tight">{t("title")}</h1>
+              <p className="text-blue-100 text-sm">{t("subtitle")}</p>
             </div>
           </div>
 
@@ -132,7 +135,7 @@ export default function BudgetsPage() {
         {/* Overall Progress Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="font-semibold text-gray-800">Overall Budgets Progress</h2>
+            <h2 className="font-semibold text-gray-800">{t("overallProgress")}</h2>
             <Link 
               href="/budgets/categories"
               className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
@@ -144,15 +147,15 @@ export default function BudgetsPage() {
 
           <div className="flex justify-between mb-4">
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Budget</p>
+              <p className="text-xs text-gray-500 mb-0.5">{t("budget")}</p>
               <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(totalBudgeted, "short")}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Spending</p>
+              <p className="text-xs text-gray-500 mb-0.5">{t("spending")}</p>
               <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(totalSpent, "short")}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Remaining</p>
+              <p className="text-xs text-gray-500 mb-0.5">{t("remaining")}</p>
               <p className="font-semibold text-gray-900">{hideBalances ? MASK : formatCurrency(overallRemaining, "short")}</p>
             </div>
           </div>
@@ -180,8 +183,8 @@ export default function BudgetsPage() {
         {/* Empty state */}
         {!query.isLoading && budgets.length === 0 && (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-            <p className="text-gray-400 text-sm">No budgets for this month.</p>
-            <p className="text-gray-400 text-xs mt-1">Tap + to add category budgets.</p>
+            <p className="text-gray-400 text-sm">{t("empty")}</p>
+            <p className="text-gray-400 text-xs mt-1">{t("emptyHint")}</p>
           </div>
         )}
 
@@ -189,7 +192,7 @@ export default function BudgetsPage() {
         {!query.isLoading && incomeBudgets.length > 0 && (
           <div className="space-y-4 mb-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900 text-lg">Budget Earning</h2>
+              <h2 className="font-bold text-gray-900 text-lg">{t("budgetEarning")}</h2>
             </div>
             <BudgetGroup group="earning" items={incomeBudgets} hideBalances={hideBalances} onTap={openDrill} />
           </div>
@@ -199,7 +202,7 @@ export default function BudgetsPage() {
         {/* Budget Spending Title */}
         {!query.isLoading && (
           <div className="flex items-center justify-between">
-            <h2 className="font-bold text-gray-900 text-lg">Budget Spending</h2>
+            <h2 className="font-bold text-gray-900 text-lg">{t("budgetSpending")}</h2>
           </div>
         )}
 
@@ -211,7 +214,7 @@ export default function BudgetsPage() {
 
       </div>
 
-      <Fab onClick={openCreate} label="Add budget" />
+      <Fab onClick={openCreate} label={t("addBudget")} />
 
       <BudgetBottomSheet
         open={sheetOpen}

@@ -36,7 +36,7 @@ export async function getBudgetsAction(
     const data = await getBudgetsWithSpending(user.id, year, month);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -49,7 +49,7 @@ export async function getIncomeBudgetsAction(
     const data = await getBudgetsWithSpending(user.id, year, month, "earning");
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -62,7 +62,7 @@ export async function getTransferBudgetsAction(
     const data = await getTransferBudgets(user.id, year, month);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -72,7 +72,7 @@ export async function getCategoriesForBudgetAction(): Promise<ServerActionResult
     const data = await getCategories(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -93,7 +93,7 @@ export async function upsertBudgetAction(
     const id = await upsertBudget(user.id, parsed.data);
     return { success: true, data: { id } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -107,7 +107,7 @@ export async function deleteBudgetAction(
     await deleteBudget(user.id, budgetId);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }
 
@@ -130,7 +130,7 @@ export async function getBudgetTransactionsAction(
     const data = await getTransactionsForBudget(user.id, categoryId, year, month, type);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -150,7 +150,7 @@ export async function getWeeklySpendingAction(
     const data = await getTransactionsForWeeklyBudget(user.id, year, month);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -162,7 +162,7 @@ export async function getManageCategoriesAction(): Promise<ServerActionResult<Ma
     const data = await getManageCategories(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -183,7 +183,7 @@ export async function upsertCategoryAction(
     const created = await createCategory(user.id, { name, group_name });
     return { success: true, data: created };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -193,7 +193,7 @@ export async function deleteCategoryAction(id: string): Promise<ServerActionResu
     await softDeleteCategory(user.id, id);
     return { success: true, data: undefined };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }
 
@@ -213,6 +213,6 @@ export async function renameCategoryGroupAction(
     await renameCategoryGroup(user.id, oldName, newName);
     return { success: true, data: undefined };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }

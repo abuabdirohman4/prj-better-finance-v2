@@ -6,6 +6,7 @@ import { useAssets } from "./_hooks/useAssets";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
 import { getAccountVisual } from "@/lib/accountVisuals";
+import { useTranslations } from "next-intl";
 import type { AssetRow, InvestmentGroupRow } from "@/db/queries/assets";
 
 const MASK = "Rp •••.•••";
@@ -14,6 +15,9 @@ export default function AssetsPage() {
   const { data, isLoading, isError } = useAssets();
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+  const t = useTranslations("assets");
+  const tc = useTranslations("common");
+  const te = useTranslations("error");
 
   const { liabilities = [], investmentGroups = [], totalLiquid = 0, totalNonLiquid = 0, totalLiabilities = 0, netWorth = 0 } = data ?? {};
   
@@ -36,12 +40,12 @@ export default function AssetsPage() {
             <Link href="/" className="text-white hover:bg-white/20 p-1.5 rounded-full transition-colors">
               <ChevronLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-xl font-bold text-white">Net Worth</h1>
+            <h1 className="text-xl font-bold text-white">{t("title")}</h1>
           </div>
           <button
             onClick={toggle}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
-            aria-label="Toggle balance visibility"
+            aria-label={tc("toggleBalance")}
           >
             {hideBalances ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
           </button>
@@ -51,7 +55,7 @@ export default function AssetsPage() {
       <div className="px-4 pb-8 mt-6 space-y-6">
         {/* Total Assets card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center justify-center text-center">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Net Worth</p>
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">{t("totalNetWorth")}</p>
           {isLoading ? (
             <div className="animate-pulse bg-gray-200 h-10 w-48 rounded" />
           ) : (
@@ -87,7 +91,7 @@ export default function AssetsPage() {
         {isLoading ? (
           <div className="grid grid-cols-3 gap-3"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
         ) : isError ? (
-          <p className="text-red-500 text-sm px-1">Failed to load data.</p>
+          <p className="text-red-500 text-sm px-1">{te("loadData")}</p>
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-3 gap-3">
@@ -97,7 +101,7 @@ export default function AssetsPage() {
                   <div className="mb-1.5 w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
                     <Wallet className="w-5 h-5" strokeWidth={1.8} />
                   </div>
-                  <h3 className="font-bold text-gray-900 text-xs text-center group-hover:text-blue-600 transition-colors">Accounts</h3>
+                  <h3 className="font-bold text-gray-900 text-xs text-center group-hover:text-blue-600 transition-colors">{t("accounts")}</h3>
                 </div>
                 <div className="text-center py-1.5 px-1 mt-auto bg-blue-100/50 text-blue-600">
                   <p className="font-bold text-[9px] truncate">
@@ -115,7 +119,7 @@ export default function AssetsPage() {
             {/* Liabilities section — hanya tampil jika ada */}
             {(liabilities?.length ?? 0) > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 mb-2">Liabilities</h3>
+                <h3 className="text-sm font-semibold text-gray-500 mb-2">{t("liabilities")}</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {liabilities.map((a) => (
                     <LiabilityCard key={a.id} asset={a} hideBalances={hideBalances} />

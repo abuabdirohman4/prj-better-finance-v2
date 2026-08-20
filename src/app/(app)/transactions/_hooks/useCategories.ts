@@ -9,7 +9,7 @@ export function useCategories() {
     queryKey: categoryKeys.list(),
     queryFn: async () => {
       const res = await getCategoriesAction();
-      if (!res.success) throw new Error(res.message ?? "Gagal memuat kategori");
+      if (!res.success) throw new Error(res.message ?? "Failed to load categories");
       return res.data!;
     },
   });

@@ -10,7 +10,7 @@ export async function getAssetsAction(): Promise<ServerActionResult<AssetsSummar
     const data = await getAssets(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -33,6 +33,6 @@ export async function updateAccountValueAction(
     await updateAccountValue(user.id, accountId, value);
     return { success: true, data: undefined };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }

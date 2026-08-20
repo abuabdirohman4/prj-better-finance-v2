@@ -12,6 +12,7 @@ import {
 } from "@/db/queries/accounts";
 import type { CreateAccountInput, UpdateAccountInput } from "@/lib/schemas/account";
 import { requireUser } from "@/lib/accessControlServer";
+import { getTranslations } from "next-intl/server";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
 import { createAccountSchema, updateAccountSchema } from "@/lib/schemas/account";
 
@@ -21,7 +22,7 @@ export async function getAccounts(): Promise<ServerActionResult<AccountRow[]>> {
     const data = await getAccountsWithType(user.id);
     return { success: true, data };
   } catch (error) {
-    const info = handleApiError(error, "memuat data");
+    const info = handleApiError(error, "loading data");
     return { success: false, message: info.message };
   }
 }
@@ -34,7 +35,7 @@ export async function getAccountTypesAction(): Promise<
     const data = await getAccountTypes(user.id);
     return { success: true, data };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -52,7 +53,7 @@ export async function createAccountAction(
     const id = await createAccount(user.id, parsed.data);
     return { success: true, data: { id } };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menyimpan data").message };
+    return { success: false, message: handleApiError(error, "saving data").message };
   }
 }
 
@@ -71,7 +72,7 @@ export async function updateAccountAction(
     await updateAccount(user.id, accountId, parsed.data);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }
 
@@ -83,7 +84,7 @@ export async function deleteAccountAction(
     await deactivateAccount(user.id, accountId);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "menghapus data").message };
+    return { success: false, message: handleApiError(error, "deleting data").message };
   }
 }
 
@@ -93,10 +94,10 @@ export async function getAccountAction(
   try {
     const user = await requireUser();
     const account = await getAccountById(user.id, accountId);
-    if (!account) return { success: false, message: "Akun tidak ditemukan." };
+    if (!account) return { success: false, message: (await getTranslations("transactions"))("accountNotFound") };
     return { success: true, data: account };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "memuat data").message };
+    return { success: false, message: handleApiError(error, "loading data").message };
   }
 }
 
@@ -109,6 +110,6 @@ export async function updateRealityCheckAction(
     await updateRealityCheck(user.id, accountId, realityBalance);
     return { success: true };
   } catch (error) {
-    return { success: false, message: handleApiError(error, "mengupdate data").message };
+    return { success: false, message: handleApiError(error, "updating data").message };
   }
 }

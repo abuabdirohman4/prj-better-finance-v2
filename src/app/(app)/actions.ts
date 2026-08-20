@@ -36,7 +36,7 @@ export async function getDashboard(): Promise<ServerActionResult<DashboardPayloa
       },
     };
   } catch (error) {
-    const info = handleApiError(error, "memuat data");
+    const info = handleApiError(error, "loading data");
     return { success: false, message: info.message };
   }
 }

@@ -12,6 +12,7 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import type { UpsertBudgetInput } from "@/lib/schemas/budget";
 import type { ServerActionResult } from "@/lib/errorUtils";
 import { CATEGORY_GROUP_LABELS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 interface Props {
   open: boolean;
@@ -42,6 +43,7 @@ export function BudgetBottomSheet({
   const [displayAmount, setDisplayAmount] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("budgets");
 
   const isEdit = Boolean(editBudget);
 
@@ -113,7 +115,7 @@ export function BudgetBottomSheet({
       {
         onSuccess: (res) => {
           if (!res.success) {
-            setError(res.message ?? "Terjadi kesalahan.");
+            setError(res.message ?? t("genericError"));
             return;
           }
           onSuccess();
@@ -129,7 +131,7 @@ export function BudgetBottomSheet({
     deleteMutation.mutate(editBudget.id, {
       onSuccess: (res) => {
         if (!res.success) {
-          setError(res.message ?? "Terjadi kesalahan.");
+          setError(res.message ?? t("genericError"));
           return;
         }
         onSuccess();
@@ -200,7 +202,7 @@ export function BudgetBottomSheet({
                 options={categoryOptions}
                 value={categoryId}
                 onChange={setCategoryId}
-                placeholder="Select Category"
+                placeholder={t("selectCategory")}
                 searchable
                 direction="up"
                 disabled={upsertMutation.isPending}
@@ -208,7 +210,7 @@ export function BudgetBottomSheet({
             </div>
 
             <Input
-              label="Budget Amount (Rp)"
+              label={t("amountLabel")}
               type="text"
               inputMode="numeric"
               value={displayAmount}
@@ -219,11 +221,11 @@ export function BudgetBottomSheet({
             />
 
             <Input
-              label="Note (Optional)"
+              label={t("noteLabel")}
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a brief note"
+              placeholder={t("notePlaceholder")}
               disabled={upsertMutation.isPending}
             />
 

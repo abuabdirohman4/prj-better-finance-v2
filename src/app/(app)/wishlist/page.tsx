@@ -10,6 +10,7 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { Fab } from "@/components/layouts/Fab";
 import { formatCurrency } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
+import { useTranslations } from "next-intl";
 import type { WishlistRow } from "@/db/queries/wishlist";
 
 const MASK = "Rp •••.•••";
@@ -21,6 +22,8 @@ export default function WishlistPage() {
   const { query, affordability, createMutation, updateMutation, deleteMutation, promoteMutation } = useWishlist(tab);
   const hideBalances = usePrivacyStore((s) => s.hideBalances);
   const toggle = usePrivacyStore((s) => s.toggleHideBalances);
+  const t = useTranslations("wishlist");
+  const tc = useTranslations("common");
 
   // Bottom sheet state
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -90,12 +93,12 @@ export default function WishlistPage() {
             <Link href="/" className="text-white hover:bg-white/20 p-1.5 rounded-full transition-colors">
               <ChevronLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-xl font-bold text-white">Wishlist</h1>
+            <h1 className="text-xl font-bold text-white">{t("title")}</h1>
           </div>
           <button
             onClick={toggle}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
-            aria-label="Toggle balance visibility"
+            aria-label={tc("toggleBalance")}
           >
             {hideBalances ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
           </button>
@@ -117,9 +120,9 @@ export default function WishlistPage() {
                   </span>
                 }
               >
-                <p className="font-semibold text-sm mb-1">Free Cash Breakdown</p>
+                <p className="font-semibold text-sm mb-1">{t("freeCashBreakdown")}</p>
                 <div className="flex justify-between gap-4">
-                  <span className="text-gray-300">Liquid balance</span>
+                  <span className="text-gray-300">{t("liquidBalance")}</span>
                   <span className="font-medium">{hideBalances ? MASK : formatCurrency(liquidBalance)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
@@ -209,7 +212,7 @@ export default function WishlistPage() {
       </div>
 
       {/* FAB */}
-      <Fab onClick={openCreate} label="Add wishlist" />
+      <Fab onClick={openCreate} label={t("addWishlist")} />
 
       {/* Bottom sheet */}
       <WishlistBottomSheet

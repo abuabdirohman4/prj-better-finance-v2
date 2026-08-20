@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { handleAuthError } from "@/lib/errorUtils";
+import { getTranslations } from "next-intl/server";
 
 export async function signIn(
   _prevState: { error?: string } | null,
@@ -13,14 +14,14 @@ export async function signIn(
   const password = formData.get("password")?.toString();
 
   if (!email || !password) {
-    return { error: "Email dan password wajib diisi" };
+    return { error: (await getTranslations("auth"))("emailPasswordRequired") };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: handleAuthError(error) };
+    return { error: await handleAuthError(error) };
   }
 
   redirect("/");
