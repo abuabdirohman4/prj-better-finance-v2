@@ -6,6 +6,7 @@ import { AccountCard } from "./accounts/_components/AccountCard";
 import { useDashboard } from "./_hooks/useDashboard";
 import { formatCurrency, formatDate } from "@/lib/helper";
 import { usePrivacyStore } from "@/stores/privacyStore";
+import { Avatar } from "@/components/ui/Avatar";
 import type { RecentTransactionRow } from "@/db/queries/accounts";
 
 const MASK = "Rp •••.•••";
@@ -34,14 +35,16 @@ export default function DashboardPage() {
         </div>
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 text-white font-bold">
-              {data?.user.initials ?? ".."}
-            </div>
+            <Avatar
+              src={data?.user.avatarUrl}
+              initials={data?.user.initials ?? ".."}
+              className="w-11 h-11 bg-white/20 backdrop-blur-sm border border-white/30 text-white"
+            />
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">
                 {isLoading ? "..." : displayName.toUpperCase()}
               </h1>
-              <p className="text-blue-200 text-sm">Software Engineer</p>
+              <p className="text-blue-200 text-sm">{data?.user.email ?? ""}</p>
             </div>
           </div>
           <Link

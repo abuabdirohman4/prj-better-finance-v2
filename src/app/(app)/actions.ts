@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/accessControlServer";
 import { handleApiError, type ServerActionResult } from "@/lib/errorUtils";
 
 export interface DashboardPayload extends DashboardData {
-  user: { displayName: string; initials: string };
+  user: { displayName: string; initials: string; email: string; avatarUrl: string | null };
 }
 
 export async function getDashboard(): Promise<ServerActionResult<DashboardPayload>> {
@@ -18,7 +18,23 @@ export async function getDashboard(): Promise<ServerActionResult<DashboardPayloa
       user.email?.split("@")[0] ||
       "User";
 
-    return { success: true, data: { ...data, user: { displayName, initials: initials(displayName) } } };
+    const avatarUrl =
+      (user.user_metadata?.avatar_url as string | undefined) ??
+      (user.user_metadata?.picture as string | undefined) ??
+      null;
+
+    return {
+      success: true,
+      data: {
+        ...data,
+        user: {
+          displayName,
+          initials: initials(displayName),
+          email: user.email ?? "",
+          avatarUrl,
+        },
+      },
+    };
   } catch (error) {
     const info = handleApiError(error, "memuat data");
     return { success: false, message: info.message };

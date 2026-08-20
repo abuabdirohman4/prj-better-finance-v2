@@ -190,3 +190,16 @@ Full CRUD halaman kelola kategori. Entry point: link "Manage Categories" di `/bu
 - Picker transaksi (`TransactionForm`, `FilterBar`): akun investment pakai `group: investment_group` (optgroup) + label dipendekkan `productLabel`. `MultiSelect` search mencocokkan label **dan** group.
 - **Tracker P&L (bf-3ai):** `current_balance` = modal/setoran (dari transaksi). `current_value` + `last_valued_at` = harga pasar, **input manual** per sub-produk di `/assets/[group]` (tap baris → editor inline; `updateAccountValueAction` di `assets/actions.ts` → `updateAccountValue` query, ownership + `asset_category==="investment"` + `value>=0` divalidasi server; `null` = hapus valuasi). `AssetRow.pnl = current_value − current_balance` (null kalau belum dinilai). Grup: `totalValue = Σ(current_value ?? current_balance)`, `pnl = Σ pnl`, `valuedCount`. **Net Worth TETAP modal-based** (`current_balance`, parity spreadsheet) — market value & P&L hanya info. Auto price feed = bf-7h2 (nanti, opt-in). Kartu grup di `/assets` tampil P&L kecil hanya kalau `valuedCount > 0`.
 - Split akun agregat (Emas 1 → 7, Saham 1 → 3, 2026-08-18): row agregat di-**rename** jadi sub terbesar (bukan dinonaktifkan → tak ada akun zombie), sisanya insert baru, opening `opening-2026-nl-<slug-sub>` per sub, opening agregat lama dihapus. Σ per grup tetap → Net Worth tak berubah.
+
+## Auth: Google OAuth (bf-y6o)
+
+Email/password + **Google OAuth** (`signInWithOAuth`, PKCE via `@supabase/ssr`). Flow: `signInWithGoogle` server action (`signin/actions.ts`) → redirect Google consent → `/auth/callback` (`exchangeCodeForSession`, shared dgn email verification) → `/`.
+
+- **Middleware allowlist** (`src/lib/supabase/middleware.ts`): `publicPaths = ["/signin", "/signup", "/auth/callback"]` — path baru yang harus bisa diakses tanpa session WAJIB ditambah ke array ini.
+- `GoogleButton` shared di `src/app/(auth)/_components/` — dipakai signin + signup.
+- Signin page baca `?message=` (error dari callback/OAuth) via `useSearchParams` — page di-wrap `<Suspense>`.
+- **Trigger `handle_new_user`** (auth.users → user_profiles) kini terdokumentasi di `supabase/migrations/20260820_handle_new_user_avatar.sql` — copy `full_name` + `avatar_url` dari `raw_user_meta_data`.
+- Setup provider = manual di Google Cloud Console + Supabase Dashboard (lihat plan bf-y6o).
+- **Sign out**: `signOut` server action (`signin/actions.ts`) dipanggil via `<form action={signOut}>` di `/settings` — bukan onClick handler.
+- **Avatar**: `Avatar` (`src/components/ui/Avatar.tsx`) — foto Google dgn fallback inisial (juga saat `onError` load gagal). Sumber `avatarUrl` = `user.user_metadata.avatar_url ?? picture` di `getDashboard` (`(app)/actions.ts`), BUKAN query tabel. Pakai `<img>` biasa + `referrerPolicy="no-referrer"` (host `googleusercontent.com` belum di-allowlist `next/image`).
+- **Header dashboard** tampilkan nama + email (dulu hardcoded "Software Engineer"). Tidak ada kolom title/bio di DB.

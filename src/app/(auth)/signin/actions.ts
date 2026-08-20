@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { handleAuthError } from "@/lib/errorUtils";
 
@@ -29,4 +30,19 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/signin");
+}
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${origin}/auth/callback` },
+  });
+
+  if (error || !data.url) {
+    redirect("/signin?message=Could+not+sign+in+with+Google");
+  }
+
+  redirect(data.url);
 }

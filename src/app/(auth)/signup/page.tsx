@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { signUp } from "./actions";
+import GoogleButton from "../_components/GoogleButton";
 
 export default function SignUpPage() {
   const [state, action, pending] = useActionState(signUp, null);
@@ -74,6 +75,8 @@ export default function SignUpPage() {
             {pending ? "Mendaftar..." : "Daftar"}
           </button>
         </form>
+
+        <GoogleButton />
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Sudah punya akun?{" "}

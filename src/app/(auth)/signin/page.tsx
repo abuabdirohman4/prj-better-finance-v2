@@ -1,10 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "./actions";
+import GoogleButton from "../_components/GoogleButton";
 
-export default function SignInPage() {
+function SignInForm() {
   const [state, action, pending] = useActionState(signIn, null);
+  const message = useSearchParams().get("message");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-600 to-indigo-700 px-4">
@@ -14,9 +17,9 @@ export default function SignInPage() {
           <p className="text-sm text-gray-500 mt-1">Kelola keuangan dengan lebih cerdas</p>
         </div>
 
-        {state?.error && (
+        {(state?.error || message) && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
-            ⚠️ {state.error}
+            ⚠️ {state?.error ?? message}
           </div>
         )}
 
@@ -60,6 +63,8 @@ export default function SignInPage() {
           </button>
         </form>
 
+        <GoogleButton />
+
         <p className="text-center text-sm text-gray-500 mt-6">
           Belum punya akun?{" "}
           <a href="/signup" className="text-blue-600 font-medium hover:underline">
@@ -68,5 +73,13 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

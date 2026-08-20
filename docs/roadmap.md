@@ -147,7 +147,7 @@ Legenda: ✅ done · 🔄 sebagian · ⏳ belum
 | Fitur | Status | Route | Catatan |
 |---|---|---|---|
 | Scaffold + config | ✅ | — | Next 16 + Drizzle + TanStack + Supabase auth |
-| Auth (signin/signup) | ✅ | `/signin`, `/signup` | Server Actions + `useActionState` |
+| Auth (signin/signup) | ✅ | `/signin`, `/signup` | Server Actions + `useActionState` + Google OAuth (bf-y6o) |
 | Dashboard | ✅ | `/dashboard` | Summary cards + accounts preview + privacy toggle (pindah dari `/` untuk landing) |
 | Accounts — list + CRUD | ✅ | `/accounts` | Bottom sheet create/edit/delete; balance auto-update |
 | Accounts — balancing | ✅ | `/accounts/[id]` | Reality check + wallet denominations |
